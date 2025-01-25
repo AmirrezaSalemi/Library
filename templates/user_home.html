@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Home</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/user_home.css') }}">
+</head>
+<body>
+    <header>
+        <div class="title">
+            <h1 id="library-text">Library</h1>
+        </div>
+    </header>
+    <div class="content-wrapper">
+        <h2>Welcome, {{ first_name }} {{ last_name }} as User!</h2>
+        <div class="rectangle-container">
+            <a href="#" class="rectangle" onclick="openAuthorList()" data-image="page1_user.png">List of Authors</a>
+            <a href="#" class="rectangle" onclick="openBookList()" data-image="page2_user.png">List of Books</a>
+            <a href="#" class="rectangle" onclick="openBorrowHistory()" data-image="page3_user.png">Borrow History</a>
+            <a href="#" class="rectangle" onclick="openBorrowBook()" data-image="page4_user.png">Borrow Book</a>
+            <a href="#" class="rectangle" onclick="openReturnBook()" data-image="page5_user.png">Return Book</a>
+        </div>
+    </div>
+    <div class="overlay" id="overlay"></div>
+    <div class="frame" id="authorListFrame">
+        <span class="close-btn" onclick="closeAuthorList()">x</span>
+        <div class="frame-content">
+            <h2>List of Authors</h2>
+            <table id="authorTable">
+                <thead>
+                    <tr>
+                        <th>Author Name</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Data will be inserted here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="frame" id="bookListFrame">
+        <span class="close-btn" onclick="closeBookList()">x</span>
+        <div class="frame-content">
+            <h2>List of Books</h2>
+            <table id="bookTable">
+                <thead>
+                    <tr>
+                        <th>Book Name</th>
+                        <th>Genre</th>
+                        <th>Publication Year</th>
+                        <th>Author Name</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Data will be inserted here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="frame" id="borrowHistoryFrame">
+        <span class="close-btn" onclick="closeBorrowHistory()">x</span>
+        <div class="frame-content">
+            <h2>Borrow History</h2>
+            <table id="borrowHistoryTable">
+                <thead>
+                    <tr>
+                        <th>Borrow ID</th>
+                        <th>ISBN</th>
+                        <th>Book Name</th>
+                        <th>Borrow Date</th>
+                        <th>Return Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Data will be inserted here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="frame" id="borrowBookFrame">
+        <span class="close-btn" onclick="closeBorrowBook()">x</span>
+        <div class="frame-content">
+            <h2>Borrow Book</h2>
+            <table id="availableBooksTable">
+                <thead>
+                    <tr>
+                        <th>Book Name</th>
+                        <th>Genre</th>
+                        <th>Publication Year</th>
+                        <th>Author Name</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Data will be inserted here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="frame" id="returnBookFrame">
+        <span class="close-btn" onclick="closeReturnBook()">x</span>
+        <div class="frame-content">
+            <h2>Return Book</h2>
+            <table id="borrowedBooksTable">
+                <thead>
+                    <tr>
+                        <th>Book Name</th>
+                        <th>Genre</th>
+                        <th>Publication Year</th>
+                        <th>Author Name</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Data will be inserted here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <script src="{{ url_for('static', filename='js/user_script.js') }}"></script>
+</body>
+</html>

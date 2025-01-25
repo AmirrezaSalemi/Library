@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Library</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <style>
+        /* Add this to your existing styles.css file */
+        .frame-content {
+            max-height: 400px; /* Adjust the height as needed */
+            overflow-y: auto;   /* Enable vertical scrolling */
+            padding: 10px;      /* Optional: Add some padding for better appearance */
+            position: relative; /* Ensure the frame is positioned relative */
+        }
+        .blur-background {
+            filter: blur(5px); /* Adjust the blur amount as needed */
+            pointer-events: none; /* Disable interactions */
+        }
+        .no-scroll {
+            overflow: hidden; /* Disable scrolling */
+        }
+        .close-btn {
+            position: absolute;
+            top: 3px;
+            left: 8px;
+            font-size: 24px;
+            color: white;
+            cursor: pointer;
+            background: none;
+            border: none;
+            font-family: Arial, sans-serif; /* Ensure the font is clear and readable */
+        }
+        .close-btn:hover {
+            color: #ff0000;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="login-signin">
+            <a href="#" id="librarian-link">Librarian</a>
+            <span class="divider">|</span>
+            <a href="#" id="user-link">Users</a>
+        </div>
+        <div class="title">
+            <h1 id="library-text">Library</h1>
+        </div>
+    </header>
+    <div class="content-wrapper">
+        <div class="rectangle-container">
+            <a href="#" class="rectangle" id="query1-link">Query 1</a>
+            <a href="#" class="rectangle" id="query2-link">Query 2</a>
+            <a href="#" class="rectangle" id="query3-link">Query 3</a>
+            <a href="#" class="rectangle" id="query4-link">Query 4</a>
+            <a href="#" class="rectangle" id="query5-link">Query 5</a>
+            <a href="#" class="rectangle" id="query6-link">Query 6</a>
+            <a href="#" class="rectangle" id="query7-link">Query 7</a>
+            <a href="#" class="rectangle" id="query8-link">Query 8</a>
+            <a href="#" class="rectangle" id="query9-link">Query 9</a>
+            <a href="#" class="rectangle" id="query10-link">Query 10</a>
+            <a href="#" class="rectangle" id="query11-link">Query 11</a>
+            <a href="#" class="rectangle" id="query12-link">Query 12</a>
+            <a href="#" class="rectangle" id="query13-link">Query 13</a>
+            <a href="#" class="rectangle" id="query14-link">Query 14</a>
+            <a href="#" class="rectangle" id="query15-link">Query 15</a>
+            <a href="#" class="big-rectangle" id="custom-query-link">Custom Query</a>
+        </div>
+    </div>
+    <div class="login-form" id="user-login-form">
+        <span class="close-btn" id="close-user-login">x</span>
+        <form action="{{ url_for('login') }}" method="POST">
+            <h2>Users Login</h2>
+            <label for="UserID">UserID:</label>
+            <input type="text" id="UserID" name="UserID" required>
+            <button type="submit">Login</button>
+        </form>
+    </div>
+    <div class="login-form" id="librarian-login-form">
+        <span class="close-btn" id="close-librarian-login">x</span>
+        <form action="{{ url_for('login') }}" method="POST">
+            <h2>Librarian Login</h2>
+            <label for="LibrarianID">LibrarianID:</label>
+            <input type="text" id="LibrarianID" name="LibrarianID" required>
+            <button type="submit">Login</button>
+        </form>
+    </div>
+    <div class="frame" id="query1-frame" style="display: none;">
+        <div class="frame-content">
+            <span class="close-btn" data-frame="query1-frame">x</span>
+            <h2>Librarians</h2>
+            <table id="librarian-table">
+                <thead>
+                    <tr>
+                        <th>LibrarianID</th>
+                        <th>FirstName</th>
+                        <th>LastName</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Table rows will be inserted here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="frame" id="query2-frame" style="display: none;">
+        <div class="frame-content">
+            <span class="close-btn" data-frame="query2-frame">x</span>
+            <h2>Authors</h2>
+            <table id="author-table">
+                <thead>
+                    <tr>
+                        <th>AuthorID</th>
+                        <th>FirstName</th>
+                        <th>LastName</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Table rows will be inserted here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="frame" id="query3-frame" style="display: none;">
+        <div class="frame-content">
+            <span class="close-btn" data-frame="query3-frame">x</span>
+            <h2>Users</h2>
+            <table id="user-table">
+                <thead>
+                    <tr>
+                        <th>UserID</th>
+                        <th>FirstName</th>
+                        <th>LastName</th>
+                        <th>City</th>
+                        <th>Street</th>
+                        <th>Age</th>
+                        <th>LibrarianID</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Table rows will be inserted here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="frame" id="query4-frame" style="display: none;">
+        <div class="frame-content">
+            <span class="close-btn" data-frame="query4-frame">x</span>
+            <h2>Names</h2>
+            <table id="name-table">
+                <thead>
+                    <tr>
+                        <th>FirstName</th>
+                        <th>LastName</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Table rows will be inserted here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="frame" id="query5-frame" style="display: none;">
+        <div class="frame-content">
+            <span class="close-btn" data-frame="query5-frame">x</span>
+            <h2>Authors</h2>
+            <table id="author-table-query5">
+                <thead>
+                    <tr>
+                        <th>AuthorID</th>
+                        <th>FirstName</th>
+                        <th>LastName</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Table rows will be inserted here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="frame" id="query6-frame" style="display: none;">
+        <div class="frame-content">
+            <span class="close-btn" data-frame="query6-frame">x</span>
+            <h2>Query 6 Result</h2>
+            <p id="query6-result"></p>
+        </div>
+    </div>
+    <div class="frame" id="query7-frame" style="display: none;">
+        <div class="frame-content">
+            <span class="close-btn" data-frame="query7-frame">x</span>
+            <h2>Query 7 Result</h2>
+            <p id="query7-result"></p>
+        </div>
+    </div>
+    <div class="frame" id="query8-frame" style="display: none;">
+        <div class="frame-content">
+            <span class="close-btn" data-frame="query8-frame">x</span>
+            <h2>Query 8 Result</h2>
+            <p id="query8-result"></p>
+        </div>
+    </div>
+    <div class="frame" id="query9-frame" style="display: none;">
+        <div class="frame-content">
+            <span class="close-btn" data-frame="query9-frame">x</span>
+            <h2>Librarians</h2>
+            <table id="librarian-table-query9">
+                <thead>
+                    <tr>
+                        <th>LibrarianID</th>
+                        <th>FirstName</th>
+                        <th>LastName</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Table rows will be inserted here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="frame" id="query10-frame" style="display: none;">
+        <div class="frame-content">
+            <span class="close-btn" data-frame="query10-frame">x</span>
+            <h2>ISBNs</h2>
+            <table id="isbn-table-query10">
+                <thead>
+                    <tr>
+                        <th>ISBN</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Table rows will be inserted here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="frame" id="query11-frame" style="display: none;">
+        <div class="frame-content">
+            <span class="close-btn" data-frame="query11-frame">x</span>
+            <h2>Users</h2>
+            <table id="user-table-query11">
+                <thead>
+                    <tr>
+                        <th>UserID</th>
+                        <th>FirstName</th>
+                        <th>LastName</th>
+                        <th>City</th>
+                        <th>Street</th>
+                        <th>Age</th>
+                        <th>LibrarianID</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Table rows will be inserted here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="frame" id="query12-frame" style="display: none;">
+        <div class="frame-content">
+            <span class="close-btn" data-frame="query12-frame">x</span>
+            <h2>Users</h2>
+            <table id="user-table-query12">
+                <thead>
+                    <tr>
+                        <th>UserID</th>
+                        <th>FirstName</th>
+                        <th>LastName</th>
+                        <th>City</th>
+                        <th>Street</th>
+                        <th>Age</th>
+                        <th>LibrarianID</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Table rows will be inserted here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="frame" id="query13-frame" style="display: none;">
+        <div class="frame-content">
+            <span class="close-btn" data-frame="query13-frame">x</span>
+            <h2>Librarians</h2>
+            <table id="librarian-table-query13">
+                <thead>
+                    <tr>
+                        <th>LibrarianID</th>
+                        <th>FirstName</th>
+                        <th>LastName</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Table rows will be inserted here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="frame" id="query14-frame" style="display: none;">
+        <div class="frame-content">
+            <span class="close-btn" data-frame="query14-frame">x</span>
+            <h2>First Names</h2>
+            <table id="first-name-table-query14">
+                <thead>
+                    <tr>
+                        <th>FirstName</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Table rows will be inserted here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="frame" id="query15-frame" style="display: none;">
+        <div class="frame-content">
+            <span class="close-btn" data-frame="query15-frame">x</span>
+            <h2>Authors</h2>
+            <table id="author-table-query15">
+                <thead>
+                    <tr>
+                        <th>AuthorID</th>
+                        <th>FirstName</th>
+                        <th>LastName</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Table rows will be inserted here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="frame" id="custom-query-frame" style="display: none;">
+        <div class="frame-content">
+            <span class="close-btn" data-frame="custom-query-frame">x</span>
+            <h2>Custom Query</h2>
+            <textarea id="custom-query-input" rows="10" cols="50" placeholder="Write your SQL query here..."></textarea>
+            <button id="run-custom-query-button">Run Query</button>
+            <h3>Results:</h3>
+            <pre id="custom-query-result"></pre>
+        </div>
+    </div>
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    <script>
+        {% for category, message in messages %}
+        {% if category == 'error' %}
+        alert('{{ message }}');
+        {% endif %}
+        {% endfor %}
+    </script>
+    {% endif %}
+    {% endwith %}
+</body>
+</html>

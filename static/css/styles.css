@@ -1,0 +1,442 @@
+body {
+    margin: 0px;
+    font-family: 'Times New Roman', Times, serif;
+    color: white;
+    text-align: center;
+    background: linear-gradient(135deg, #000435 0%, #004e92 100%); /* Gradient background */
+}
+
+header {
+    background: rgba(0, 5, 56, 0.9); /* Slightly transparent background */
+    padding: 10px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 1000; /* Ensure the header stays on top */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Subtle shadow */
+}
+
+.login-signin {
+    border: 1px solid rgba(255, 255, 255, 0.5); /* Semi-transparent border */
+    padding: 10px;
+    position: absolute;
+    left: 20px;
+    display: flex;
+    align-items: center;
+    border-radius: 5px; /* Rounded corners */
+}
+
+.login-signin a {
+    color: white;
+    text-decoration: none;
+    margin: 0 10px;
+    position: relative;
+    transition: text-shadow 0.3s ease, color 0.3s ease;
+}
+
+.login-signin a:hover {
+    text-shadow: 0 0 5px rgba(255, 255, 255, 0.8),
+                 0 0 10px rgba(255, 255, 255, 0.7),
+                 0 0 15px rgba(255, 255, 255, 0.6),
+                 0 0 20px rgba(255, 255, 255, 0.5),
+                 0 0 25px rgba(255, 255, 255, 0.4),
+                 0 0 30px rgba(255, 255, 255, 0.3);
+    color: #ffffff; /* Optional: Change text color on hover for better contrast */
+}
+
+.divider {
+    color: white;
+    margin: 0 10px;
+}
+
+.title {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.title h1 {
+    margin: 0;
+    font-size: 3em;
+    cursor: pointer; /* Add cursor pointer to indicate it's clickable */
+    position: relative;
+    transition: text-shadow 0.3s ease;
+}
+
+.title h1:hover {
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.8),
+                 0 0 20px rgba(255, 255, 255, 0.7),
+                 0 0 30px rgba(255, 255, 255, 0.6),
+                 0 0 40px rgba(255, 255, 255, 0.5),
+                 0 0 50px rgba(255, 255, 255, 0.4),
+                 0 0 60px rgba(255, 255, 255, 0.3);
+}
+
+.content-wrapper {
+    background-image: url('library_shelves.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    padding-top: 60px; /* Adjust this value based on the height of your header */
+    min-height: 100vh; /* Ensure the wrapper takes at least the full viewport height */
+}
+
+.login-form {
+    display: none; /* Initially hidden */
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(0, 0, 0, 0.8);
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    z-index: 1001; /* Ensure the form is above other elements */
+}
+
+.login-form form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.login-form label {
+    margin: 10px 0 5px;
+    color: white;
+}
+
+.login-form input {
+    padding: 15px;
+    margin-bottom: 15px;
+    border: 1px solid rgba(255, 255, 255, 0.5); /* Semi-transparent border */
+    border-radius: 25px; /* More rounded corners */
+    background-color: rgba(255, 255, 255, 0.1); /* Slightly transparent background */
+    color: white;
+    transition: box-shadow 0.3s ease, background-color 0.3s ease; /* Smooth transitions */
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1); /* Inner shadow for depth */
+    width: 100%; /* Full width */
+    box-sizing: border-box;
+}
+
+.login-form input:focus {
+    background-color: rgba(255, 255, 255, 0.2); /* Lighter background on focus */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Outer shadow on focus */
+    outline: none; /* Remove default outline */
+}
+
+.login-form button {
+    padding: 15px 30px;
+    border: none;
+    border-radius: 25px; /* More rounded corners */
+    background: #0059b3;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.3s ease; /* Smooth transition */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Subtle shadow */
+    width: 100%; /* Full width */
+    box-sizing: border-box;
+}
+
+.login-form button:hover {
+    background: #004085;
+}
+
+.rectangle-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.rectangle {
+    position: relative;
+    color: white;
+    padding: 20px;
+    border-radius: 10px;
+    text-decoration: none;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease, opacity 0.3s ease; /* Add transition for opacity */
+    flex: 1 1 calc(33.333% - 60px); /* Adjust the width to fit 3 rectangles per row with 20px margin */
+    box-sizing: border-box;
+    margin: 20px; /* Add margin around each rectangle */
+    height: 200px; /* Set the height of the rectangles */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    overflow: hidden; /* Ensure the pseudo-element is contained within the rectangle */
+    opacity: 0.85;
+    font-family: 'Times New Roman', Times, serif; /* Set the font family */
+    font-size: 24px; /* Set the font size */
+    text-shadow: 0 0 5px rgba(0, 0, 0, 0.8),
+                 0 0 10px rgba(0, 0, 0, 0.7),
+                 0 0 15px rgba(0, 0, 0, 0.6),
+                 0 0 20px rgba(0, 0, 0, 0.5),
+                 0 0 25px rgba(0, 0, 0, 0.4),
+                 0 0 30px rgba(0, 0, 0, 0.3); /* Add text shadow in black */
+}
+
+.rectangle::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-size: cover; /* Ensure the background image covers the rectangle */
+    background-position: center; /* Center the background image */
+    background-repeat: no-repeat; /* Ensure the background image does not repeat */
+    z-index: -1; /* Ensure the pseudo-element is behind the text */
+}
+
+.rectangle::after {
+    content: attr(data-text); /* Use the data-text attribute for the content */
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: transparent; /* Make the text transparent */
+    background: rgba(0, 0, 0, 0.5); /* Bright black background */
+    padding: 5px 10px; /* Add padding around the text */
+    border-radius: 5px; /* Add rounded corners */
+    z-index: -1; /* Ensure the pseudo-element is behind the text */
+    white-space: nowrap; /* Prevent text from wrapping */
+}
+
+.rectangle:hover::before {
+    background-color: rgba(0, 0, 0, 0.7); /* Darker background on hover */
+}
+
+.rectangle:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Add shadow effect on hover */
+    opacity: 0.5; /* Decrease opacity on hover */
+}
+
+/* Add background images for each rectangle */
+.rectangle:nth-child(1)::before {
+    background-image: url('Q1.png');
+}
+
+.rectangle:nth-child(2)::before {
+    background-image: url('Q2.png');
+}
+
+.rectangle:nth-child(3)::before {
+    background-image: url('page3_user.png');
+}
+
+.rectangle:nth-child(4)::before {
+    background-image: url('Q4.png');
+}
+
+.rectangle:nth-child(5)::before {
+    background-image: url('Q5.png');
+}
+
+.rectangle:nth-child(6)::before {
+    background-image: url('page6_user.png');
+}
+
+.rectangle:nth-child(7)::before {
+    background-image: url('Q7.png');
+}
+
+.rectangle:nth-child(8)::before {
+    background-image: url('Q8.png');
+}
+
+.rectangle:nth-child(9)::before {
+    background-image: url('Q9.png');
+}
+
+.rectangle:nth-child(10)::before {
+    background-image: url('Q10.png');
+}
+
+.rectangle:nth-child(11)::before {
+    background-image: url('Q11.png');
+}
+
+.rectangle:nth-child(12)::before {
+    background-image: url('Q12.png');
+}
+
+.rectangle:nth-child(13)::before {
+    background-image: url('Q13.png');
+}
+
+.rectangle:nth-child(14)::before {
+    background-image: url('Q14.png');
+}
+
+.rectangle:nth-child(15)::before {
+    background-image: url('Q15.png');
+}
+
+/* Styles for the big rectangle */
+.big-rectangle {
+    position: relative;
+    color: white;
+    padding: 40px;
+    border-radius: 50px; /* Add curves to the big rectangle */
+    text-decoration: none;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease, opacity 0.3s ease; /* Add transition for opacity */
+    width: 100%; /* Make it full width */
+    box-sizing: border-box;
+    margin-top: 20px; /* Add margin around the big rectangle */
+    height: 400px; /* Set the height of the big rectangle */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    overflow: hidden; /* Ensure the pseudo-element is contained within the rectangle */
+    opacity: 0.85;
+    font-family: 'Times New Roman', Times, serif; /* Set the font family */
+    font-size: 36px; /* Set the font size */
+    text-shadow: 0 0 5px rgba(0, 0, 0, 0.8),
+                 0 0 10px rgba(0, 0, 0, 0.7),
+                 0 0 15px rgba(0, 0, 0, 0.6),
+                 0 0 20px rgba(0, 0, 0, 0.5),
+                 0 0 25px rgba(0, 0, 0, 0.4),
+                 0 0 30px rgba(0, 0, 0, 0.3); /* Add text shadow in black */
+}
+
+.big-rectangle::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 25px;
+    right: 25px;
+    bottom: 0;
+    background-size: cover; /* Ensure the background image covers the rectangle */
+    background-position: center; /* Center the background image */
+    background-repeat: no-repeat; /* Ensure the background image does not repeat */
+    z-index: -1; /* Ensure the pseudo-element is behind the text */
+    border-radius: 50px; /* Add curves to the pseudo-element */
+}
+
+.big-rectangle::after {
+    content: attr(data-text); /* Use the data-text attribute for the content */
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: transparent; /* Make the text transparent */
+    background: rgba(0, 0, 0, 0.5); /* Bright black background */
+    padding: 5px 10px; /* Add padding around the text */
+    border-radius: 5px; /* Add rounded corners */
+    z-index: -1; /* Ensure the pseudo-element is behind the text */
+    white-space: nowrap; /* Prevent text from wrapping */
+}
+
+.big-rectangle:hover::before {
+    background-color: rgba(0, 0, 0, 0.7); /* Darker background on hover */
+}
+
+.big-rectangle:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Add shadow effect on hover */
+    opacity: 0.5; /* Decrease opacity on hover */
+}
+
+/* Add background image for the big rectangle */
+.big-rectangle::before {
+    background-image: url('Big_Query.png');
+}
+
+.frame {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(0, 0, 0, 0.8);
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    z-index: 1001; /* Ensure the frame is above other elements */
+    width: 50%; /* Set a fixed width */
+    max-width: 600px; /* Set a maximum width */
+    height: auto; /* Allow the height to adjust based on content */
+}
+
+.frame-content {
+    background: #333; /* Dark background for the frame content */
+    padding: 20px;
+    border-radius: 10px;
+    color: white; /* White text */
+    max-height: 400px; /* Adjust the height as needed */
+    overflow-y: auto;   /* Enable vertical scrolling */
+}
+
+.frame-content h2 {
+    margin-top: 0;
+    color: white; /* White text */
+}
+
+.frame-content table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    color: white; /* White text */
+}
+
+.frame-content th, .frame-content td {
+    border: 1px solid #555; /* Dark border */
+    padding: 8px;
+    text-align: center;
+    color: white; /* White text */
+}
+
+.frame-content th {
+    background-color: #444; /* Darker background for header */
+}
+
+.frame-content tr:nth-child(even) {
+    background-color: #555; /* Alternating row color */
+}
+
+.frame-content tr:hover {
+    background-color: #666; /* Hover row color */
+}
+
+.frame-content button {
+    margin-top: 20px;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    background: #0059b3;
+    color: white;
+    cursor: pointer;
+}
+
+.frame-content button:hover {
+    background: #004085;
+}
+
+/* Custom scrollbar styles */
+.frame-content::-webkit-scrollbar {
+    width: 12px; /* Width of the scrollbar */
+}
+
+.frame-content::-webkit-scrollbar-track {
+    background: #222; /* Color of the scrollbar track */
+    border-radius: 10px; /* Rounded corners for the track */
+}
+
+.frame-content::-webkit-scrollbar-thumb {
+    background: #555; /* Color of the scrollbar thumb */
+    border-radius: 10px; /* Rounded corners for the thumb */
+}
+
+.frame-content::-webkit-scrollbar-thumb:hover {
+    background: #777; /* Color of the scrollbar thumb on hover */
+}
+
+/* Firefox scrollbar styles */
+.frame-content {
+    scrollbar-width: thin; /* Width of the scrollbar */
+    scrollbar-color: #555 #222; /* Color of the thumb and track */
+}

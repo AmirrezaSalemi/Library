@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Librarian Home</title>
+    <link rel="stylesheet" href='{{ url_for("static", filename="css/librarian_home.css") }}'>
+    <style>
+
+    </style>
+</head>
+<body>
+    <header>
+        <div class="title">
+            <h1 id="library-text">Library</h1>
+        </div>
+    </header>
+    <div class="content-wrapper">
+        <!-- Librarian-specific content goes here -->
+        <h2>Welcome, {{first_name}} {{last_name}} as Librarian!</h2>
+        <div class="rectangle-container">
+            <a href="#" class="rectangle add-librarian-btn" onclick="openLibrarianForm()">Add Librarian</a>
+            <a href="#" class="rectangle" onclick="openUserForm()">Add User</a>
+            <a href="#" class="rectangle" onclick="openBookForm()">Add Book</a>
+            <a href="#" class="rectangle" onclick="openAuthorForm()">Add Author</a>
+            <a href="#" class="rectangle" onclick="openUserList()">List of Users</a>
+            <a href="#" class="rectangle" onclick="openBookList()">List of Books</a>
+            <a href="#" class="rectangle" onclick="openAuthorList()">List of Authors</a>
+            <a href="#" class="rectangle" onclick="openBorrowList()">List of Borrows</a>
+        </div>
+    </div>
+    <div class="overlay" id="overlay"></div>
+    <div class="form-container" id="librarianFormContainer" style="display: none;">
+        <span class="close-btn" onclick="closeLibrarianForm()">x</span>
+        <h3>Add Librarian</h3>
+        <form id="librarianForm">
+            <label for="librarianID">Librarian ID:</label>
+            <input type="text" id="librarianID" name="librarianID" required>
+            <label for="firstName">First Name:</label>
+            <input type="text" id="firstName" name="firstName" required>
+            <label for="lastName">Last Name:</label>
+            <input type="text" id="lastName" name="lastName" required>
+            <button type="button" onclick="submitLibrarianForm()">Add Librarian</button>
+        </form>
+    </div>
+    <div class="form-container" id="userFormContainer" style="display: none;">
+        <span class="close-btn" onclick="closeUserForm()">x</span>
+        <h3>Add User</h3>
+        <form id="userForm">
+            <label for="userID">User ID:</label>
+            <input type="text" id="userID" name="userID" required>
+            <label for="firstName">First Name:</label>
+            <input type="text" id="firstName" name="firstName" required>
+            <label for="lastName">Last Name:</label>
+            <input type="text" id="lastName" name="lastName" required>
+            <label for="city">City:</label>
+            <input type="text" id="city" name="city">
+            <label for="street">Street:</label>
+            <input type="text" id="street" name="street">
+            <label for="age">Age:</label>
+            <input type="number" id="age" name="age">
+            <button type="button" onclick="submitUserForm()">Add User</button>
+        </form>
+    </div>
+    <div class="form-container" id="bookFormContainer" style="display: none;">
+        <span class="close-btn" onclick="closeBookForm()">x</span>
+        <h3>Add Book</h3>
+        <form id="bookForm">
+            <label for="bookName">Book Name:</label>
+            <input type="text" id="bookName" name="bookName" required>
+            <label for="ISBN">ISBN:</label>
+            <input type="text" id="ISBN" name="ISBN" required>
+            <label for="genre">Genre:</label>
+            <input type="text" id="genre" name="genre" required>
+            <label for="publicationYear">Publication Year:</label>
+            <input type="number" id="publicationYear" name="publicationYear" required>
+
+            <div id="authorsContainer">
+                <div class="author-fields">
+                    <label for="authorFirstName">Author First Name:</label>
+                    <input type="text" name="authorFirstName[]" required>
+                    <label for="authorLastName">Author Last Name:</label>
+                    <input type="text" name="authorLastName[]" required>
+                </div>
+            </div>
+            <button type="button" onclick="addAuthorField()">Add Another Author</button>
+            <button type="button" onclick="submitBookForm()">Add Book</button>
+        </form>
+    </div>
+    <div class="form-container" id="authorFormContainer" style="display: none;">
+        <span class="close-btn" onclick="closeAuthorForm()">x</span>
+        <h3>Add Author</h3>
+        <form id="authorForm">
+            <label for="authorID">Author ID:</label>
+            <input type="text" id="authorID" name="authorID" required>
+            <label for="firstName">First Name:</label>
+            <input type="text" id="firstName" name="firstName" required>
+            <label for="lastName">Last Name:</label>
+            <input type="text" id="lastName" name="lastName" required>
+            <button type="button" onclick="submitAuthorForm()">Add Author</button>
+        </form>
+    </div>
+    <div class="frame" id="userListFrame" style="display: none;">
+        <span class="close-btn" onclick="closeUserList()">x</span>
+        <div class="frame-content">
+            <h2>List of Users</h2>
+            <table id="userTable">
+                <thead>
+                    <tr>
+                        <th>UserID</th>
+                        <th>User Name</th>
+                        <th>Add By Librarian</th>
+                        <th>LibrarianID</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Data will be inserted here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="frame" id="bookListFrame" style="display: none;">
+        <span class="close-btn" onclick="closeBookList()">x</span>
+        <div class="frame-content">
+            <h2>List of Books</h2>
+            <table id="bookTable">
+                <thead>
+                    <tr>
+                        <th>ISBN</th>
+                        <th>Book Name</th>
+                        <th>Genre</th>
+                        <th>Publication Year</th>
+                        <th>Authors</th>
+                        <th>Add By Librarian</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Data will be inserted here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="frame" id="authorListFrame" style="display: none;">
+        <span class="close-btn" onclick="closeAuthorList()">x</span>
+        <div class="frame-content">
+            <h2>List of Authors</h2>
+            <table id="authorTable">
+                <thead>
+                    <tr>
+                        <th>AuthorID</th>
+                        <th>Author Name</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Data will be inserted here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="frame" id="borrowListFrame" style="display: none;">
+        <span class="close-btn" onclick="closeBorrowList()">x</span>
+        <div class="frame-content">
+            <h2>List of Borrows</h2>
+            <table id="borrowTable">
+                <thead>
+                    <tr>
+                        <th>Borrow ID</th>
+                        <th>User ID</th>
+                        <th>User Name</th>
+                        <th>Book Name</th>
+                        <th>ISBN</th>
+                        <th>Borrow Date</th>
+                        <th>Return Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Data will be inserted here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <script src='{{ url_for("static", filename="js/librarian_script.js") }}'></script>
+</body>
+</html>
