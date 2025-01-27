@@ -24,7 +24,7 @@
         <form action="{{ url_for('login') }}" method="POST">
             <h2>Users Login</h2>
             <label for="UserID">UserID:</label>
-            <input type="text" id="UserID" name="UserID" required>
+            <input type="text" id="UserID" name="UserID" required autocomplete="off">
             <button type="submit">Login</button>
         </form>
     </div>
@@ -33,7 +33,7 @@
         <form action="{{ url_for('login') }}" method="POST">
             <h2>Librarian Login</h2>
             <label for="LibrarianID">LibrarianID:</label>
-            <input type="text" id="LibrarianID" name="LibrarianID" required>
+            <input type="text" id="LibrarianID" name="LibrarianID" required autocomplete="off">
             <button type="submit">Login</button>
         </form>
     </div>
