@@ -434,9 +434,34 @@ header {
 .frame-content::-webkit-scrollbar-thumb:hover {
     background: #777; /* Color of the scrollbar thumb on hover */
 }
-
-/* Firefox scrollbar styles */
 .frame-content {
     scrollbar-width: thin; /* Width of the scrollbar */
     scrollbar-color: #555 #222; /* Color of the thumb and track */
+}
+.frame-content {
+    max-height: 400px; /* Adjust the height as needed */
+    overflow-y: auto;   /* Enable vertical scrolling */
+    padding: 10px;      /* Optional: Add some padding for better appearance */
+    position: relative; /* Ensure the frame is positioned relative */
+}
+.blur-background {
+    filter: blur(5px); /* Adjust the blur amount as needed */
+    pointer-events: none; /* Disable interactions */
+}
+.no-scroll {
+    overflow: hidden; /* Disable scrolling */
+}
+.close-btn {
+    position: absolute;
+    top: 3px;
+    left: 8px;
+    font-size: 24px;
+    color: white;
+    cursor: pointer;
+    background: none;
+    border: none;
+    font-family: Arial, sans-serif; /* Ensure the font is clear and readable */
+}
+.close-btn:hover {
+    color: #ff0000;
 }
