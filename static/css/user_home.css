@@ -144,26 +144,24 @@ h2::before {
 }
 /* Add background images for each rectangle */
 .rectangle:nth-child(1)::before {
-    background-image: url('page1_user.png');
+    background-image: url('Author_list.png');
 }
 
 .rectangle:nth-child(2)::before {
-    background-image: url('page2_user.png');
+    background-image: url('Books_List.png');
 }
 
 .rectangle:nth-child(3)::before {
-    background-image: url('page3_user.png');
+    background-image: url('Borrow_history.png');
 }
 
 .rectangle:nth-child(4)::before {
-    background-image: url('page4_user.png');
+    background-image: url('Borrow_book.png');
 }
 
 .rectangle:nth-child(5)::before {
-    background-image: url('page5_user.png');
+    background-image: url('Return_book.png');
 }
-
-/* Style for the close button */
 .close-btn {
     position: absolute;
     top: 3px;

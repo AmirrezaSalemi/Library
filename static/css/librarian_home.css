@@ -145,15 +145,15 @@ h2::before {
 
 /* Add background images for each rectangle */
 .rectangle:nth-child(1)::before {
-    background-image: url('page1_librarian.png');
+    background-image: url('Add_Librarian.png');
 }
 
 .rectangle:nth-child(2)::before {
-    background-image: url('page2_librarian.png');
+    background-image: url('Add_User.png');
 }
 
 .rectangle:nth-child(3)::before {
-    background-image: url('page3_librarian.png');
+    background-image: url('Add_Book.png');
 }
 
 .rectangle:nth-child(4)::before {
