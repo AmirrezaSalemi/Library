@@ -212,7 +212,7 @@ h2::before {
     background-color: rgba(0, 0, 0, 0.8);
     padding: 20px;
     border-radius: 10px;
-    z-index: 1001;
+    z-index: 1002; /* Higher z-index for edit frames */
     color: white;
     width: 300px;
     box-sizing: border-box;
@@ -269,7 +269,7 @@ h2::before {
     width: 100%;
     height: 100%;
     background-color: rgba(0, 0, 0, 0.5);
-    z-index: 1000;
+    z-index: 1001; /* Lower z-index for the overlay */
 }
 
 /* Style for the table */
@@ -305,7 +305,7 @@ td {
     background: rgba(0, 0, 0, 0.8);
     padding: 20px;
     border-radius: 10px;
-    z-index: 1001;
+    z-index: 1002; /* Higher z-index for frames */
     width: 90%; /* Adjust the width as needed */
     max-width: 1200px; /* Set a maximum width to ensure it fits within the viewport */
 }
@@ -416,6 +416,7 @@ th {
 td {
     background-color: rgba(0, 0, 0, 0.5);
 }
+
 .overlay {
     position: fixed;
     top: 0;
@@ -424,43 +425,51 @@ td {
     height: 100%;
     background: rgba(0, 0, 0, 0.5);
     backdrop-filter: blur(5px);
-    z-index: 1000;
+    z-index: 1001;
     display: none;
 }
+
 .no-scroll {
     overflow: hidden;
 }
+
 @media (max-width: 768px) {
     .rectangle-container {
-    flex-direction: column;
-    align-items: center;
+        flex-direction: column;
+        align-items: center;
     }
     .rectangle {
         flex: 1 1 100%;
         margin: 10px 0;
     }
 }
+
 .form-container {
     max-height: 80vh; /* Set a maximum height for the frame */
     overflow-y: auto; /* Enable vertical scrolling */
     scrollbar-width: thin; /* Firefox */
     scrollbar-color: #555 #333; /* Firefox */
 }
+
 .form-container::-webkit-scrollbar {
     width: 12px; /* Width of the scrollbar */
 }
+
 .form-container::-webkit-scrollbar-track {
     background: #333; /* Color of the scrollbar track */
     border-radius: 10px; /* Rounded corners */
 }
+
 .form-container::-webkit-scrollbar-thumb {
     background-color: #555; /* Color of the scrollbar thumb */
     border-radius: 10px; /* Rounded corners */
     border: 3px solid #333; /* Border of the scrollbar thumb */
 }
+
 .form-container::-webkit-scrollbar-thumb:hover {
     background-color: #777; /* Color of the scrollbar thumb on hover */
 }
+
 .action-icon {
     width: 28px;
     height: 28px;
@@ -471,3 +480,48 @@ td {
 .action-icon:hover {
     opacity: 0.7;
 }
+/* General frame styles */
+.frame {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(0, 0, 0, 0.8);
+    padding: 20px;
+    border-radius: 10px;
+    z-index: 1000; /* Modify as needed for general use */
+    width: 90%;
+    max-width: 1200px;
+}
+
+/* Form containers (edit forms) */
+.form-container {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: rgba(0, 0, 0, 0.9);
+    padding: 20px;
+    border-radius: 10px;
+    z-index: 1001; /* Higher than the frame */
+    color: white;
+    width: 300px;
+    box-sizing: border-box;
+}
+
+/* Overlay */
+.overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(5px);
+    z-index: 1000; /* Lower than the form container */
+}
+
+/* Ensure that all form containers and frames have z-index properly assigned */

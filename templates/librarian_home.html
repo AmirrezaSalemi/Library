@@ -70,7 +70,6 @@
             <input type="text" id="genre" name="genre" required>
             <label for="publicationYear">Publication Year:</label>
             <input type="number" id="publicationYear" name="publicationYear" required>
-
             <div id="authorsContainer">
                 <div class="author-fields">
                     <label for="authorFirstName">Author First Name:</label>
@@ -94,6 +93,62 @@
             <label for="lastName">Last Name:</label>
             <input type="text" id="lastName" name="lastName" required>
             <button type="button" onclick="submitAuthorForm()">Add Author</button>
+        </form>
+    </div>
+    <div class="form-container" id="editUserFormContainer" style="display: none;">
+        <span class="close-btn" onclick="closeEditUserForm()">x</span>
+        <h3>Edit User</h3>
+        <form id="editUserForm">
+            <label for="editUserID">User ID:</label>
+            <input type="text" id="editUserID" name="userID" readonly required>
+            <label for="editFirstName">First Name:</label>
+            <input type="text" id="editFirstName" name="firstName" required>
+            <label for="editLastName">Last Name:</label>
+            <input type="text" id="editLastName" name="lastName" required>
+            <label for="editCity">City:</label>
+            <input type="text" id="editCity" name="city">
+            <label for="editStreet">Street:</label>
+            <input type="text" id="editStreet" name="street">
+            <label for="editAge">Age:</label>
+            <input type="number" id="editAge" name="age">
+            <button type="button" onclick="submitEditUserForm()">Save Changes</button>
+        </form>
+    </div>
+    <div class="form-container" id="editBookFormContainer" style="display: none;">
+        <span class="close-btn" onclick="closeEditBookForm()">x</span>
+        <h3>Edit Book</h3>
+        <form id="editBookForm">
+            <label for="editISBN">ISBN:</label>
+            <input type="text" id="editISBN" name="ISBN" readonly required>
+            <label for="editBookName">Book Name:</label>
+            <input type="text" id="editBookName" name="bookName" required>
+            <label for="editGenre">Genre:</label>
+            <input type="text" id="editGenre" name="genre" required>
+            <label for="editPublicationYear">Publication Year:</label>
+            <input type="number" id="editPublicationYear" name="publicationYear" required>
+            <div id="editAuthorsContainer">
+                <div class="author-fields">
+                    <label for="editAuthorFirstName">Author First Name:</label>
+                    <input type="text" name="authorFirstName[]" required>
+                    <label for="editAuthorLastName">Author Last Name:</label>
+                    <input type="text" name="authorLastName[]" required>
+                </div>
+            </div>
+            <button type="button" onclick="addEditAuthorField()">Add Another Author</button>
+            <button type="button" onclick="submitEditBookForm()">Save Changes</button>
+        </form>
+    </div>
+    <div class="form-container" id="editAuthorFormContainer" style="display: none;">
+        <span class="close-btn" onclick="closeEditAuthorForm()">x</span>
+        <h3>Edit Author</h3>
+        <form id="editAuthorForm">
+            <label for="editAuthorID">Author ID:</label>
+            <input type="text" id="editAuthorID" name="authorID" readonly required>
+            <label for="editFirstName">First Name:</label>
+            <input type="text" id="editFirstName" name="firstName" required>
+            <label for="editLastName">Last Name:</label>
+            <input type="text" id="editLastName" name="lastName" required>
+            <button type="button" onclick="submitEditAuthorForm()">Save Changes</button>
         </form>
     </div>
     <div class="frame" id="userListFrame" style="display: none;">
@@ -180,7 +235,7 @@
             <h2>Confirm Deletion</h2>
             <p>Are you sure you want to delete this item?</p>
             <button onclick="confirmDelete()">Accept</button>
-            <button onclick="closeDeleteConfirmation()">Deny</button>
+            <button onclick="denyDelete()">Deny</button>
         </div>
     </div>
     <script src='{{ url_for("static", filename="js/librarian_script.js") }}'></script>

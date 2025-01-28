@@ -5,7 +5,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (libraryText) {
         libraryText.addEventListener('click', function(event) {
             event.preventDefault();
-            if (userLoginForm && librarianLoginForm) {
+            if (userLoginForm) {
                 userLoginForm.style.display = 'none';
             }
 
@@ -51,6 +51,12 @@ function closeFrame(frameId) {
         resetFormInputs('bookForm');
     } else if (frameId === 'authorFormContainer') {
         resetFormInputs('authorForm');
+    } else if (frameId === 'editUserFormContainer') {
+        resetFormInputs('editUserForm');
+    } else if (frameId === 'editBookFormContainer') {
+        resetFormInputs('editBookForm');
+    } else if (frameId === 'editAuthorFormContainer') {
+        resetFormInputs('editAuthorForm');
     }
 }
 
@@ -316,6 +322,19 @@ function addAuthorField() {
     authorsContainer.appendChild(newAuthorField);
 }
 
+function addEditAuthorField() {
+    const authorsContainer = document.getElementById('editAuthorsContainer');
+    const newAuthorField = document.createElement('div');
+    newAuthorField.className = 'author-fields';
+    newAuthorField.innerHTML = `
+        <label for="editAuthorFirstName">Author First Name:</label>
+        <input type="text" name="authorFirstName[]" required>
+        <label for="editAuthorLastName">Author Last Name:</label>
+        <input type="text" name="authorLastName[]" required>
+    `;
+    authorsContainer.appendChild(newAuthorField);
+}
+
 function openDeleteConfirmation(type, id) {
     document.getElementById('deleteConfirmationFrame').classList.add('blur');
     openFrame('deleteConfirmationFrame');
@@ -358,4 +377,175 @@ async function confirmDelete() {
         console.error('Error:', error);
         alert('An error occurred while deleting the item');
     }
+}
+
+async function editUser(userID) {
+    try {
+        const response = await fetch(`/get_user/${userID}`);
+        const data = await response.json();
+        if (data.success) {
+            const user = data.user;
+            document.getElementById('editUserID').value = user.userID;
+            document.getElementById('editFirstName').value = user.first_name;
+            document.getElementById('editLastName').value = user.last_name;
+            document.getElementById('editCity').value = user.city;
+            document.getElementById('editStreet').value = user.Street;
+            document.getElementById('editAge').value = user.age;
+            openFrame('editUserFormContainer');
+        } else {
+            alert('Error fetching user data: ' + data.message);
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('An error occurred while fetching the user data');
+    }
+}
+
+async function editBook(ISBN) {
+    try {
+        const response = await fetch(`/get_book/${ISBN}`);
+        const data = await response.json();
+        if (data.success) {
+            const book = data.book;
+            document.getElementById('editISBN').value = book.ISBN;
+            document.getElementById('editBookName').value = book.bookName;
+            document.getElementById('editGenre').value = book.genre;
+            document.getElementById('editPublicationYear').value = book.publicationYear;
+
+            const authorsContainer = document.getElementById('editAuthorsContainer');
+            authorsContainer.innerHTML = '';
+            book.authors.forEach(author => {
+                const authorField = document.createElement('div');
+                authorField.className = 'author-fields';
+                authorField.innerHTML = `
+                    <label for="editAuthorFirstName">Author First Name:</label>
+                    <input type="text" name="authorFirstName[]" value="${author.firstName}" required>
+                    <label for="editAuthorLastName">Author Last Name:</label>
+                    <input type="text" name="authorLastName[]" value="${author.lastName}" required>
+                `;
+                authorsContainer.appendChild(authorField);
+            });
+
+            openFrame('editBookFormContainer');
+        } else {
+            alert('Error fetching book data: ' + data.message);
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('An error occurred while fetching the book data');
+    }
+}
+
+async function editAuthor(authorID) {
+    try {
+        const response = await fetch(`/get_author/${authorID}`);
+        const data = await response.json();
+        if (data.success) {
+            const author = data.author;
+            document.getElementById('editAuthorID').value = author.authorID;
+            document.getElementById('editFirstName').value = author.firstName;
+            document.getElementById('editLastName').value = author.lastName;
+            openFrame('editAuthorFormContainer');
+        } else {
+            alert('Error fetching author data: ' + data.message);
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('An error occurred while fetching the author data');
+    }
+}
+
+async function submitEditUserForm() {
+    const form = document.getElementById('editUserForm');
+    const formData = new FormData(form);
+
+    try {
+        const response = await fetch('/edit_user', {
+            method: 'POST',
+            body: formData
+        });
+        const data = await response.json();
+        if (data.success) {
+            alert('User updated successfully');
+            closeEditUserForm();
+            location.reload();
+        } else {
+            alert('Error updating user: ' + data.message);
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('An error occurred while updating the user');
+    }
+}
+
+async function submitEditBookForm() {
+    const form = document.getElementById('editBookForm');
+    const formData = new FormData(form);
+
+    try {
+        const response = await fetch('/edit_book', {
+            method: 'POST',
+            body: formData
+        });
+        const data = await response.json();
+        if (data.success) {
+            alert('Book updated successfully');
+            closeEditBookForm();
+            location.reload();
+        } else {
+            alert('Error updating book: ' + data.message);
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('An error occurred while updating the book');
+    }
+}
+
+async function submitEditAuthorForm() {
+    const form = document.getElementById('editAuthorForm');
+    const formData = new FormData(form);
+
+    try {
+        const response = await fetch('/edit_author', {
+            method: 'POST',
+            body: formData
+        });
+        const data = await response.json();
+        if (data.success) {
+            alert('Author updated successfully');
+            closeEditAuthorForm();
+            location.reload();
+        } else {
+            alert('Error updating author: ' + data.message);
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('An error occurred while updating the author');
+    }
+}
+
+function closeEditUserForm() {
+    closeFrame('editUserFormContainer');
+}
+
+function closeEditBookForm() {
+    closeFrame('editBookFormContainer');
+}
+
+function closeEditAuthorForm() {
+    closeFrame('editAuthorFormContainer');
+}
+function openFrame(frameId) {
+    document.getElementById(frameId).style.display = 'block';
+    document.getElementById('overlay').style.display = 'block'; // Show overlay
+    document.body.classList.add('no-scroll');
+}
+
+function closeFrame(frameId) {
+    document.getElementById(frameId).style.display = 'none';
+    document.getElementById('overlay').style.display = 'none'; // Hide overlay
+    document.body.classList.remove('no-scroll');
+
+    // Reset form inputs
+    resetFormInputs(frameId);
 }
