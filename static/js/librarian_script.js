@@ -107,6 +107,10 @@ async function openUserList() {
                 <td>${user.userFirstName} ${user.userLastName}</td>
                 <td>${user.librarianFirstName} ${user.librarianLastName}</td>
                 <td>${user.librarianID}</td>
+                <td>
+                    <img src="static/images/Edit.png" alt="Edit" class="action-icon" title="Edit User" onclick="editUser(${user.userID})">
+                    <img src="static/images/Trash.png" alt="Delete" class="action-icon" title="Delete User" onclick="openDeleteConfirmation('user', ${user.userID})">
+                </td>
             `;
             tableBody.appendChild(row);
         });
@@ -136,6 +140,10 @@ async function openBookList() {
                 <td>${book.publicationyear}</td>
                 <td>${book.authors}</td>
                 <td>${book.librarians}</td>
+                <td>
+                    <img src="static/images/Edit.png" alt="Edit" class="action-icon" title="Edit Book" onclick="editBook('${book.ISBN}')">
+                    <img src="static/images/Trash.png" alt="Delete" class="action-icon" title="Delete Book" onclick="openDeleteConfirmation('book', '${book.ISBN}')">
+                </td>
             `;
             tableBody.appendChild(row);
         });
@@ -160,6 +168,10 @@ async function openAuthorList() {
             row.innerHTML = `
                 <td>${author.authorID}</td>
                 <td>${author.first_name} ${author.last_name}</td>
+                <td>
+                    <img src="static/images/Edit.png" alt="Edit" class="action-icon" title="Edit Author" onclick="editAuthor(${author.authorID})">
+                    <img src="static/images/Trash.png" alt="Delete" class="action-icon" title="Delete Author" onclick="openDeleteConfirmation('author', ${author.authorID})">
+                </td>
             `;
             tableBody.appendChild(row);
         });
@@ -302,4 +314,48 @@ function addAuthorField() {
         <input type="text" name="authorLastName[]" required>
     `;
     authorsContainer.appendChild(newAuthorField);
+}
+
+function openDeleteConfirmation(type, id) {
+    document.getElementById('deleteConfirmationFrame').classList.add('blur');
+    openFrame('deleteConfirmationFrame');
+    window.currentDeleteType = type;
+    window.currentDeleteId = id;
+}
+
+function closeDeleteConfirmation() {
+    closeFrame('deleteConfirmationFrame');
+    document.getElementById('deleteConfirmationFrame').classList.remove('blur');
+}
+
+function denyDelete() {
+    closeDeleteConfirmation();
+}
+
+async function confirmDelete() {
+    const type = window.currentDeleteType;
+    const id = window.currentDeleteId;
+
+    try {
+        let response;
+        if (type === 'user') {
+            response = await fetch(`/delete_user/${id}`, { method: 'DELETE' });
+        } else if (type === 'book') {
+            response = await fetch(`/delete_book/${id}`, { method: 'DELETE' });
+        } else if (type === 'author') {
+            response = await fetch(`/delete_author/${id}`, { method: 'DELETE' });
+        }
+
+        const data = await response.json();
+        if (data.success) {
+            alert(`${type.charAt(0).toUpperCase() + type.slice(1)} deleted successfully`);
+            closeDeleteConfirmation();
+            location.reload();
+        } else {
+            alert('Error deleting item: ' + data.message);
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('An error occurred while deleting the item');
+    }
 }

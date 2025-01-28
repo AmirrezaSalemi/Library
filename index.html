@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Library</title>
+    <link rel="stylesheet" href='styles.css'>
+</head>
+<body>
+    <header>
+        <div class="login-signin">
+            <a href="#" id="librarian-link">Librarian</a>
+            <span class="divider">|</span>
+            <a href="#" id="user-link">Users</a>
+        </div>
+        <div class="title">
+            <h1 id="library-text">Library</h1>
+        </div>
+    </header>
+    <div class="content-wrapper">
+        <!-- Your content goes here -->
+    </div>
+    <div class="login-form" id="user-login-form">
+        <form>
+            <h2>Users Login</h2>
+            <label for="UserID">UserID:</label>
+            <input type="text" id="UserID" name="UserID" required>
+            <button type="submit">Login</button>
+        </form>
+    </div>
+    <div class="login-form" id="librarian-login-form">
+        <form>
+            <h2>Librarian Login</h2>
+            <label for="LibrarianID">LibrarianID:</label>
+            <input type="text" id="LibrarianID" name="LibrarianID" required>
+            <button type="submit">Login</button>
+        </form>
+    </div>
+    <script src='script.js'></script>
+</body>
+</html>

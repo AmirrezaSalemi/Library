@@ -43,7 +43,6 @@ header {
                  0 0 60px rgba(255, 255, 255, 0.3);
 }
 
-
 .content-wrapper {
     background-image: url('library_shelves.png'); /* Example background image for librarian page */
     background-size: cover;
@@ -142,6 +141,7 @@ h2::before {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Add shadow effect on hover */
     opacity: 0.5; /* Decrease opacity on hover */
 }
+
 /* Add background images for each rectangle */
 .rectangle:nth-child(1)::before {
     background-image: url('Author_list.png');
@@ -162,6 +162,7 @@ h2::before {
 .rectangle:nth-child(5)::before {
     background-image: url('Return_book.png');
 }
+
 .close-btn {
     position: absolute;
     top: 3px;
@@ -319,4 +320,15 @@ td {
 /* Style for disabling scroll */
 .no-scroll {
     overflow: hidden;
+}
+
+.action-icon {
+    width: 24px; /* Adjust the width as needed */
+    height: 24px; /* Adjust the height as needed */
+    cursor: pointer;
+    transition: transform 0.3s ease;
+}
+
+.action-icon:hover {
+    transform: scale(1.5); /* Slightly enlarge the icon on hover */
 }

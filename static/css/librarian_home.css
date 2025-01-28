@@ -4,6 +4,7 @@ body {
     color: white;
     text-align: center;
     background: linear-gradient(135deg, #000435 0%, #004e92 100%); /* Gradient background */
+    transition: filter 0.3s ease; /* Add transition for blur effect */
 }
 
 header {
@@ -42,7 +43,6 @@ header {
                  0 0 50px rgba(255, 255, 255, 0.4),
                  0 0 60px rgba(255, 255, 255, 0.3);
 }
-
 
 .content-wrapper {
     background-image: url('library_shelves.png'); /* Example background image for librarian page */
@@ -460,4 +460,14 @@ td {
 }
 .form-container::-webkit-scrollbar-thumb:hover {
     background-color: #777; /* Color of the scrollbar thumb on hover */
+}
+.action-icon {
+    width: 28px;
+    height: 28px;
+    cursor: pointer;
+    margin-right: 5px;
+}
+
+.action-icon:hover {
+    opacity: 0.7;
 }

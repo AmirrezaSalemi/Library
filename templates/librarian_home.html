@@ -5,9 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Librarian Home</title>
     <link rel="stylesheet" href='{{ url_for("static", filename="css/librarian_home.css") }}'>
-    <style>
-
-    </style>
 </head>
 <body>
     <header>
@@ -16,7 +13,6 @@
         </div>
     </header>
     <div class="content-wrapper">
-        <!-- Librarian-specific content goes here -->
         <h2>Welcome, {{first_name}} {{last_name}} as Librarian!</h2>
         <div class="rectangle-container">
             <a href="#" class="rectangle add-librarian-btn" onclick="openLibrarianForm()">Add Librarian</a>
@@ -111,10 +107,10 @@
                         <th>User Name</th>
                         <th>Add By Librarian</th>
                         <th>LibrarianID</th>
+                        <th>Action</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <!-- Data will be inserted here -->
                 </tbody>
             </table>
         </div>
@@ -132,10 +128,10 @@
                         <th>Publication Year</th>
                         <th>Authors</th>
                         <th>Add By Librarian</th>
+                        <th>Action</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <!-- Data will be inserted here -->
                 </tbody>
             </table>
         </div>
@@ -149,10 +145,10 @@
                     <tr>
                         <th>AuthorID</th>
                         <th>Author Name</th>
+                        <th>Action</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <!-- Data will be inserted here -->
                 </tbody>
             </table>
         </div>
@@ -174,9 +170,17 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <!-- Data will be inserted here -->
                 </tbody>
             </table>
+        </div>
+    </div>
+    <div class="frame" id="deleteConfirmationFrame" style="display: none;">
+        <span class="close-btn" onclick="closeDeleteConfirmation()">x</span>
+        <div class="frame-content">
+            <h2>Confirm Deletion</h2>
+            <p>Are you sure you want to delete this item?</p>
+            <button onclick="confirmDelete()">Accept</button>
+            <button onclick="closeDeleteConfirmation()">Deny</button>
         </div>
     </div>
     <script src='{{ url_for("static", filename="js/librarian_script.js") }}'></script>
