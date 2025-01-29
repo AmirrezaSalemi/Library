@@ -431,11 +431,8 @@ async function editAuthor(authorID) {
         if (data.success) {
             const author = data.author;
             document.getElementById('editAuthorID').value = author.authorID;
-            alert(author.authorID)
             document.getElementById('editFirstNameAuthor').value = author.first_name;
-             alert(author.first_name)
             document.getElementById('editLastNameAuthor').value = author.last_name;
-             alert(author.last_name)
             openFrame('editAuthorFormContainer');
         } else {
             alert('Error fetching author data: ' + data.message);
