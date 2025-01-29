@@ -406,9 +406,9 @@ async function editBook(ISBN) {
                     authorField.className = 'author-fields';
                     authorField.innerHTML = `
                         <label>Author First Name:</label>
-                        <input type="text" name="authorFirstName[]" value="${author.firstName}" required>
+                        <input type="text" name="authorFirstName[]" value="${author.first_name}" required>
                         <label>Author Last Name:</label>
-                        <input type="text" name="authorLastName[]" value="${author.lastName}" required>
+                        <input type="text" name="authorLastName[]" value="${author.last_name}" required>
                     `;
                     authorsContainer.appendChild(authorField);
                 });
@@ -431,8 +431,11 @@ async function editAuthor(authorID) {
         if (data.success) {
             const author = data.author;
             document.getElementById('editAuthorID').value = author.authorID;
-            document.getElementById('editFirstName').value = author.first_name;
-            document.getElementById('editLastName').value = author.last_name;
+            alert(author.authorID)
+            document.getElementById('editFirstNameAuthor').value = author.first_name;
+             alert(author.first_name)
+            document.getElementById('editLastNameAuthor').value = author.last_name;
+             alert(author.last_name)
             openFrame('editAuthorFormContainer');
         } else {
             alert('Error fetching author data: ' + data.message);
