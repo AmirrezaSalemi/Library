@@ -558,8 +558,8 @@ def edit_book():
 @app.route('/edit_author', methods=['POST'])
 def edit_author():
     authorID = request.form.get('authorID')
-    firstName = request.form.get('firstName')
-    lastName = request.form.get('lastName')
+    firstName = request.form.get('first_name')
+    lastName = request.form.get('last_name')
 
     connection = connecting()
     cursor = connection.cursor()
