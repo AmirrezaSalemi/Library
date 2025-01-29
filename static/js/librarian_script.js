@@ -32,36 +32,24 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function openFrame(frameId) {
+    console.log(`Opening frame: ${frameId}`);
     document.getElementById(frameId).style.display = 'block';
-    document.getElementById('overlay').style.display = 'block';
+    document.getElementById('overlay').style.display = 'block'; // Show overlay
     document.body.classList.add('no-scroll');
 }
 
 function closeFrame(frameId) {
+    console.log(`Closing frame: ${frameId}`);
     document.getElementById(frameId).style.display = 'none';
-    document.getElementById('overlay').style.display = 'none';
+    document.getElementById('overlay').style.display = 'none'; // Hide overlay
     document.body.classList.remove('no-scroll');
 
     // Reset form inputs
-    if (frameId === 'librarianFormContainer') {
-        resetFormInputs('librarianForm');
-    } else if (frameId === 'userFormContainer') {
-        resetFormInputs('userForm');
-    } else if (frameId === 'bookFormContainer') {
-        resetFormInputs('bookForm');
-    } else if (frameId === 'authorFormContainer') {
-        resetFormInputs('authorForm');
-    } else if (frameId === 'editUserFormContainer') {
-        resetFormInputs('editUserForm');
-    } else if (frameId === 'editBookFormContainer') {
-        resetFormInputs('editBookForm');
-    } else if (frameId === 'editAuthorFormContainer') {
-        resetFormInputs('editAuthorForm');
-    }
+    resetFormInputs(frameId);
 }
 
-function resetFormInputs(formId) {
-    const form = document.getElementById(formId);
+function resetFormInputs(frameId) {
+    const form = document.getElementById(frameId);
     if (form) {
         form.reset();
     }
@@ -231,7 +219,6 @@ async function submitLibrarianForm() {
         const data = await response.json();
         if (data.success) {
             alert('Librarian added successfully');
-            closeLibrarianForm();
             location.reload();
         } else {
             alert('Error adding librarian: ' + data.message);
@@ -253,7 +240,6 @@ async function submitAuthorForm() {
         });
         const data = await response.json();
         if (data.success) {
-            closeAuthorForm();
             location.reload();
         } else {
             alert('Error adding author');
@@ -275,7 +261,6 @@ async function submitUserForm() {
         const data = await response.json();
         if (data.success) {
             alert('User added successfully');
-            closeUserForm();
             location.reload();
         } else {
             alert('Error adding user: ' + data.message);
@@ -298,7 +283,6 @@ async function submitBookForm() {
         const data = await response.json();
         if (data.success) {
             alert('Book added successfully');
-            closeBookForm();
             location.reload();
         } else {
             alert('Error adding book: ' + data.message);
@@ -368,7 +352,6 @@ async function confirmDelete() {
         const data = await response.json();
         if (data.success) {
             alert(`${type.charAt(0).toUpperCase() + type.slice(1)} deleted successfully`);
-            closeDeleteConfirmation();
             location.reload();
         } else {
             alert('Error deleting item: ' + data.message);
@@ -407,24 +390,29 @@ async function editBook(ISBN) {
         const data = await response.json();
         if (data.success) {
             const book = data.book;
+            // Set book basic details
             document.getElementById('editISBN').value = book.ISBN;
-            document.getElementById('editBookName').value = book.bookName;
+            document.getElementById('editBookName').value = book.book_name;
             document.getElementById('editGenre').value = book.genre;
-            document.getElementById('editPublicationYear').value = book.publicationYear;
+            document.getElementById('editPublicationYear').value = book.publicationyear;
 
             const authorsContainer = document.getElementById('editAuthorsContainer');
-            authorsContainer.innerHTML = '';
-            book.authors.forEach(author => {
-                const authorField = document.createElement('div');
-                authorField.className = 'author-fields';
-                authorField.innerHTML = `
-                    <label for="editAuthorFirstName">Author First Name:</label>
-                    <input type="text" name="authorFirstName[]" value="${author.firstName}" required>
-                    <label for="editAuthorLastName">Author Last Name:</label>
-                    <input type="text" name="authorLastName[]" value="${author.lastName}" required>
-                `;
-                authorsContainer.appendChild(authorField);
-            });
+            authorsContainer.innerHTML = ''; // Clear existing authors
+
+            // Populate author fields dynamically based on authors data
+            if (Array.isArray(book.authors)) {
+                book.authors.forEach(author => {
+                    const authorField = document.createElement('div');
+                    authorField.className = 'author-fields';
+                    authorField.innerHTML = `
+                        <label>Author First Name:</label>
+                        <input type="text" name="authorFirstName[]" value="${author.firstName}" required>
+                        <label>Author Last Name:</label>
+                        <input type="text" name="authorLastName[]" value="${author.lastName}" required>
+                    `;
+                    authorsContainer.appendChild(authorField);
+                });
+            }
 
             openFrame('editBookFormContainer');
         } else {
@@ -443,8 +431,8 @@ async function editAuthor(authorID) {
         if (data.success) {
             const author = data.author;
             document.getElementById('editAuthorID').value = author.authorID;
-            document.getElementById('editFirstName').value = author.firstName;
-            document.getElementById('editLastName').value = author.lastName;
+            document.getElementById('editFirstName').value = author.first_name;
+            document.getElementById('editLastName').value = author.last_name;
             openFrame('editAuthorFormContainer');
         } else {
             alert('Error fetching author data: ' + data.message);
@@ -467,7 +455,6 @@ async function submitEditUserForm() {
         const data = await response.json();
         if (data.success) {
             alert('User updated successfully');
-            closeEditUserForm();
             location.reload();
         } else {
             alert('Error updating user: ' + data.message);
@@ -490,7 +477,6 @@ async function submitEditBookForm() {
         const data = await response.json();
         if (data.success) {
             alert('Book updated successfully');
-            closeEditBookForm();
             location.reload();
         } else {
             alert('Error updating book: ' + data.message);
@@ -513,7 +499,6 @@ async function submitEditAuthorForm() {
         const data = await response.json();
         if (data.success) {
             alert('Author updated successfully');
-            closeEditAuthorForm();
             location.reload();
         } else {
             alert('Error updating author: ' + data.message);
@@ -534,18 +519,4 @@ function closeEditBookForm() {
 
 function closeEditAuthorForm() {
     closeFrame('editAuthorFormContainer');
-}
-function openFrame(frameId) {
-    document.getElementById(frameId).style.display = 'block';
-    document.getElementById('overlay').style.display = 'block'; // Show overlay
-    document.body.classList.add('no-scroll');
-}
-
-function closeFrame(frameId) {
-    document.getElementById(frameId).style.display = 'none';
-    document.getElementById('overlay').style.display = 'none'; // Hide overlay
-    document.body.classList.remove('no-scroll');
-
-    // Reset form inputs
-    resetFormInputs(frameId);
 }

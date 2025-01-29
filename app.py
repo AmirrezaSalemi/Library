@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, session, jsonify
 import mysql.connector
+import traceback
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'  # Add a secret key for flash messages
@@ -15,6 +16,18 @@ def connecting():
         print('Connected to MySQL database')
         return connection
 
+@app.route('/test_connection')
+def test_connection():
+    try:
+        connection = connecting()
+        if connection.is_connected():
+            return "Connected to the database successfully!"
+    except Exception as e:
+        return f"Error connecting to the database: {e}"
+    finally:
+        if connection.is_connected():
+            connection.close()
+
 @app.route('/add_author', methods=['POST'])
 def add_author():
     authorID = request.form.get('authorID')
@@ -23,12 +36,19 @@ def add_author():
 
     connection = connecting()
     cursor = connection.cursor()
-    cursor.execute("INSERT INTO author (authorID, first_name, last_name) VALUES (%s, %s, %s)",
-                   (authorID, firstName, lastName))
-    connection.commit()
-    cursor.close()
-    connection.close()
-    return jsonify({"success": True})
+    try:
+        cursor.execute("INSERT INTO author (authorID, first_name, last_name) VALUES (%s, %s, %s)",
+                       (authorID, firstName, lastName))
+        connection.commit()
+        return jsonify({"success": True})
+    except Exception as e:
+        connection.rollback()
+        print(f"Error adding author: {e}")
+        traceback.print_exc()
+        return jsonify({"success": False, "message": str(e)}), 500
+    finally:
+        cursor.close()
+        connection.close()
 
 @app.route('/add_librarian', methods=['POST'])
 def add_librarian():
@@ -38,32 +58,52 @@ def add_librarian():
 
     connection = connecting()
     cursor = connection.cursor()
-    cursor.execute("INSERT INTO librarian (librarianID, first_name, last_name) VALUES (%s, %s, %s)",
-                   (librarianID, firstName, lastName))
-    connection.commit()
-    cursor.close()
-    connection.close()
-    return jsonify({"success": True})
+    try:
+        cursor.execute("INSERT INTO librarian (librarianID, first_name, last_name) VALUES (%s, %s, %s)",
+                       (librarianID, firstName, lastName))
+        connection.commit()
+        return jsonify({"success": True})
+    except Exception as e:
+        connection.rollback()
+        print(f"Error adding librarian: {e}")
+        traceback.print_exc()
+        return jsonify({"success": False, "message": str(e)}), 500
+    finally:
+        cursor.close()
+        connection.close()
 
 @app.route('/add_user_route', methods=['POST'])
 def add_user_route():
-    userID = request.form.get('userID')
-    firstName = request.form.get('firstName')
-    lastName = request.form.get('lastName')
-    city = request.form.get('city')
-    street = request.form.get('street')
-    age = request.form.get('age')
-    librarianID = session.get('librarian_id')  # Retrieve librarianID from session
+    print(f"Received form data: {request.form}")
+    try:
+        userID = request.form.get('userID')
+        firstName = request.form.get('firstName')
+        lastName = request.form.get('lastName')
+        city = request.form.get('city')
+        street = request.form.get('street')
+        age = request.form.get('age')
+        librarianID = session.get('librarian_id')  # Retrieve librarianID from session
 
-    connection = connecting()
-    cursor = connection.cursor()
-    cursor.execute(
-        "INSERT INTO usr (userID, librarianID, first_name, last_name, city, street, age) VALUES (%s, %s, %s, %s, %s, %s, %s)",
-        (userID, librarianID, firstName, lastName, city, street, age))
-    connection.commit()
-    cursor.close()
-    connection.close()
-    return jsonify({"success": True})
+        if not librarianID:
+            return jsonify({"success": False, "message": "Librarian ID not found in session"}), 400
+
+        connection = connecting()
+        cursor = connection.cursor()
+        cursor.execute(
+            "INSERT INTO usr (userID, librarianID, first_name, last_name, city, Street, age) VALUES (%s, %s, %s, %s, %s, %s, %s)",
+            (userID, librarianID, firstName, lastName, city, street, age))
+        connection.commit()
+        cursor.close()
+        connection.close()
+        return jsonify({"success": True})
+    except mysql.connector.Error as err:
+        print(f"MySQL Error: {err}")
+        traceback.print_exc()
+        return jsonify({"success": False, "message": str(err)}), 500
+    except Exception as e:
+        print(f"Error: {e}")
+        traceback.print_exc()
+        return jsonify({"success": False, "message": str(e)}), 500
 
 @app.route('/add_book', methods=['POST'])
 def add_book():
@@ -106,6 +146,8 @@ def add_book():
     except Exception as e:
         # Roll back the transaction if any query fails
         connection.rollback()
+        print(f"Error adding book: {e}")
+        traceback.print_exc()
         return jsonify({"success": False, "message": str(e)}), 500
     finally:
         cursor.close()
@@ -191,6 +233,8 @@ def borrow_book():
     except Exception as e:
         # Roll back the transaction if any query fails
         connection.rollback()
+        print(f"Error borrowing book: {e}")
+        traceback.print_exc()
         return jsonify({"success": False, "message": str(e)}), 500
     finally:
         cursor.close()
@@ -244,6 +288,8 @@ def return_book():
     except Exception as e:
         # Roll back the transaction if any query fails
         connection.rollback()
+        print(f"Error returning book: {e}")
+        traceback.print_exc()
         return jsonify({"success": False, "message": str(e)}), 500
     finally:
         cursor.close()
@@ -266,6 +312,7 @@ def librarian_home():
     last_name = request.args.get('last_name')
     librarian_id = request.args.get('librarian_id')
     session['librarian_id'] = librarian_id  # Store librarianID in session
+    print(f"Librarian ID stored in session: {librarian_id}")
     return render_template('librarian_home.html', first_name=first_name, last_name=last_name)
 
 @app.route('/get_user_list')
@@ -326,12 +373,17 @@ def delete_user(user_id):
     connection = connecting()
     cursor = connection.cursor()
     try:
+        print(f"Deleting user with ID: {user_id}")
         cursor.execute("UPDATE book SET userID = NULL WHERE userID = %s", (user_id,))
+        print(f"Updated book table for user ID: {user_id}")
         cursor.execute("DELETE FROM usr WHERE userID = %s", (user_id,))
+        print(f"Deleted user with ID: {user_id}")
         connection.commit()
         return jsonify({"success": True})
     except Exception as e:
         connection.rollback()
+        print(f"Error deleting user: {e}")
+        traceback.print_exc()
         return jsonify({"success": False, "message": str(e)}), 500
     finally:
         cursor.close()
@@ -342,12 +394,17 @@ def delete_book(ISBN):
     connection = connecting()
     cursor = connection.cursor()
     try:
+        print(f"Deleting book with ISBN: {ISBN}")
         cursor.execute("DELETE FROM book WHERE ISBN = %s", (ISBN,))
+        print(f"Deleted book with ISBN: {ISBN}")
         cursor.execute("DELETE FROM authorbook WHERE ISBN = %s", (ISBN,))
+        print(f"Deleted authorbook entries for ISBN: {ISBN}")
         connection.commit()
         return jsonify({"success": True})
     except Exception as e:
         connection.rollback()
+        print(f"Error deleting book: {e}")
+        traceback.print_exc()
         return jsonify({"success": False, "message": str(e)}), 500
     finally:
         cursor.close()
@@ -358,12 +415,17 @@ def delete_author(author_id):
     connection = connecting()
     cursor = connection.cursor()
     try:
+        print(f"Deleting author with ID: {author_id}")
         cursor.execute("DELETE FROM author WHERE authorID = %s", (author_id,))
+        print(f"Deleted author with ID: {author_id}")
         cursor.execute("DELETE FROM authorbook WHERE authorID = %s", (author_id,))
+        print(f"Deleted authorbook entries for author ID: {author_id}")
         connection.commit()
         return jsonify({"success": True})
     except Exception as e:
         connection.rollback()
+        print(f"Error deleting author: {e}")
+        traceback.print_exc()
         return jsonify({"success": False, "message": str(e)}), 500
     finally:
         cursor.close()
@@ -426,13 +488,20 @@ def edit_user():
 
     connection = connecting()
     cursor = connection.cursor()
-    cursor.execute(
-        "UPDATE usr SET first_name = %s, last_name = %s, city = %s, street = %s, age = %s WHERE userID = %s",
-        (firstName, lastName, city, street, age, userID))
-    connection.commit()
-    cursor.close()
-    connection.close()
-    return jsonify({"success": True})
+    try:
+        cursor.execute(
+            "UPDATE usr SET first_name = %s, last_name = %s, city = %s, Street = %s, age = %s WHERE userID = %s",
+            (firstName, lastName, city, street, age, userID))
+        connection.commit()
+        return jsonify({"success": True})
+    except Exception as e:
+        connection.rollback()
+        print(f"Error editing user: {e}")
+        traceback.print_exc()
+        return jsonify({"success": False, "message": str(e)}), 500
+    finally:
+        cursor.close()
+        connection.close()
 
 @app.route('/edit_book', methods=['POST'])
 def edit_book():
@@ -477,6 +546,8 @@ def edit_book():
     except Exception as e:
         # Roll back the transaction if any query fails
         connection.rollback()
+        print(f"Error editing book: {e}")
+        traceback.print_exc()
         return jsonify({"success": False, "message": str(e)}), 500
     finally:
         cursor.close()
@@ -492,13 +563,20 @@ def edit_author():
 
     connection = connecting()
     cursor = connection.cursor()
-    cursor.execute(
-        "UPDATE author SET first_name = %s, last_name = %s WHERE authorID = %s",
-        (firstName, lastName, authorID))
-    connection.commit()
-    cursor.close()
-    connection.close()
-    return jsonify({"success": True})
+    try:
+        cursor.execute(
+            "UPDATE author SET first_name = %s, last_name = %s WHERE authorID = %s",
+            (firstName, lastName, authorID))
+        connection.commit()
+        return jsonify({"success": True})
+    except Exception as e:
+        connection.rollback()
+        print(f"Error editing author: {e}")
+        traceback.print_exc()
+        return jsonify({"success": False, "message": str(e)}), 500
+    finally:
+        cursor.close()
+        connection.close()
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
