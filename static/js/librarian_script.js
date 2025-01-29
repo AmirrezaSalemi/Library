@@ -36,6 +36,7 @@ function openFrame(frameId) {
     document.getElementById(frameId).style.display = 'block';
     document.getElementById('overlay').style.display = 'block'; // Show overlay
     document.body.classList.add('no-scroll');
+    document.body.classList.add('blur'); // Add blur effect
 }
 
 function closeFrame(frameId) {
@@ -43,6 +44,7 @@ function closeFrame(frameId) {
     document.getElementById(frameId).style.display = 'none';
     document.getElementById('overlay').style.display = 'none'; // Hide overlay
     document.body.classList.remove('no-scroll');
+    document.body.classList.remove('blur'); // Remove blur effect
 
     // Reset form inputs
     resetFormInputs(frameId);

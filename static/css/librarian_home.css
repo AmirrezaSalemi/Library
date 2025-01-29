@@ -480,6 +480,7 @@ td {
 .action-icon:hover {
     opacity: 0.7;
 }
+
 /* General frame styles */
 .frame {
     display: none;
@@ -523,5 +524,3 @@ td {
     backdrop-filter: blur(5px);
     z-index: 1000; /* Lower than the form container */
 }
-
-/* Ensure that all form containers and frames have z-index properly assigned */
