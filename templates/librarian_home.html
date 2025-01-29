@@ -131,7 +131,6 @@
             <div id="editAuthorsContainer">
                 <!-- Author fields will be populated here -->
             </div>
-
             <button type="button" onclick="addEditAuthorField()">Add Another Author</button>
             <button type="button" onclick="submitEditBookForm()">Save Changes</button>
         </form>
@@ -142,9 +141,9 @@
         <form id="editAuthorForm">
             <label for="editAuthorID">Author ID:</label>
             <input type="text" id="editAuthorID" name="authorID" readonly required>
-            <label for="editFirstName">First Name:</label>
+            <label for="editFirstNameAuthor">First Name:</label>
             <input type="text" id="editFirstNameAuthor" name="first_name" required>
-            <label for="editLastName">Last Name:</label>
+            <label for="editLastNameAuthor">Last Name:</label>
             <input type="text" id="editLastNameAuthor" name="last_name" required>
             <button type="button" onclick="submitEditAuthorForm()">Save Changes</button>
         </form>

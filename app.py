@@ -457,9 +457,20 @@ def get_book(ISBN):
         GROUP BY book.ISBN
     """, (ISBN,))
     book = cursor.fetchone()
+
+    # Fetch authors separately to get individual author details
+    cursor.execute("""
+        SELECT author.first_name, author.last_name
+        FROM author
+        JOIN authorbook ON author.authorID = authorbook.authorID
+        WHERE authorbook.ISBN = %s
+    """, (ISBN,))
+    authors = cursor.fetchall()
+
     cursor.close()
     connection.close()
     if book:
+        book['authors'] = authors  # Add authors to the book data
         return jsonify({'success': True, 'book': book})
     else:
         return jsonify({'success': False, 'message': 'Book not found'})
