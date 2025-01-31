@@ -522,33 +522,31 @@ function closeEditBookForm() {
 function closeEditAuthorForm() {
     closeFrame('editAuthorFormContainer');
 }
-let openFrameCount = 0; // Track the number of open frames
+let openFrameCount = 0;
 
 function openFrame(frameId) {
-    const frame = document.getElementById(frameId);
-    if (frame.style.display === 'none' || frame.style.display === '') {
-        frame.style.display = 'block';
-        openFrameCount++;
-        document.getElementById('overlay').style.display = 'block';
-        document.querySelector('.content-wrapper').classList.add('blur');
-        document.querySelector('.content-wrapper').classList.add('no-scroll');
-        document.querySelector('.frame').classList.remove('blur');
-        document.querySelector('.frame-content').classList.remove('no-scroll');
-    }
+  const frame = document.getElementById(frameId);
+  if (frame.style.display === 'none' || frame.style.display === '') {
+    frame.style.display = 'block';
+    openFrameCount++;
+    document.getElementById('overlay').style.display = 'block';
+    // Blur and lock scroll for main content only
+    document.querySelector('.content-wrapper').classList.add('blur', 'no-scroll');
+  }
 }
 
 function closeFrame(frameId) {
-    const frame = document.getElementById(frameId);
-    if (frame.style.display === 'block') {
-        frame.style.display = 'none';
-        openFrameCount--;
-        if (openFrameCount === 0) {
-            document.getElementById('overlay').style.display = 'none';
-            document.querySelector('.content-wrapper').classList.remove('blur');
-            document.querySelector('.content-wrapper').classList.remove('no-scroll');
-        }
+  const frame = document.getElementById(frameId);
+  if (frame.style.display === 'block') {
+    frame.style.display = 'none';
+    openFrameCount--;
+    if (openFrameCount === 0) {
+      document.getElementById('overlay').style.display = 'none';
+      // Restore main content
+      document.querySelector('.content-wrapper').classList.remove('blur', 'no-scroll');
     }
-    resetFormInputs(frameId);
+  }
+  resetFormInputs(frameId);
 }
 function openDeleteConfirmation(type, id) {
     openFrame('deleteConfirmationFrame'); // Use openFrame to handle overlay and blur
