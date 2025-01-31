@@ -193,7 +193,6 @@ h2::before {
     color: #ff0000;
 }
 
-/* Style for the form title */
 .form-container h3 {
     margin-top: 0;
     margin-bottom: 20px;
@@ -202,7 +201,6 @@ h2::before {
     text-align: center;
 }
 
-/* Moved styles from HTML to CSS */
 .form-container {
     display: none;
     position: fixed;
@@ -272,7 +270,6 @@ h2::before {
     z-index: 1001; /* Lower z-index for the overlay */
 }
 
-/* Style for the table */
 table {
     width: 100%;
     border-collapse: collapse;
@@ -310,7 +307,6 @@ td {
     max-width: 1200px; /* Set a maximum width to ensure it fits within the viewport */
 }
 
-/* Style for the table container */
 .frame-content {
     background: #333;
     padding: 20px;
@@ -386,13 +382,11 @@ td {
     background: #777; /* Color of the scrollbar thumb on hover */
 }
 
-/* Firefox scrollbar styles */
 .frame-content {
     scrollbar-width: thin; /* Width of the scrollbar */
     scrollbar-color: #555 #222; /* Color of the thumb and track */
 }
 
-/* Style for the table */
 table {
     width: 100%;
     border-collapse: collapse;
@@ -431,6 +425,9 @@ td {
 
 .no-scroll {
     overflow: hidden;
+    position: fixed;
+    width: 100%;
+    height: 100%;
 }
 
 @media (max-width: 768px) {
@@ -481,7 +478,6 @@ td {
     opacity: 0.7;
 }
 
-/* General frame styles */
 .frame {
     display: none;
     position: fixed;
@@ -496,7 +492,6 @@ td {
     max-width: 1200px;
 }
 
-/* Form containers (edit forms) */
 .form-container {
     display: none;
     position: fixed;
@@ -512,7 +507,6 @@ td {
     box-sizing: border-box;
 }
 
-/* Overlay */
 .overlay {
     display: none;
     position: fixed;
@@ -523,4 +517,12 @@ td {
     background-color: rgba(0, 0, 0, 0.5);
     backdrop-filter: blur(5px);
     z-index: 1000; /* Lower than the form container */
+}
+.blur {
+    filter: blur(5px); /* Apply blur to content wrapper */
+}
+.frame, .form-container {
+    max-height: 90vh;
+    overflow-y: auto;
+    overscroll-behavior: contain; /* Prevent scroll chaining */
 }

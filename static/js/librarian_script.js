@@ -522,3 +522,40 @@ function closeEditBookForm() {
 function closeEditAuthorForm() {
     closeFrame('editAuthorFormContainer');
 }
+let openFrameCount = 0; // Track the number of open frames
+
+function openFrame(frameId) {
+    const frame = document.getElementById(frameId);
+    if (frame.style.display === 'none' || frame.style.display === '') {
+        frame.style.display = 'block';
+        openFrameCount++;
+        document.getElementById('overlay').style.display = 'block';
+        document.querySelector('.content-wrapper').classList.add('blur');
+        document.querySelector('.content-wrapper').classList.add('no-scroll');
+        document.querySelector('.frame').classList.remove('blur');
+        document.querySelector('.frame-content').classList.remove('no-scroll');
+    }
+}
+
+function closeFrame(frameId) {
+    const frame = document.getElementById(frameId);
+    if (frame.style.display === 'block') {
+        frame.style.display = 'none';
+        openFrameCount--;
+        if (openFrameCount === 0) {
+            document.getElementById('overlay').style.display = 'none';
+            document.querySelector('.content-wrapper').classList.remove('blur');
+            document.querySelector('.content-wrapper').classList.remove('no-scroll');
+        }
+    }
+    resetFormInputs(frameId);
+}
+function openDeleteConfirmation(type, id) {
+    openFrame('deleteConfirmationFrame'); // Use openFrame to handle overlay and blur
+    window.currentDeleteType = type;
+    window.currentDeleteId = id;
+}
+
+function closeDeleteConfirmation() {
+    closeFrame('deleteConfirmationFrame'); // Use closeFrame to decrement count
+}
