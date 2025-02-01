@@ -227,7 +227,8 @@ h2::before {
     color: #ddd;
 }
 
-.form-container input {
+.form-container input,
+.form-container select {
     margin-bottom: 15px;
     padding: 15px;
     border-radius: 25px; /* More rounded corners */
@@ -236,12 +237,32 @@ h2::before {
     color: white;
     transition: box-shadow 0.3s ease, background-color 0.3s ease; /* Smooth transitions */
     box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1); /* Inner shadow for depth */
+    appearance: none; /* Remove default arrow */
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="10" height="6"><path fill="white" d="M0 0l5 5 5-5z"/></svg>'); /* Custom arrow */
+    background-repeat: no-repeat;
+    background-position: right 15px center;
+    -webkit-appearance: none; /* Remove default arrow for WebKit browsers */
+    -moz-appearance: none; /* Remove default arrow for Firefox */
+    cursor: pointer; /* Add cursor pointer to indicate it's clickable */
 }
 
-.form-container input:focus {
+.form-container input:focus,
+.form-container select:focus {
     background-color: rgba(255, 255, 255, 0.2); /* Lighter background on focus */
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Outer shadow on focus */
     outline: none; /* Remove default outline */
+}
+
+.form-container select option {
+    background-color: rgba(0, 0, 0, 0.8); /* Dark background for options */
+    color: white; /* White text */
+    padding: 10px; /* Add padding around the text */
+    border-radius: 5px; /* Add rounded corners */
+    cursor: pointer; /* Add cursor pointer to indicate it's clickable */
+}
+
+.form-container select option:hover {
+    background-color: rgba(0, 0, 0, 0.9); /* Darker background on hover */
 }
 
 .form-container button {

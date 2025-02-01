@@ -5,6 +5,7 @@ import traceback
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'  # Add a secret key for flash messages
 
+
 def connecting():
     connection = mysql.connector.connect(
         host='localhost',
@@ -15,6 +16,7 @@ def connecting():
     if connection.is_connected():
         print('Connected to MySQL database')
         return connection
+
 
 @app.route('/test_connection')
 def test_connection():
@@ -27,6 +29,7 @@ def test_connection():
     finally:
         if connection.is_connected():
             connection.close()
+
 
 @app.route('/add_author', methods=['POST'])
 def add_author():
@@ -50,6 +53,7 @@ def add_author():
         cursor.close()
         connection.close()
 
+
 @app.route('/add_librarian', methods=['POST'])
 def add_librarian():
     librarianID = request.form.get('librarianID')
@@ -71,6 +75,7 @@ def add_librarian():
     finally:
         cursor.close()
         connection.close()
+
 
 @app.route('/add_user_route', methods=['POST'])
 def add_user_route():
@@ -105,6 +110,7 @@ def add_user_route():
         traceback.print_exc()
         return jsonify({"success": False, "message": str(e)}), 500
 
+
 @app.route('/add_book', methods=['POST'])
 def add_book():
     bookName = request.form.get('bookName')
@@ -112,8 +118,7 @@ def add_book():
     genre = request.form.get('genre')
     publicationYear = request.form.get('publicationYear')
     librarianID = session.get('librarian_id')  # Retrieve librarianID from session
-    authorFirstNames = request.form.getlist('authorFirstName[]')
-    authorLastNames = request.form.getlist('authorLastName[]')
+    authorIDs = request.form.getlist('authorID[]')
 
     connection = connecting()
     cursor = connection.cursor(buffered=True)  # Use a buffered cursor
@@ -127,18 +132,9 @@ def add_book():
             "INSERT INTO book (book_name, ISBN, genre, publicationyear, librarianID) VALUES (%s, %s, %s, %s, %s)",
             (bookName, ISBN, genre, publicationYear, librarianID))
 
-        for firstName, lastName in zip(authorFirstNames, authorLastNames):
-            # Find the authorID based on the author's first and last name
-            cursor.execute("SELECT authorID FROM author WHERE first_name = %s AND last_name = %s",
-                           (firstName, lastName))
-            author = cursor.fetchone()
-
-            if author:
-                authorID = author[0]
-                # Insert the book and author relationship into the AuthorBook table
-                cursor.execute("INSERT INTO authorbook (ISBN, authorID) VALUES (%s, %s)", (ISBN, authorID))
-            else:
-                raise ValueError(f"Author {firstName} {lastName} not found")
+        for authorID in authorIDs:
+            # Insert the book and author relationship into the AuthorBook table
+            cursor.execute("INSERT INTO authorbook (ISBN, authorID) VALUES (%s, %s)", (ISBN, authorID))
 
         # Commit the transaction if all queries are successful
         connection.commit()
@@ -154,6 +150,7 @@ def add_book():
         connection.close()
 
     return jsonify({"success": True})
+
 
 @app.route('/get_book_list')
 def get_book_list():
@@ -174,6 +171,7 @@ def get_book_list():
     connection.close()
     return jsonify(books)
 
+
 @app.route('/get_author_list')
 def get_author_list():
     connection = connecting()
@@ -183,6 +181,7 @@ def get_author_list():
     cursor.close()
     connection.close()
     return jsonify(authors)
+
 
 @app.route('/get_borrow_history')
 def get_borrow_history():
@@ -195,6 +194,7 @@ def get_borrow_history():
     cursor.close()
     connection.close()
     return jsonify(borrows)
+
 
 @app.route('/get_available_books')
 def get_available_books():
@@ -211,6 +211,7 @@ def get_available_books():
     cursor.close()
     connection.close()
     return jsonify(books)
+
 
 @app.route('/borrow_book', methods=['POST'])
 def borrow_book():
@@ -241,6 +242,7 @@ def borrow_book():
         connection.close()
     return jsonify({"success": True})
 
+
 @app.route('/get_borrowed_books')
 def get_borrowed_books():
     userID = session.get('userID')  # Retrieve userID from session
@@ -259,6 +261,7 @@ def get_borrowed_books():
     cursor.close()
     connection.close()
     return jsonify(books)
+
 
 @app.route('/return_book', methods=['POST'])
 def return_book():
@@ -296,15 +299,18 @@ def return_book():
         connection.close()
     return jsonify({"success": True})
 
+
 @app.route('/')
 def index():
     return render_template('index.html')
+
 
 @app.route('/user_home')
 def user_home():
     first_name = request.args.get('first_name')
     last_name = request.args.get('last_name')
     return render_template('user_home.html', first_name=first_name, last_name=last_name)
+
 
 @app.route('/librarian_home')
 def librarian_home():
@@ -314,6 +320,7 @@ def librarian_home():
     session['librarian_id'] = librarian_id  # Store librarianID in session
     print(f"Librarian ID stored in session: {librarian_id}")
     return render_template('librarian_home.html', first_name=first_name, last_name=last_name)
+
 
 @app.route('/get_user_list')
 def get_user_list():
@@ -330,6 +337,7 @@ def get_user_list():
     connection.close()
     return jsonify(users)
 
+
 @app.route('/get_borrow_list')
 def get_borrow_list():
     connection = connecting()
@@ -340,6 +348,7 @@ def get_borrow_list():
     cursor.close()
     connection.close()
     return jsonify(borrows)
+
 
 @app.route('/login', methods=['POST'])
 def login():
@@ -368,6 +377,7 @@ def login():
         flash('Invalid ID', 'error')
         return redirect(url_for('index'))
 
+
 @app.route('/delete_user/<int:user_id>', methods=['DELETE'])
 def delete_user(user_id):
     connection = connecting()
@@ -388,6 +398,7 @@ def delete_user(user_id):
     finally:
         cursor.close()
         connection.close()
+
 
 @app.route('/delete_book/<string:ISBN>', methods=['DELETE'])
 def delete_book(ISBN):
@@ -410,6 +421,7 @@ def delete_book(ISBN):
         cursor.close()
         connection.close()
 
+
 @app.route('/delete_author/<int:author_id>', methods=['DELETE'])
 def delete_author(author_id):
     connection = connecting()
@@ -431,6 +443,7 @@ def delete_author(author_id):
         cursor.close()
         connection.close()
 
+
 @app.route('/get_user/<int:userID>', methods=['GET'])
 def get_user(userID):
     connection = connecting()
@@ -443,6 +456,7 @@ def get_user(userID):
         return jsonify({'success': True, 'user': user})
     else:
         return jsonify({'success': False, 'message': 'User not found'})
+
 
 @app.route('/get_book/<string:ISBN>', methods=['GET'])
 def get_book(ISBN):
@@ -475,6 +489,7 @@ def get_book(ISBN):
     else:
         return jsonify({'success': False, 'message': 'Book not found'})
 
+
 @app.route('/get_author/<int:authorID>', methods=['GET'])
 def get_author(authorID):
     connection = connecting()
@@ -487,6 +502,7 @@ def get_author(authorID):
         return jsonify({'success': True, 'author': author})
     else:
         return jsonify({'success': False, 'message': 'Author not found'})
+
 
 @app.route('/edit_user', methods=['POST'])
 def edit_user():
@@ -514,14 +530,14 @@ def edit_user():
         cursor.close()
         connection.close()
 
+
 @app.route('/edit_book', methods=['POST'])
 def edit_book():
     ISBN = request.form.get('ISBN')
     bookName = request.form.get('bookName')
     genre = request.form.get('genre')
     publicationYear = request.form.get('publicationYear')
-    authorFirstNames = request.form.getlist('authorFirstName[]')
-    authorLastNames = request.form.getlist('authorLastName[]')
+    authorIDs = request.form.getlist('authorID[]')
 
     connection = connecting()
     cursor = connection.cursor(buffered=True)  # Use a buffered cursor
@@ -538,18 +554,9 @@ def edit_book():
         # Delete existing author-book relationships
         cursor.execute("DELETE FROM authorbook WHERE ISBN = %s", (ISBN,))
 
-        for firstName, lastName in zip(authorFirstNames, authorLastNames):
-            # Find the authorID based on the author's first and last name
-            cursor.execute("SELECT authorID FROM author WHERE first_name = %s AND last_name = %s",
-                           (firstName, lastName))
-            author = cursor.fetchone()
-
-            if author:
-                authorID = author[0]
-                # Insert the book and author relationship into the AuthorBook table
-                cursor.execute("INSERT INTO authorbook (ISBN, authorID) VALUES (%s, %s)", (ISBN, authorID))
-            else:
-                raise ValueError(f"Author {firstName} {lastName} not found")
+        for authorID in authorIDs:
+            # Insert the book and author relationship into the AuthorBook table
+            cursor.execute("INSERT INTO authorbook (ISBN, authorID) VALUES (%s, %s)", (ISBN, authorID))
 
         # Commit the transaction if all queries are successful
         connection.commit()
@@ -565,6 +572,7 @@ def edit_book():
         connection.close()
 
     return jsonify({"success": True})
+
 
 @app.route('/edit_author', methods=['POST'])
 def edit_author():
@@ -588,6 +596,18 @@ def edit_author():
     finally:
         cursor.close()
         connection.close()
+
+
+@app.route('/get_authors_for_dropdown')
+def get_authors_for_dropdown():
+    connection = connecting()
+    cursor = connection.cursor(dictionary=True)
+    cursor.execute("SELECT authorID, CONCAT(first_name, ' ', last_name) AS full_name FROM author")
+    authors = cursor.fetchall()
+    cursor.close()
+    connection.close()
+    return jsonify(authors)
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)

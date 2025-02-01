@@ -14,6 +14,12 @@ document.addEventListener('DOMContentLoaded', function() {
             window.location.href = '/';
         });
     }
+
+    // Populate the author dropdown on page load
+    const authorSelect = document.getElementById('authorSelect');
+    if (authorSelect) {
+        fetchAuthorsForDropdown(authorSelect);
+    }
 });
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -300,11 +306,13 @@ function addAuthorField() {
     const newAuthorField = document.createElement('div');
     newAuthorField.className = 'author-fields';
     newAuthorField.innerHTML = `
-        <label for="authorFirstName">Author First Name:</label>
-        <input type="text" name="authorFirstName[]" required>
-        <label for="authorLastName">Author Last Name:</label>
-        <input type="text" name="authorLastName[]" required>
+        <label for="authorSelect">Author:</label>
+        <select name="authorID[]" required>
+            <!-- Options will be populated here -->
+        </select>
     `;
+    const authorSelect = newAuthorField.querySelector('select');
+    fetchAuthorsForDropdown(authorSelect); // Populate the dropdown
     authorsContainer.appendChild(newAuthorField);
 }
 
@@ -313,12 +321,30 @@ function addEditAuthorField() {
     const newAuthorField = document.createElement('div');
     newAuthorField.className = 'author-fields';
     newAuthorField.innerHTML = `
-        <label for="editAuthorFirstName">Author First Name:</label>
-        <input type="text" name="authorFirstName[]" required>
-        <label for="editAuthorLastName">Author Last Name:</label>
-        <input type="text" name="authorLastName[]" required>
+        <label for="editAuthorSelect">Author:</label>
+        <select name="authorID[]" required>
+            <!-- Options will be populated here -->
+        </select>
     `;
+    const authorSelect = newAuthorField.querySelector('select');
+    fetchAuthorsForDropdown(authorSelect); // Populate the dropdown
     authorsContainer.appendChild(newAuthorField);
+}
+
+async function fetchAuthorsForDropdown(selectElement) {
+    try {
+        const response = await fetch('/get_authors_for_dropdown');
+        const data = await response.json();
+        selectElement.innerHTML = ''; // Clear existing options
+        data.forEach(author => {
+            const option = document.createElement('option');
+            option.value = author.authorID;
+            option.textContent = author.full_name;
+            selectElement.appendChild(option);
+        });
+    } catch (error) {
+        console.error('Error fetching authors:', error);
+    }
 }
 
 function openDeleteConfirmation(type, id) {
@@ -407,11 +433,14 @@ async function editBook(ISBN) {
                     const authorField = document.createElement('div');
                     authorField.className = 'author-fields';
                     authorField.innerHTML = `
-                        <label>Author First Name:</label>
-                        <input type="text" name="authorFirstName[]" value="${author.first_name}" required>
-                        <label>Author Last Name:</label>
-                        <input type="text" name="authorLastName[]" value="${author.last_name}" required>
+                        <label for="editAuthorSelect">Author:</label>
+                        <select name="authorID[]" required>
+                            <!-- Options will be populated here -->
+                        </select>
                     `;
+                    const authorSelect = authorField.querySelector('select');
+                    fetchAuthorsForDropdown(authorSelect); // Populate the dropdown
+                    authorSelect.value = author.authorID; // Set the selected author
                     authorsContainer.appendChild(authorField);
                 });
             }
@@ -522,6 +551,7 @@ function closeEditBookForm() {
 function closeEditAuthorForm() {
     closeFrame('editAuthorFormContainer');
 }
+
 let openFrameCount = 0; // Track the number of open frames
 
 function openFrame(frameId) {
@@ -550,6 +580,7 @@ function closeFrame(frameId) {
     }
     resetFormInputs(frameId);
 }
+
 function openDeleteConfirmation(type, id) {
     openFrame('deleteConfirmationFrame'); // Use openFrame to handle overlay and blur
     window.currentDeleteType = type;
