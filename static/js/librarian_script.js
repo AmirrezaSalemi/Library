@@ -57,9 +57,20 @@ function closeFrame(frameId) {
 }
 
 function resetFormInputs(frameId) {
-    const form = document.getElementById(frameId);
-    if (form) {
-        form.reset();
+    const frame = document.getElementById(frameId);
+    if (frame) {
+        const inputs = frame.querySelectorAll('input, select, textarea');
+        inputs.forEach(input => {
+            if (input.type === 'text' || input.type === 'number' || input.type === 'email' || input.type === 'password') {
+                input.value = '';
+            } else if (input.type === 'checkbox' || input.type === 'radio') {
+                input.checked = false;
+            } else if (input.tagName === 'SELECT') {
+                input.selectedIndex = 0;
+            } else if (input.tagName === 'TEXTAREA') {
+                input.value = '';
+            }
+        });
     }
 }
 
@@ -81,6 +92,11 @@ function closeUserForm() {
 
 function openBookForm() {
     openFrame('bookFormContainer');
+    // Clear the authors container
+    const authorsContainer = document.getElementById('authorsContainer');
+    authorsContainer.innerHTML = '';
+    // Add a new author field
+    addAuthorField();
 }
 
 function closeBookForm() {
