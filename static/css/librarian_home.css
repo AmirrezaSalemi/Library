@@ -498,17 +498,6 @@ td {
     height: 100%;
 }
 
-@media (max-width: 768px) {
-    .rectangle-container {
-        flex-direction: column;
-        align-items: center;
-    }
-    .rectangle {
-        flex: 1 1 100%;
-        margin: 10px 0;
-    }
-}
-
 .form-container {
     max-height: 80vh; /* Set a maximum height for the frame */
     overflow-y: auto; /* Enable vertical scrolling */
@@ -593,4 +582,59 @@ td {
     max-height: 90vh;
     overflow-y: auto;
     overscroll-behavior: contain; /* Prevent scroll chaining */
+}
+@media (max-width: 768px) {
+    header {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+    .title {
+        display: flex;
+        justify-content: center;
+        width: 100%;
+    }
+    .title img {
+        height: 2.5em;
+        display: block;
+        margin: 0 auto;
+    }
+    .rectangle {
+        flex: 0 0 calc(33.333% - 14px);
+        margin: 7px;
+        min-width: 0;
+    }
+
+    .rectangle-container {
+        gap: 0;
+    }
+}
+@media (max-width: 480px) {
+    header {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+
+    .login-signin {
+        position: absolute;
+        left: 10px;
+        width: auto;
+        justify-content: center;
+        font-size: 0.6em;
+        left: 5px;
+        top: 10px;
+    }
+
+    .title {
+        display: flex;
+        justify-content: center;
+        width: 100%;
+    }
+
+    .title img {
+        height: 2em;
+        display: block;
+        margin: 0 auto;
+    }
 }

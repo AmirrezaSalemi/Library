@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', function() {
-    const libraryText = document.getElementById('library-text');
+    const libraryText = document.getElementById('library-logo');
     const userLoginForm = document.getElementById('user-login-form');
 
     if (libraryText) {
