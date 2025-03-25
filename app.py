@@ -5,7 +5,6 @@ import traceback
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'  # Add a secret key for flash messages
 
-
 def connecting():
     connection = mysql.connector.connect(
         host='localhost',
@@ -16,7 +15,6 @@ def connecting():
     if connection.is_connected():
         print('Connected to MySQL database')
         return connection
-
 
 @app.route('/test_connection')
 def test_connection():
@@ -29,7 +27,6 @@ def test_connection():
     finally:
         if connection.is_connected():
             connection.close()
-
 
 @app.route('/add_author', methods=['POST'])
 def add_author():
@@ -53,7 +50,6 @@ def add_author():
         cursor.close()
         connection.close()
 
-
 @app.route('/add_librarian', methods=['POST'])
 def add_librarian():
     librarianID = request.form.get('librarianID')
@@ -75,7 +71,6 @@ def add_librarian():
     finally:
         cursor.close()
         connection.close()
-
 
 @app.route('/add_user_route', methods=['POST'])
 def add_user_route():
@@ -109,7 +104,6 @@ def add_user_route():
         print(f"Error: {e}")
         traceback.print_exc()
         return jsonify({"success": False, "message": str(e)}), 500
-
 
 @app.route('/add_book', methods=['POST'])
 def add_book():
@@ -151,7 +145,6 @@ def add_book():
 
     return jsonify({"success": True})
 
-
 @app.route('/get_book_list')
 def get_book_list():
     connection = connecting()
@@ -171,7 +164,6 @@ def get_book_list():
     connection.close()
     return jsonify(books)
 
-
 @app.route('/get_author_list')
 def get_author_list():
     connection = connecting()
@@ -181,7 +173,6 @@ def get_author_list():
     cursor.close()
     connection.close()
     return jsonify(authors)
-
 
 @app.route('/get_borrow_history')
 def get_borrow_history():
@@ -194,7 +185,6 @@ def get_borrow_history():
     cursor.close()
     connection.close()
     return jsonify(borrows)
-
 
 @app.route('/get_available_books')
 def get_available_books():
@@ -211,7 +201,6 @@ def get_available_books():
     cursor.close()
     connection.close()
     return jsonify(books)
-
 
 @app.route('/borrow_book', methods=['POST'])
 def borrow_book():
@@ -242,7 +231,6 @@ def borrow_book():
         connection.close()
     return jsonify({"success": True})
 
-
 @app.route('/get_borrowed_books')
 def get_borrowed_books():
     userID = session.get('userID')  # Retrieve userID from session
@@ -261,7 +249,6 @@ def get_borrowed_books():
     cursor.close()
     connection.close()
     return jsonify(books)
-
 
 @app.route('/return_book', methods=['POST'])
 def return_book():
@@ -299,18 +286,15 @@ def return_book():
         connection.close()
     return jsonify({"success": True})
 
-
 @app.route('/')
 def index():
     return render_template('index.html')
-
 
 @app.route('/user_home')
 def user_home():
     first_name = request.args.get('first_name')
     last_name = request.args.get('last_name')
     return render_template('user_home.html', first_name=first_name, last_name=last_name)
-
 
 @app.route('/librarian_home')
 def librarian_home():
@@ -320,7 +304,6 @@ def librarian_home():
     session['librarian_id'] = librarian_id  # Store librarianID in session
     print(f"Librarian ID stored in session: {librarian_id}")
     return render_template('librarian_home.html', first_name=first_name, last_name=last_name)
-
 
 @app.route('/get_user_list')
 def get_user_list():
@@ -337,7 +320,6 @@ def get_user_list():
     connection.close()
     return jsonify(users)
 
-
 @app.route('/get_borrow_list')
 def get_borrow_list():
     connection = connecting()
@@ -348,7 +330,6 @@ def get_borrow_list():
     cursor.close()
     connection.close()
     return jsonify(borrows)
-
 
 @app.route('/login', methods=['POST'])
 def login():
@@ -368,15 +349,11 @@ def login():
 
     if users:
         session['userID'] = users[0]['userID']  # Store userID in session
-        return redirect(url_for('user_home', first_name=users[0]['first_name'], last_name=users[0]['last_name']))
+        return jsonify({'redirect': url_for('user_home', first_name=users[0]['first_name'], last_name=users[0]['last_name'])})
     elif librarians:
-        return redirect(
-            url_for('librarian_home', first_name=librarians[0]['first_name'], last_name=librarians[0]['last_name'],
-                    librarian_id=librarians[0]['librarianID']))
+        return jsonify({'redirect': url_for('librarian_home', first_name=librarians[0]['first_name'], last_name=librarians[0]['last_name'], librarian_id=librarians[0]['librarianID'])})
     else:
-        flash('Invalid ID', 'error')
-        return redirect(url_for('index'))
-
+        return jsonify({'error': 'Invalid ID'}), 401
 
 @app.route('/delete_user/<int:user_id>', methods=['DELETE'])
 def delete_user(user_id):
@@ -399,7 +376,6 @@ def delete_user(user_id):
         cursor.close()
         connection.close()
 
-
 @app.route('/delete_book/<string:ISBN>', methods=['DELETE'])
 def delete_book(ISBN):
     connection = connecting()
@@ -420,7 +396,6 @@ def delete_book(ISBN):
     finally:
         cursor.close()
         connection.close()
-
 
 @app.route('/delete_author/<int:author_id>', methods=['DELETE'])
 def delete_author(author_id):
@@ -443,7 +418,6 @@ def delete_author(author_id):
         cursor.close()
         connection.close()
 
-
 @app.route('/get_user/<int:userID>', methods=['GET'])
 def get_user(userID):
     connection = connecting()
@@ -456,7 +430,6 @@ def get_user(userID):
         return jsonify({'success': True, 'user': user})
     else:
         return jsonify({'success': False, 'message': 'User not found'})
-
 
 @app.route('/get_book/<string:ISBN>', methods=['GET'])
 def get_book(ISBN):
@@ -489,7 +462,6 @@ def get_book(ISBN):
     else:
         return jsonify({'success': False, 'message': 'Book not found'})
 
-
 @app.route('/get_author/<int:authorID>', methods=['GET'])
 def get_author(authorID):
     connection = connecting()
@@ -502,7 +474,6 @@ def get_author(authorID):
         return jsonify({'success': True, 'author': author})
     else:
         return jsonify({'success': False, 'message': 'Author not found'})
-
 
 @app.route('/edit_user', methods=['POST'])
 def edit_user():
@@ -529,7 +500,6 @@ def edit_user():
     finally:
         cursor.close()
         connection.close()
-
 
 @app.route('/edit_book', methods=['POST'])
 def edit_book():
@@ -573,7 +543,6 @@ def edit_book():
 
     return jsonify({"success": True})
 
-
 @app.route('/edit_author', methods=['POST'])
 def edit_author():
     authorID = request.form.get('authorID')
@@ -597,7 +566,6 @@ def edit_author():
         cursor.close()
         connection.close()
 
-
 @app.route('/get_authors_for_dropdown')
 def get_authors_for_dropdown():
     connection = connecting()
@@ -607,7 +575,6 @@ def get_authors_for_dropdown():
     cursor.close()
     connection.close()
     return jsonify(authors)
-
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)

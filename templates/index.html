@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Library</title>
+    <title>Persian Gulf Library</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
 </head>
 <body>
@@ -14,10 +14,24 @@
             <a href="#" id="user-link">Users</a>
         </div>
         <div class="title">
-            <h1 id="library-text">Library</h1>
+            <img src="{{ url_for('static', filename='images/Logo.png') }}" alt="Library Logo" id="library-logo">
         </div>
     </header>
     <div class="content-wrapper">
+        <div class="slider-container">
+            <div class="slider">
+                <div class="slide"><img src="{{ url_for('static', filename='images/image1.jpg') }}" alt="Image 1"></div>
+                <div class="slide"><img src="{{ url_for('static', filename='images/image2.jpg') }}" alt="Image 2"></div>
+                <div class="slide"><img src="{{ url_for('static', filename='images/image3.jpg') }}" alt="Image 3"></div>
+            </div>
+            <button class="slider-btn prev">&#10094;</button>
+            <button class="slider-btn next">&#10095;</button>
+            <div class="slider-indicators">
+                <span class="indicator" data-target="0"></span>
+                <span class="indicator" data-target="1"></span>
+                <span class="indicator" data-target="2"></span>
+            </div>
+        </div>
     </div>
     <div class="login-form" id="user-login-form">
         <span class="close-btn" id="close-user-login">x</span>

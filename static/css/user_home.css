@@ -3,11 +3,11 @@ body {
     font-family: 'Times New Roman', Times, serif;
     color: white;
     text-align: center;
-    background: linear-gradient(135deg, #000435 0%, #004e92 100%); /* Gradient background */
+    background: linear-gradient(135deg, #000435 0%, #004e92 100%);
 }
 
 header {
-    background: rgba(0, 5, 56, 0.9); /* Slightly transparent background */
+    background: rgba(64, 64, 64, 0.9);
     padding: 10px 20px;
     display: flex;
     justify-content: space-between;
@@ -15,8 +15,8 @@ header {
     position: fixed;
     top: 0;
     width: 100%;
-    z-index: 1000; /* Ensure the header stays on top */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Subtle shadow */
+    z-index: 1000;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
 .title {
@@ -26,37 +26,34 @@ header {
     align-items: center;
 }
 
-.title h1 {
-    margin: 0;
-    font-size: 3em;
-    cursor: pointer; /* Add cursor pointer to indicate it's clickable */
-    position: relative;
-    transition: text-shadow 0.3s ease;
+.title img {
+    width: auto;
+    height: 3em;
+    cursor: pointer;
+    transition: transform 0.3s ease, box-shadow 0.3s ease, filter 0.3s ease;
+    border-radius: 15px;
 }
 
-.title h1:hover {
-    text-shadow: 0 0 10px rgba(255, 255, 255, 0.8),
-                 0 0 20px rgba(255, 255, 255, 0.7),
-                 0 0 30px rgba(255, 255, 255, 0.6),
-                 0 0 40px rgba(255, 255, 255, 0.5),
-                 0 0 50px rgba(255, 255, 255, 0.4),
-                 0 0 60px rgba(255, 255, 255, 0.3);
+.title img:hover {
+    transform: scale(1.1);
+    filter: brightness(1.2);
 }
 
 .content-wrapper {
-    background-image: url('library_shelves.png'); /* Example background image for librarian page */
+    background-image: url('library_shelves.png');
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
-    padding-top: 60px; /* Adjust this value based on the height of your header */
-    min-height: 100vh; /* Ensure the wrapper takes at least the full viewport height */
-    transition: filter 0.3s ease; /* Add transition for blur effect */
+    padding-top: 60px;
+    min-height: 100vh;
+    transition: filter 0.3s ease;
 }
 
 h2 {
-    color: Gray; /* Example text color for user page */
-    position: relative; /* Ensure the pseudo-element is positioned relative to the h2 */
-    z-index: 1; /* Ensure the h2 text is above the pseudo-element */
+    color: Gray;
+    position: relative;
+    z-index: 1;
+    font-family: 'Times New Roman', Times, serif;
 }
 
 h2::before {
@@ -66,9 +63,9 @@ h2::before {
     left: 460px;
     right: 460px;
     bottom: 0;
-    background-color: rgba(0, 0, 0, 0.5); /* Black color with 50% opacity */
-    border-radius: 10px; /* Curved corners */
-    z-index: -1; /* Ensure the pseudo-element is behind the h2 text */
+    background-color: rgba(0, 0, 0, 0.5);
+    border-radius: 10px;
+    z-index: -1;
 }
 
 .rectangle-container {
@@ -85,25 +82,25 @@ h2::before {
     padding: 20px;
     border-radius: 10px;
     text-decoration: none;
-    transition: background-color 0.3s ease, box-shadow 0.3s ease, opacity 0.3s ease; /* Add transition for opacity */
-    flex: 1 1 calc(33.333% - 60px); /* Adjust the width to fit 3 rectangles per row with 20px margin */
+    transition: background-color 0.3s ease, box-shadow 0.3s ease, opacity 0.3s ease;
+    flex: 1 1 calc(33.333% - 60px);
     box-sizing: border-box;
-    margin: 20px; /* Add margin around each rectangle */
-    height: 200px; /* Set the height of the rectangles */
+    margin: 20px;
+    height: 200px;
     display: flex;
     justify-content: center;
     align-items: center;
     text-align: center;
-    overflow: hidden; /* Ensure the pseudo-element is contained within the rectangle */
+    overflow: hidden;
     opacity: 0.85;
-    font-family: 'Times New Roman', Times, serif; /* Set the font family */
-    font-size: 24px; /* Set the font size */
+    font-family: 'Times New Roman', Times, serif;
+    font-size: 24px;
     text-shadow: 0 0 5px rgba(0, 0, 0, 0.8),
                  0 0 10px rgba(0, 0, 0, 0.7),
                  0 0 15px rgba(0, 0, 0, 0.6),
                  0 0 20px rgba(0, 0, 0, 0.5),
                  0 0 25px rgba(0, 0, 0, 0.4),
-                 0 0 30px rgba(0, 0, 0, 0.3); /* Add text shadow in black */
+                 0 0 30px rgba(0, 0, 0, 0.3);
 }
 
 .rectangle::before {
@@ -113,36 +110,35 @@ h2::before {
     left: 0;
     right: 0;
     bottom: 0;
-    background-size: cover; /* Ensure the background image covers the rectangle */
-    background-position: center; /* Center the background image */
-    background-repeat: no-repeat; /* Ensure the background image does not repeat */
-    z-index: -1; /* Ensure the pseudo-element is behind the text */
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    z-index: -1;
 }
 
 .rectangle::after {
-    content: attr(data-text); /* Use the data-text attribute for the content */
+    content: attr(data-text);
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    color: transparent; /* Make the text transparent */
-    background: rgba(0, 0, 0, 0.5); /* Bright black background */
-    padding: 5px 10px; /* Add padding around the text */
-    border-radius: 5px; /* Add rounded corners */
-    z-index: -1; /* Ensure the pseudo-element is behind the text */
-    white-space: nowrap; /* Prevent text from wrapping */
+    color: transparent;
+    background: rgba(0, 0, 0, 0.5);
+    padding: 5px 10px;
+    border-radius: 5px;
+    z-index: -1;
+    white-space: nowrap;
 }
 
 .rectangle:hover::before {
-    background-color: rgba(0, 0, 0, 0.7); /* Darker background on hover */
+    background-color: rgba(0, 0, 0, 0.7);
 }
 
 .rectangle:hover {
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Add shadow effect on hover */
-    opacity: 0.5; /* Decrease opacity on hover */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    opacity: 0.5;
 }
 
-/* Add background images for each rectangle */
 .rectangle:nth-child(1)::before {
     background-image: url('Author_list.png');
 }
@@ -172,14 +168,13 @@ h2::before {
     cursor: pointer;
     padding: 0;
     margin: 0;
-    font-family: Arial, sans-serif; /* Ensure the font is clear and readable */
+    font-family: Arial, sans-serif; /* Changed font family */
 }
 
 .close-btn:hover {
     color: #ff0000;
 }
 
-/* Style for the frame */
 .frame {
     display: none;
     position: fixed;
@@ -190,11 +185,10 @@ h2::before {
     padding: 20px;
     border-radius: 10px;
     z-index: 1001;
-    width: 90%; /* Adjust the width as needed */
-    max-width: 1200px; /* Set a maximum width to ensure it fits within the viewport */
+    width: 90%;
+    max-width: 1200px;
 }
 
-/* Style for the table container */
 .frame-content {
     background: #333;
     padding: 20px;
@@ -202,39 +196,42 @@ h2::before {
     color: white;
     max-height: 400px;
     overflow-y: auto;
-    overflow-x: auto; /* Enable horizontal scrolling if needed */
-    max-width: 100%; /* Ensure the table does not exceed the frame width */
+    overflow-x: auto;
+    max-width: 100%;
+    font-family: 'Times New Roman', Times, serif;
 }
 
 .frame-content h2 {
     margin-top: 0;
-    color: white; /* White text */
+    color: white;
+    font-family: 'Times New Roman', Times, serif;
 }
 
 .frame-content table {
     width: 100%;
     border-collapse: collapse;
     margin-top: 20px;
-    color: white; /* White text */
+    color: white;
 }
 
 .frame-content th, .frame-content td {
-    border: 1px solid #555; /* Dark border */
+    border: 1px solid #555;
     padding: 8px;
     text-align: center;
-    color: white; /* White text */
+    color: white;
+    font-family: 'Times New Roman', Times, serif;
 }
 
 .frame-content th {
-    background-color: #444; /* Darker background for header */
+    background-color: #444;
 }
 
 .frame-content tr:nth-child(even) {
-    background-color: #555; /* Alternating row color */
+    background-color: #555;
 }
 
 .frame-content tr:hover {
-    background-color: #666; /* Hover row color */
+    background-color: #666;
 }
 
 .frame-content button {
@@ -245,42 +242,41 @@ h2::before {
     background: #0059b3;
     color: white;
     cursor: pointer;
+    font-family: 'Times New Roman', Times, serif;
 }
 
 .frame-content button:hover {
     background: #004085;
 }
 
-/* Custom scrollbar styles */
 .frame-content::-webkit-scrollbar {
-    width: 12px; /* Width of the scrollbar */
+    width: 12px;
 }
 
 .frame-content::-webkit-scrollbar-track {
-    background: #222; /* Color of the scrollbar track */
-    border-radius: 10px; /* Rounded corners for the track */
+    background: #222;
+    border-radius: 10px;
 }
 
 .frame-content::-webkit-scrollbar-thumb {
-    background: #555; /* Color of the scrollbar thumb */
-    border-radius: 10px; /* Rounded corners for the thumb */
+    background: #555;
+    border-radius: 10px;
 }
 
 .frame-content::-webkit-scrollbar-thumb:hover {
-    background: #777; /* Color of the scrollbar thumb on hover */
+    background: #777;
 }
 
-/* Firefox scrollbar styles */
 .frame-content {
-    scrollbar-width: thin; /* Width of the scrollbar */
-    scrollbar-color: #555 #222; /* Color of the thumb and track */
+    scrollbar-width: thin;
+    scrollbar-color: #555 #222;
 }
 
-/* Style for the table */
 table {
     width: 100%;
     border-collapse: collapse;
     margin-top: 20px;
+    font-family: 'Times New Roman', Times, serif;
 }
 
 table, th, td {
@@ -290,7 +286,8 @@ table, th, td {
 th, td {
     padding: 10px;
     text-align: left;
-    white-space: nowrap; /* Prevent text from wrapping */
+    white-space: nowrap;
+    font-family: 'Times New Roman', Times, serif;
 }
 
 th {
@@ -312,23 +309,113 @@ td {
     z-index: 1000;
 }
 
-/* Style for blurring the background */
 .blur {
     filter: blur(5px);
 }
 
-/* Style for disabling scroll */
 .no-scroll {
     overflow: hidden;
 }
 
 .action-icon {
-    width: 24px; /* Adjust the width as needed */
-    height: 24px; /* Adjust the height as needed */
+    width: 24px;
+    height: 24px;
     cursor: pointer;
     transition: transform 0.3s ease;
 }
 
 .action-icon:hover {
-    transform: scale(1.5); /* Slightly enlarge the icon on hover */
+    transform: scale(1.5);
+}
+
+.notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 15px 25px;
+    border: none;
+    border-radius: 10px;
+    background: linear-gradient(145deg, #222, #333);
+    color: white;
+    opacity: 0.9;
+    z-index: 1002;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    font-family: 'Times New Roman', Times, serif;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+.notification.success {
+    background: linear-gradient(145deg, #4caf50, #66bb6a); /* Green for success */
+    color: #fff;
+    font-family: 'Times New Roman', Times, serif;
+}
+
+.notification.error {
+    background: linear-gradient(145deg, #f44336, #e57373); /* Red for error */
+    color: #fff;
+    font-family: 'Times New Roman', Times, serif;
+}
+
+.notification .icon {
+    margin-right: 10px;
+    font-size: 24px;
+}
+
+@media (max-width: 768px) {
+    header {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+    .title {
+        display: flex;
+        justify-content: center;
+        width: 100%;
+    }
+    .title img {
+        height: 2.5em;
+        display: block;
+        margin: 0 auto;
+    }
+    .rectangle {
+        flex: 0 0 calc(33.333% - 14px);
+        margin: 7px;
+        min-width: 0;
+    }
+
+    .rectangle-container {
+        gap: 0;
+    }
+}
+@media (max-width: 480px) {
+    header {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+
+    .login-signin {
+        position: absolute;
+        left: 10px;
+        width: auto;
+        justify-content: center;
+        font-size: 0.6em;
+        left: 5px;
+        top: 10px;
+    }
+
+    .title {
+        display: flex;
+        justify-content: center;
+        width: 100%;
+    }
+
+    .title img {
+        height: 2em;
+        display: block;
+        margin: 0 auto;
+    }
 }

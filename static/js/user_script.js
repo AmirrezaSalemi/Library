@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', function() {
-    const libraryText = document.getElementById('library-text');
+    const libraryText = document.getElementById('library-logo');
     const userLoginForm = document.getElementById('user-login-form');
 
     if (libraryText) {
@@ -211,14 +211,15 @@ async function borrowBook(ISBN) {
         });
         const data = await response.json();
         if (data.success) {
-            alert('Book borrowed successfully!');
+            showNotification('Book borrowed successfully!', 'success');
             closeBorrowBook();
             fetchBorrowHistory();
         } else {
-            alert('Failed to borrow book.');
+            showNotification('Failed to borrow book.', 'error');
         }
     } catch (error) {
         console.error('Error borrowing book:', error);
+        showNotification('An error occurred while borrowing the book.', 'error');
     }
 }
 
@@ -233,13 +234,57 @@ async function returnBook(ISBN) {
         });
         const data = await response.json();
         if (data.success) {
-            alert('Book returned successfully!');
+            showNotification('Book returned successfully!', 'success');
             closeReturnBook();
             fetchBorrowHistory();
         } else {
-            alert('Failed to return book.');
+            showNotification('Failed to return book.', 'error');
         }
     } catch (error) {
         console.error('Error returning book:', error);
+        showNotification('An error occurred while returning the book.', 'error');
     }
+}
+
+function showNotification(message, type) {
+    console.log("Showing notification:", message, type);
+    const notificationContainer = document.getElementById('notification-container');
+    if (!notificationContainer) {
+        console.error("Notification container not found!");
+        return;
+    }
+
+    // Create a new notification element
+    const notification = document.createElement('div');
+    notification.className = `notification ${type}`;
+    notification.innerText = message;
+    notification.style.opacity = 0; // Start with opacity 0
+    notification.style.transform = 'translateX(100%)'; // Start off-screen to the right
+    notificationContainer.appendChild(notification);
+
+    // Show the notification by gradually increasing opacity and moving it into view
+    let opacity = 0;
+    const fadeInInterval = setInterval(() => {
+        if (opacity >= 1) {
+            clearInterval(fadeInInterval);
+        } else {
+            opacity += 0.1;
+            notification.style.opacity = opacity;
+            notification.style.transform = `translateX(${100 - (opacity * 100)}%)`;
+        }
+    }, 30); // Adjust the interval duration for smoother animation
+
+    // Remove the notification after a delay by gradually decreasing opacity and moving it off-screen
+    setTimeout(() => {
+        let fadeOutInterval = setInterval(() => {
+            if (opacity <= 0) {
+                clearInterval(fadeOutInterval);
+                notification.remove();
+            } else {
+                opacity -= 0.1;
+                notification.style.opacity = opacity;
+                notification.style.transform = `translateX(${100 - (opacity * 100)}%)`;
+            }
+        }, 30); // Adjust the interval duration for smoother animation
+    }, 3000); // Notification will stay visible for 3 seconds
 }

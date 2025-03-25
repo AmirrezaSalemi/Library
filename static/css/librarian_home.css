@@ -3,12 +3,11 @@ body {
     font-family: 'Times New Roman', Times, serif;
     color: white;
     text-align: center;
-    background: linear-gradient(135deg, #000435 0%, #004e92 100%); /* Gradient background */
-    transition: filter 0.3s ease; /* Add transition for blur effect */
+    background: linear-gradient(135deg, #000435 0%, #004e92 100%);
 }
 
 header {
-    background: rgba(0, 5, 56, 0.9); /* Slightly transparent background */
+    background: rgba(64, 64, 64, 0.9);
     padding: 10px 20px;
     display: flex;
     justify-content: space-between;
@@ -17,7 +16,7 @@ header {
     top: 0;
     width: 100%;
     z-index: 1000; /* Ensure the header stays on top */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Subtle shadow */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
 .title {
@@ -25,6 +24,19 @@ header {
     display: flex;
     justify-content: center;
     align-items: center;
+}
+
+.title img {
+    width: auto;
+    height: 3em;
+    cursor: pointer;
+    transition: transform 0.3s ease, box-shadow 0.3s ease, filter 0.3s ease;
+    border-radius: 15px;
+}
+
+.title img:hover {
+    transform: scale(1.1);
+    filter: brightness(1.2);
 }
 
 .title h1 {
@@ -408,6 +420,41 @@ td {
     scrollbar-color: #555 #222; /* Color of the thumb and track */
 }
 
+.notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 15px 25px;
+    border: none;
+    border-radius: 10px;
+    background: linear-gradient(145deg, #222, #333);
+    color: white;
+    opacity: 0.9;
+    z-index: 1002;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    font-family: 'Times New Roman', Times, serif;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+.notification.success {
+    background: linear-gradient(145deg, #4caf50, #66bb6a); /* Green for success */
+    color: #fff;
+    font-family: 'Times New Roman', Times, serif;
+}
+
+.notification.error {
+    background: linear-gradient(145deg, #f44336, #e57373); /* Red for error */
+    color: #fff;
+    font-family: 'Times New Roman', Times, serif;
+}
+
+.notification .icon {
+    margin-right: 10px;
+    font-size: 24px;
+}
 table {
     width: 100%;
     border-collapse: collapse;

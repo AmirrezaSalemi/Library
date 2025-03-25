@@ -9,7 +9,7 @@
 <body>
     <header>
         <div class="title">
-            <h1 id="library-text">Library</h1>
+            <img src="{{ url_for('static', filename='images/Logo.png') }}" alt="Library Logo" id="library-logo">
         </div>
     </header>
     <div class="content-wrapper">
@@ -231,6 +231,9 @@
             <button onclick="confirmDelete()">Accept</button>
             <button onclick="denyDelete()">Deny</button>
         </div>
+    </div>
+    <div id="notification" class="notification">
+        <span id="notification-message"></span>
     </div>
     <script src='{{ url_for("static", filename="js/librarian_script.js") }}'></script>
 </body>

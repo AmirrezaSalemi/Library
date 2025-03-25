@@ -3,38 +3,42 @@ body {
     font-family: 'Times New Roman', Times, serif;
     color: white;
     text-align: center;
-    background: linear-gradient(135deg, #000435 0%, #004e92 100%); /* Gradient background */
+    background: linear-gradient(135deg, #000435 0%, #004e92 100%);
 }
 
 header {
-    background: rgba(0, 5, 56, 0.9); /* Slightly transparent background */
+    background: rgba(64, 64, 64, 0.9);
     padding: 10px 20px;
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
     align-items: center;
     position: fixed;
     top: 0;
     width: 100%;
-    z-index: 1000; /* Ensure the header stays on top */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Subtle shadow */
+    z-index: 1000;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
 .login-signin {
-    border: 1px solid rgba(255, 255, 255, 0.5); /* Semi-transparent border */
-    padding: 10px;
-    position: absolute;
-    left: 20px;
+    border: 2px solid rgba(0, 0, 0, 0.5);
+    padding: 5px;
     display: flex;
     align-items: center;
-    border-radius: 5px; /* Rounded corners */
+    border-radius: 15px;
+    position: absolute;
+    left: 10px;
+    top: 20px;
+    font-size: 0.7em;
 }
 
 .login-signin a {
-    color: white;
+    color: black;
     text-decoration: none;
     margin: 0 10px;
     position: relative;
     transition: text-shadow 0.3s ease, color 0.3s ease;
+    padding: 3px 5px;
+    border-radius: 10px;
 }
 
 .login-signin a:hover {
@@ -44,36 +48,25 @@ header {
                  0 0 20px rgba(255, 255, 255, 0.5),
                  0 0 25px rgba(255, 255, 255, 0.4),
                  0 0 30px rgba(255, 255, 255, 0.3);
-    color: #ffffff; /* Optional: Change text color on hover for better contrast */
+    color: #ffffff;
 }
 
 .divider {
-    color: white;
-    margin: 0 10px;
+    color: black;
+    margin: 0 5px;
 }
 
-.title {
-    flex: 1;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+.title img {
+    width: auto;
+    height: 3em;
+    cursor: pointer;
+    transition: transform 0.3s ease, box-shadow 0.3s ease, filter 0.3s ease;
+    border-radius: 15px;
 }
 
-.title h1 {
-    margin: 0;
-    font-size: 3em;
-    cursor: pointer; /* Add cursor pointer to indicate it's clickable */
-    position: relative;
-    transition: text-shadow 0.3s ease;
-}
-
-.title h1:hover {
-    text-shadow: 0 0 10px rgba(255, 255, 255, 0.8),
-                 0 0 20px rgba(255, 255, 255, 0.7),
-                 0 0 30px rgba(255, 255, 255, 0.6),
-                 0 0 40px rgba(255, 255, 255, 0.5),
-                 0 0 50px rgba(255, 255, 255, 0.4),
-                 0 0 60px rgba(255, 255, 255, 0.3);
+.title img:hover {
+    transform: scale(1.1);
+    filter: brightness(1.2);
 }
 
 .content-wrapper {
@@ -81,21 +74,96 @@ header {
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
-    padding-top: 60px; /* Adjust this value based on the height of your header */
-    min-height: 100vh; /* Ensure the wrapper takes at least the full viewport height */
+    padding-top: 60px;
+    min-height: 100vh;
+    border-radius: 20px;
+}
+
+.slider-container {
+    position: relative;
+    width: 100%;
+    max-width: 800px;
+    margin: 50px auto;
+    overflow: hidden;
+    border-radius: 20px;
+}
+
+.slider {
+    display: flex;
+    transition: transform 0.5s ease-in-out;
+    border-radius: 20px;
+}
+
+.slide {
+    min-width: 100%;
+    box-sizing: border-box;
+    border-radius: 20px;
+}
+
+.slide img {
+    width: 100%;
+    height: 350px;
+    object-fit: cover;
+    display: block;
+    border-radius: 20px;
+}
+
+.slider-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: rgba(0, 0, 0, 0.5);
+    border: none;
+    color: white;
+    padding: 10px;
+    cursor: pointer;
+    z-index: 10;
+    border-radius: 10px;
+}
+
+.slider-btn.prev {
+    left: 10px;
+}
+
+.slider-btn.next {
+    right: 10px;
+}
+
+.slider-indicators {
+    position: absolute;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 5px;
+    border-radius: 10px;
+}
+
+.indicator {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background-color: rgba(255, 255, 255, 0.5);
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.indicator.active,
+.indicator:hover {
+    background-color: white;
 }
 
 .login-form {
-    display: none; /* Initially hidden */
+    display: none;
     position: fixed;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
     background: rgba(0, 0, 0, 0.8);
     padding: 20px;
-    border-radius: 10px;
+    border-radius: 20px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-    z-index: 1001; /* Ensure the form is above other elements */
+    z-index: 1001;
 }
 
 .login-form form {
@@ -112,46 +180,49 @@ header {
 .login-form input {
     padding: 15px;
     margin-bottom: 15px;
-    border: 1px solid rgba(255, 255, 255, 0.5); /* Semi-transparent border */
-    border-radius: 25px; /* More rounded corners */
-    background-color: rgba(255, 255, 255, 0.1); /* Slightly transparent background */
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    border-radius: 15px;
+    background-color: rgba(255, 255, 255, 0.1);
     color: white;
-    transition: box-shadow 0.3s ease, background-color 0.3s ease; /* Smooth transitions */
-    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1); /* Inner shadow for depth */
-    width: 100%; /* Full width */
+    transition: box-shadow 0.3s ease, background-color 0.3s ease;
+    box-shadow: inset 0 2px 4px rgba(255, 255, 255, 0.1);
+    width: 100%;
     box-sizing: border-box;
 }
 
 .login-form input:focus {
-    background-color: rgba(255, 255, 255, 0.2); /* Lighter background on focus */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Outer shadow on focus */
-    outline: none; /* Remove default outline */
+    background-color: rgba(0, 0, 0, 0.2);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    outline: none;
 }
 
 .login-form button {
-    padding: 15px 30px;
+    padding: 10px 20px;
     border: none;
-    border-radius: 25px; /* More rounded corners */
-    background: #0059b3;
+    border-radius: 15px;
+    background: #404040;
     color: white;
     cursor: pointer;
-    transition: background-color 0.3s ease; /* Smooth transition */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Subtle shadow */
-    width: 100%; /* Full width */
+    transition: background-color 0.3s ease;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    width: 100%;
     box-sizing: border-box;
+    font-size: 0.9em;
 }
 
 .login-form button:hover {
-    background: #004085;
+    background: #2f2f2f;
 }
 
 .blur-background {
-    filter: blur(5px); /* Adjust the blur amount as needed */
-    pointer-events: none; /* Disable interactions */
+    filter: blur(5px);
+    pointer-events: none;
 }
+
 .no-scroll {
-    overflow: hidden; /* Disable scrolling */
+    overflow: hidden;
 }
+
 .close-btn {
     position: absolute;
     top: 3px;
@@ -161,8 +232,150 @@ header {
     cursor: pointer;
     background: none;
     border: none;
-    font-family: Arial, sans-serif; /* Ensure the font is clear and readable */
+    font-family: Arial, sans-serif;
+    border-radius: 10px;
 }
+
 .close-btn:hover {
     color: #ff0000;
+}
+
+/* Media Queries for Responsiveness */
+@media (max-width: 768px) {
+    header {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+
+    .login-signin {
+        position: absolute;
+        left: 20px;
+        width: auto;
+        justify-content: center;
+        margin-bottom: 10px;
+        font-size: 0.7em;
+    }
+
+    .title {
+        display: flex;
+        justify-content: center;
+        width: 100%;
+    }
+
+    .title img {
+        height: 2.5em;
+        display: block;
+        margin: 0 auto;
+    }
+
+    .login-form {
+        width: 90%;
+        padding: 15px;
+        margin: 15px;
+    }
+
+    .login-form input, .login-form button {
+        padding: 12px;
+    }
+
+    .slider-container {
+        max-width: 100%;
+    }
+
+    .slide img {
+        width: 110%;
+        height: 250px;
+    }
+}
+
+@media (max-width: 480px) {
+    header {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+
+    .login-signin {
+        position: absolute;
+        left: 10px;
+        width: auto;
+        justify-content: center;
+        font-size: 0.6em;
+        left: 5px;
+        top: 10px;
+    }
+
+    .login-signin a {
+        margin: 0 3px;
+    }
+
+    .title {
+        display: flex;
+        justify-content: center;
+        width: 100%;
+    }
+
+    .title img {
+        height: 2em;
+        display: block;
+        margin: 0 auto;
+    }
+
+    .login-form {
+        width: calc(100% - 160px);
+        padding: 15px;
+        left: 50%;
+    }
+
+    .login-form input, .login-form button {
+        padding: 10px;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .slider-container {
+        max-width: 100%;
+    }
+
+    .slide img {
+        width: 100%;
+        height: 200px;
+    }
+}
+
+.notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 15px 25px;
+    border: none;
+    border-radius: 10px;
+    background: linear-gradient(145deg, #222, #333);
+    color: white;
+    opacity: 0.9;
+    z-index: 1002;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    font-family: 'Times New Roman', Times, serif;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+.notification.success {
+    background: linear-gradient(145deg, #4caf50, #66bb6a); /* Green for success */
+    color: #fff;
+    font-family: 'Times New Roman', Times, serif;
+}
+
+.notification.error {
+    background: linear-gradient(145deg, #f44336, #e57373); /* Red for error */
+    color: #fff;
+    font-family: 'Times New Roman', Times, serif;
+}
+
+.notification .icon {
+    margin-right: 10px;
+    font-size: 24px;
 }

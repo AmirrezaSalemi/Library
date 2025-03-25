@@ -9,7 +9,7 @@
 <body>
     <header>
         <div class="title">
-            <h1 id="library-text">Library</h1>
+            <img src="{{ url_for('static', filename='images/Logo.png') }}" alt="Library Logo" id="library-logo">
         </div>
     </header>
     <div class="content-wrapper">
@@ -118,6 +118,7 @@
             </table>
         </div>
     </div>
+    <div id="notification-container"></div>
     <script src="{{ url_for('static', filename='js/user_script.js') }}"></script>
 </body>
 </html>
