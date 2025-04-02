@@ -112,7 +112,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Optional: Auto-slide every 3 seconds
+    // Optional: Auto-slide every 8 seconds
     setInterval(() => {
         showSlide(currentIndex + 1);
     }, 8000);
@@ -120,9 +120,9 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initialize the indicators
     updateIndicators();
 
-    function showNotification(message) {
+    function showNotification(message, type = 'error') {
         const notification = document.createElement('div');
-        notification.className = 'notification';
+        notification.className = `notification ${type}`;
         notification.innerText = message;
         document.body.appendChild(notification);
 
@@ -144,8 +144,9 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(response => response.json())
             .then(data => {
                 if (data.error) {
-                    showNotification(data.error);
+                    showNotification(data.error, 'error'); // Pass 'error' as the second argument
                 } else {
+                    showNotification('Login successful!', 'success'); // Pass 'success' as the second argument
                     window.location.href = data.redirect;
                 }
             })

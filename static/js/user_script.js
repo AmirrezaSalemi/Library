@@ -247,7 +247,6 @@ async function returnBook(ISBN) {
 }
 
 function showNotification(message, type) {
-    console.log("Showing notification:", message, type);
     const notificationContainer = document.getElementById('notification-container');
     if (!notificationContainer) {
         console.error("Notification container not found!");
