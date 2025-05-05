@@ -126,10 +126,13 @@ document.addEventListener('DOMContentLoaded', function() {
         notification.innerText = message;
         document.body.appendChild(notification);
 
+        // نمایش پیام با opacity اولیه
+        notification.style.opacity = '1';
+
         setTimeout(() => {
-            notification.style.opacity = '0';
-            setTimeout(() => notification.remove(), 500);
-        }, 3000);
+            notification.style.opacity = '0'; // محو شدن پیام
+            setTimeout(() => notification.remove(), 500); // حذف پیام پس از انیمیشن
+        }, 2500); // پیام به مدت 2.5 ثانیه نمایش داده می‌شود
     }
 
     document.querySelectorAll('.login-form form').forEach(form => {
@@ -144,13 +147,19 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(response => response.json())
             .then(data => {
                 if (data.error) {
-                    showNotification(data.error, 'error'); // Pass 'error' as the second argument
+                    showNotification(data.error, 'error');
                 } else {
-                    showNotification('Login successful!', 'success'); // Pass 'success' as the second argument
-                    window.location.href = data.redirect;
+                    showNotification('Login successful!', 'success');
+                    // تأخیر 2 ثانیه‌ای برای نمایش پیام موفقیت قبل از هدایت
+                    setTimeout(() => {
+                        window.location.href = data.redirect;
+                    }, 2000); // 2000 میلی‌ثانیه = 2 ثانیه
                 }
             })
-            .catch(error => console.error('Error:', error));
+            .catch(error => {
+                console.error('Error:', error);
+                showNotification('An error occurred. Please try again.', 'error');
+            });
         });
     });
 });

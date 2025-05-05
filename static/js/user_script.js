@@ -34,6 +34,9 @@ document.addEventListener('DOMContentLoaded', function() {
         const imageUrl = rectangle.getAttribute('data-image');
         rectangle.style.backgroundImage = `url('${imageUrl}')`;
     });
+
+    // بررسی کتاب‌های تأخیری هنگام بارگذاری صفحه
+    checkOverdueBooks();
 });
 
 function openFrame(frameId) {
@@ -246,22 +249,41 @@ async function returnBook(ISBN) {
     }
 }
 
-function showNotification(message, type) {
+async function checkOverdueBooks() {
+    try {
+        const response = await fetch('/check_overdue_books');
+        const data = await response.json();
+        if (data.success && data.overdue_books && data.overdue_books.length > 0) {
+            // نمایش نوتیفیکیشن برای هر کتاب تأخیری
+            data.overdue_books.forEach(book => {
+                showNotification(
+                    `Return book "${book.book_name}" (ISBN: ${book.ISBN}) soon!`,
+                    'error',
+                    5000 // نمایش به مدت 5 ثانیه
+                );
+            });
+        }
+    } catch (error) {
+        console.error('Error checking overdue books:', error);
+    }
+}
+
+function showNotification(message, type, duration = 3000) {
     const notificationContainer = document.getElementById('notification-container');
     if (!notificationContainer) {
         console.error("Notification container not found!");
         return;
     }
 
-    // Create a new notification element
+    // ایجاد یک المان نوتیفیکیشن جدید
     const notification = document.createElement('div');
     notification.className = `notification ${type}`;
     notification.innerText = message;
-    notification.style.opacity = 0; // Start with opacity 0
-    notification.style.transform = 'translateX(100%)'; // Start off-screen to the right
+    notification.style.opacity = 0; // شروع با opacity 0
+    notification.style.transform = 'translateX(100%)'; // شروع از خارج صفحه
     notificationContainer.appendChild(notification);
 
-    // Show the notification by gradually increasing opacity and moving it into view
+    // نمایش نوتیفیکیشن با افزایش تدریجی opacity و حرکت به داخل
     let opacity = 0;
     const fadeInInterval = setInterval(() => {
         if (opacity >= 1) {
@@ -271,9 +293,9 @@ function showNotification(message, type) {
             notification.style.opacity = opacity;
             notification.style.transform = `translateX(${100 - (opacity * 100)}%)`;
         }
-    }, 30); // Adjust the interval duration for smoother animation
+    }, 30);
 
-    // Remove the notification after a delay by gradually decreasing opacity and moving it off-screen
+    // حذف نوتیفیکیشن پس از مدت زمان مشخص
     setTimeout(() => {
         let fadeOutInterval = setInterval(() => {
             if (opacity <= 0) {
@@ -284,6 +306,6 @@ function showNotification(message, type) {
                 notification.style.opacity = opacity;
                 notification.style.transform = `translateX(${100 - (opacity * 100)}%)`;
             }
-        }, 30); // Adjust the interval duration for smoother animation
-    }, 3000); // Notification will stay visible for 3 seconds
+        }, 30);
+    }, duration); // استفاده از مدت زمان دلخواه (پیش‌فرض 3 ثانیه)
 }

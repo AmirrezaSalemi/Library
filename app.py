@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, session, jsonify
 import mysql.connector
 import traceback
+from datetime import datetime, timedelta
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'  # Add a secret key for flash messages
@@ -268,7 +269,6 @@ def return_book():
         # Update the return_date in the borrow table
         cursor.execute("UPDATE borrow SET return_date = NOW() WHERE ISBN = %s AND userID = %s AND return_date IS NULL",
                        (ISBN, userID))
-
         # Update the userID in the book table to NULL
         cursor.execute("UPDATE book SET userID = NULL WHERE ISBN = %s", (ISBN,))
 
@@ -285,6 +285,35 @@ def return_book():
         cursor.close()
         connection.close()
     return jsonify({"success": True})
+
+@app.route('/check_overdue_books', methods=['GET'])
+def check_overdue_books():
+    userID = session.get('userID')  # Retrieve userID from session
+    if not userID:
+        return jsonify({"success": False, "message": "User not logged in"}), 400
+
+    connection = connecting()
+    cursor = connection.cursor(dictionary=True)
+    try:
+        # بررسی کتاب‌هایی که بیش از 7 روز پیش قرض گرفته شده‌اند و هنوز برگردانده نشده‌اند
+        seven_days_ago = datetime.now() - timedelta(days=7)
+        cursor.execute("""
+            SELECT borrow.ISBN, book.book_name
+            FROM borrow
+            JOIN book ON borrow.ISBN = book.ISBN
+            WHERE borrow.userID = %s
+            AND borrow.loan_date <= %s
+            AND borrow.return_date IS NULL
+        """, (userID, seven_days_ago))
+        overdue_books = cursor.fetchall()
+        return jsonify({"success": True, "overdue_books": overdue_books})
+    except Exception as e:
+        print(f"Error checking overdue books: {e}")
+        traceback.print_exc()
+        return jsonify({"success": False, "message": str(e)}), 500
+    finally:
+        cursor.close()
+        connection.close()
 
 @app.route('/')
 def index():
@@ -303,7 +332,7 @@ def librarian_home():
     librarian_id = request.args.get('librarian_id')
     session['librarian_id'] = librarian_id  # Store librarianID in session
     print(f"Librarian ID stored in session: {librarian_id}")
-    return render_template('librarian_home.html', first_name=first_name, last_name=last_name)
+    return render_template('librarian_home.html', first_name=first_name, markup_name=last_name)
 
 @app.route('/get_user_list')
 def get_user_list():
