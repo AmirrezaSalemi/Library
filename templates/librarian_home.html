@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Librarian Home</title>
-    <link rel="stylesheet" href='{{ url_for("static", filename="css/librarian_home.css") }}'>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/librarian_home.css') }}">
 </head>
 <body>
     <header>
@@ -67,7 +67,7 @@
             <label for="ISBN">ISBN:</label>
             <input type="text" id="ISBN" name="ISBN" autocomplete="off" required>
             <label for="genre">Genre:</label>
-            <input type="text" id="genre" name="genre" autocomplete="off" required>
+            <input type="text" id="genre" name="genre casting="off" required>
             <label for="publicationYear">Publication Year:</label>
             <input type="number" id="publicationYear" name="publicationYear" autocomplete="off" required>
             <div id="authorsContainer">
@@ -232,9 +232,10 @@
             <button onclick="denyDelete()">Deny</button>
         </div>
     </div>
-    <div id="notification" class="notification">
+    <div id="notification" class="notification" style="display: none;">
+        <span class="icon" id="notification-icon"></span>
         <span id="notification-message"></span>
     </div>
-    <script src='{{ url_for("static", filename="js/librarian_script.js") }}'></script>
+    <script src="{{ url_for('static', filename='js/librarian_script.js') }}"></script>
 </body>
 </html>

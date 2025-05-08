@@ -1,6 +1,7 @@
 document.addEventListener('DOMContentLoaded', function() {
     const libraryText = document.getElementById('library-logo');
     const userLoginForm = document.getElementById('user-login-form');
+    const editProfileIcon = document.getElementById('edit-profile-icon');
 
     if (libraryText) {
         libraryText.addEventListener('click', function(event) {
@@ -9,6 +10,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 userLoginForm.style.display = 'none';
             }
             window.location.href = '/';
+        });
+    }
+
+    if (editProfileIcon) {
+        editProfileIcon.addEventListener('click', function() {
+            openEditProfile();
         });
     }
 
@@ -35,7 +42,6 @@ document.addEventListener('DOMContentLoaded', function() {
         rectangle.style.backgroundImage = `url('${imageUrl}')`;
     });
 
-    // بررسی کتاب‌های تأخیری هنگام بارگذاری صفحه
     checkOverdueBooks();
 });
 
@@ -51,6 +57,15 @@ function closeFrame(frameId) {
     document.getElementById('overlay').style.display = 'none';
     document.body.classList.remove('no-scroll');
     document.querySelector('.content-wrapper').classList.remove('blur');
+}
+
+function openEditProfile() {
+    openFrame('editProfileFrame');
+    fetchUserDetails();
+}
+
+function closeEditProfile() {
+    closeFrame('editProfileFrame');
 }
 
 function openAuthorList() {
@@ -96,6 +111,25 @@ function openReturnBook() {
 
 function closeReturnBook() {
     closeFrame('returnBookFrame');
+}
+
+async function fetchUserDetails() {
+    try {
+        const response = await fetch('/get_user_details');
+        const data = await response.json();
+        if (data.success) {
+            document.getElementById('firstName').value = data.user.first_name;
+            document.getElementById('lastName').value = data.user.last_name;
+            document.getElementById('city').value = data.user.city;
+            document.getElementById('street').value = data.user.Street;
+            document.getElementById('age').value = data.user.age;
+        } else {
+            showNotification('Failed to load user details.', 'error');
+        }
+    } catch (error) {
+        console.error('Error fetching user details:', error);
+        showNotification('An error occurred while fetching user details.', 'error');
+    }
 }
 
 async function fetchAuthors() {
@@ -254,17 +288,74 @@ async function checkOverdueBooks() {
         const response = await fetch('/check_overdue_books');
         const data = await response.json();
         if (data.success && data.overdue_books && data.overdue_books.length > 0) {
-            // نمایش نوتیفیکیشن برای هر کتاب تأخیری
             data.overdue_books.forEach(book => {
                 showNotification(
                     `Return book "${book.book_name}" (ISBN: ${book.ISBN}) soon!`,
                     'error',
-                    5000 // نمایش به مدت 5 ثانیه
+                    5000
                 );
             });
         }
     } catch (error) {
         console.error('Error checking overdue books:', error);
+    }
+}
+
+async function saveProfileChanges(event) {
+    event.preventDefault();
+    const form = document.getElementById('edit-profile-form');
+    const formData = new FormData(form);
+    const userID = formData.get('userID');
+    const firstName = formData.get('firstName').trim();
+    const lastName = formData.get('lastName').trim();
+    const city = formData.get('city').trim();
+    const street = formData.get('street').trim();
+    const age = parseInt(formData.get('age'));
+
+    // Client-side validation
+    if (!userID) {
+        showNotification('User ID is missing. Please log in again.', 'error');
+        console.log('Validation failed: Missing userID');
+        return;
+    }
+    if (!firstName || !lastName || !city || !street) {
+        showNotification('All fields are required.', 'error');
+        console.log('Validation failed: Empty fields detected.');
+        return;
+    }
+    if (isNaN(age) || age <= 0) {
+        showNotification('Please enter a valid age.', 'error');
+        console.log('Validation failed: Invalid age value:', age);
+        return;
+    }
+
+    console.log('Sending profile update with data:', {
+        userID,
+        firstName,
+        lastName,
+        city,
+        street,
+        age
+    });
+
+    try {
+        const response = await fetch('/edit_user', {
+            method: 'POST',
+            body: formData
+        });
+        const data = await response.json();
+        if (data.success) {
+            showNotification('Profile updated successfully!', 'success');
+            closeEditProfile();
+            const welcomeMessage = document.querySelector('.content-wrapper h2');
+            welcomeMessage.textContent = `Welcome, ${firstName} ${lastName} as User!`;
+        } else {
+            console.log('Server returned failure:', data.message);
+            showNotification('Failed to update profile', 'error');
+        }
+    } catch (error) {
+        console.error('Fetch error updating profile:', error);
+        showNotification('Failed to update profile', 'error');
     }
 }
 
@@ -275,15 +366,13 @@ function showNotification(message, type, duration = 3000) {
         return;
     }
 
-    // ایجاد یک المان نوتیفیکیشن جدید
     const notification = document.createElement('div');
     notification.className = `notification ${type}`;
     notification.innerText = message;
-    notification.style.opacity = 0; // شروع با opacity 0
-    notification.style.transform = 'translateX(100%)'; // شروع از خارج صفحه
+    notification.style.opacity = 0;
+    notification.style.transform = 'translateX(100%)';
     notificationContainer.appendChild(notification);
 
-    // نمایش نوتیفیکیشن با افزایش تدریجی opacity و حرکت به داخل
     let opacity = 0;
     const fadeInInterval = setInterval(() => {
         if (opacity >= 1) {
@@ -295,7 +384,6 @@ function showNotification(message, type, duration = 3000) {
         }
     }, 30);
 
-    // حذف نوتیفیکیشن پس از مدت زمان مشخص
     setTimeout(() => {
         let fadeOutInterval = setInterval(() => {
             if (opacity <= 0) {
@@ -307,5 +395,12 @@ function showNotification(message, type, duration = 3000) {
                 notification.style.transform = `translateX(${100 - (opacity * 100)}%)`;
             }
         }, 30);
-    }, duration); // استفاده از مدت زمان دلخواه (پیش‌فرض 3 ثانیه)
+    }, duration);
 }
+
+document.addEventListener('DOMContentLoaded', function() {
+    const editProfileForm = document.getElementById('edit-profile-form');
+    if (editProfileForm) {
+        editProfileForm.addEventListener('submit', saveProfileChanges);
+    }
+});

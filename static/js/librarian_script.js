@@ -8,14 +8,10 @@ document.addEventListener('DOMContentLoaded', function() {
             if (userLoginForm) {
                 userLoginForm.style.display = 'none';
             }
-
-            // Determine the current page and navigate accordingly
-            const currentPage = window.location.pathname.split('/').pop();
             window.location.href = '/';
         });
     }
 
-    // Populate the author dropdown on page load
     const authorSelect = document.getElementById('authorSelect');
     if (authorSelect) {
         fetchAuthorsForDropdown(authorSelect);
@@ -26,33 +22,63 @@ document.addEventListener('DOMContentLoaded', function() {
     const modal = document.querySelector('.modal');
     const closeButton = document.querySelector('.close-button');
 
-    closeButton.addEventListener('click', function() {
-        modal.style.display = 'none';
-    });
-
-    window.addEventListener('click', function(event) {
-        if (event.target == modal) {
+    if (closeButton && modal) {
+        closeButton.addEventListener('click', function() {
             modal.style.display = 'none';
-        }
-    });
+        });
+
+        window.addEventListener('click', function(event) {
+            if (event.target == modal) {
+                modal.style.display = 'none';
+            }
+        });
+    }
 });
 
+function showNotification(message, type = 'success') {
+    const notification = document.getElementById('notification');
+    const notificationMessage = document.getElementById('notification-message');
+    const notificationIcon = document.getElementById('notification-icon');
+
+    notificationMessage.textContent = message;
+    notification.className = `notification ${type} show`;
+    notificationIcon.textContent = type === 'success' ? '✔' : '❌';
+    notification.style.display = 'flex';
+
+    setTimeout(() => {
+        notification.className = `notification ${type}`;
+        notification.style.display = 'none';
+    }, 3000);
+}
+
+let openFrameCount = 0;
+
 function openFrame(frameId) {
-    console.log(`Opening frame: ${frameId}`);
-    document.getElementById(frameId).style.display = 'block';
-    document.getElementById('overlay').style.display = 'block'; // Show overlay
-    document.body.classList.add('no-scroll');
-    document.body.classList.add('blur'); // Add blur effect
+    const frame = document.getElementById(frameId);
+    if (frame.style.display === 'none' || frame.style.display === '') {
+        frame.style.display = 'block';
+        openFrameCount++;
+        document.getElementById('overlay').style.display = 'block';
+        document.querySelector('.content-wrapper').classList.add('blur');
+        document.querySelector('.content-wrapper').classList.add('no-scroll');
+        if (document.querySelector('.frame')) {
+            document.querySelector('.frame').classList.remove('blur');
+            document.querySelector('.frame-content').classList.remove('no-scroll');
+        }
+    }
 }
 
 function closeFrame(frameId) {
-    console.log(`Closing frame: ${frameId}`);
-    document.getElementById(frameId).style.display = 'none';
-    document.getElementById('overlay').style.display = 'none'; // Hide overlay
-    document.body.classList.remove('no-scroll');
-    document.body.classList.remove('blur'); // Remove blur effect
-
-    // Reset form inputs
+    const frame = document.getElementById(frameId);
+    if (frame.style.display === 'block') {
+        frame.style.display = 'none';
+        openFrameCount--;
+        if (openFrameCount === 0) {
+            document.getElementById('overlay').style.display = 'none';
+            document.querySelector('.content-wrapper').classList.remove('blur');
+            document.querySelector('.content-wrapper').classList.remove('no-scroll');
+        }
+    }
     resetFormInputs(frameId);
 }
 
@@ -92,10 +118,8 @@ function closeUserForm() {
 
 function openBookForm() {
     openFrame('bookFormContainer');
-    // Clear the authors container
     const authorsContainer = document.getElementById('authorsContainer');
     authorsContainer.innerHTML = '';
-    // Add a new author field
     addAuthorField();
 }
 
@@ -120,6 +144,7 @@ async function openUserList() {
         tableBody.innerHTML = '';
         data.forEach(user => {
             const row = document.createElement('tr');
+            row.setAttribute('data-id', user.userID);
             row.innerHTML = `
                 <td>${user.userID}</td>
                 <td>${user.userFirstName} ${user.userLastName}</td>
@@ -134,6 +159,7 @@ async function openUserList() {
         });
     } catch (error) {
         console.error('Error fetching user list:', error);
+        showNotification('Error fetching user list', 'error');
     }
 }
 
@@ -151,6 +177,7 @@ async function openBookList() {
 
         data.forEach(book => {
             const row = document.createElement('tr');
+            row.setAttribute('data-id', book.ISBN);
             row.innerHTML = `
                 <td>${book.ISBN}</td>
                 <td>${book.book_name}</td>
@@ -167,6 +194,7 @@ async function openBookList() {
         });
     } catch (error) {
         console.error('Error fetching book list:', error);
+        showNotification('Error fetching book list', 'error');
     }
 }
 
@@ -183,6 +211,7 @@ async function openAuthorList() {
         tableBody.innerHTML = '';
         data.forEach(author => {
             const row = document.createElement('tr');
+            row.setAttribute('data-id', author.authorID);
             row.innerHTML = `
                 <td>${author.authorID}</td>
                 <td>${author.first_name} ${author.last_name}</td>
@@ -195,6 +224,7 @@ async function openAuthorList() {
         });
     } catch (error) {
         console.error('Error fetching author list:', error);
+        showNotification('Error fetching author list', 'error');
     }
 }
 
@@ -211,6 +241,7 @@ async function openBorrowList() {
         tableBody.innerHTML = '';
         data.forEach(borrow => {
             const row = document.createElement('tr');
+            row.setAttribute('data-id', borrow.loanID);
             row.innerHTML = `
                 <td>${borrow.loanID}</td>
                 <td>${borrow.userID}</td>
@@ -224,6 +255,7 @@ async function openBorrowList() {
         });
     } catch (error) {
         console.error('Error fetching borrow list:', error);
+        showNotification('Error fetching borrow list', 'error');
     }
 }
 
@@ -242,20 +274,27 @@ async function submitLibrarianForm() {
         });
         const data = await response.json();
         if (data.success) {
-            alert('Librarian added successfully');
-            location.reload();
+            showNotification('Librarian added successfully', 'success');
+            closeLibrarianForm();
+            // Update user list if open
+            if (document.getElementById('userListFrame').style.display === 'block') {
+                openUserList();
+            }
         } else {
-            alert('Error adding librarian: ' + data.message);
+            showNotification('Error adding librarian: ' + data.message, 'error');
         }
     } catch (error) {
         console.error('Error:', error);
-        alert('An error occurred while adding the librarian');
+        showNotification('An error occurred while adding the librarian', 'error');
     }
 }
 
 async function submitAuthorForm() {
     const form = document.getElementById('authorForm');
     const formData = new FormData(form);
+    const authorID = formData.get('authorID');
+    const firstName = formData.get('firstName');
+    const lastName = formData.get('lastName');
 
     try {
         const response = await fetch('/add_author', {
@@ -264,18 +303,41 @@ async function submitAuthorForm() {
         });
         const data = await response.json();
         if (data.success) {
-            location.reload();
+            showNotification('Author added successfully', 'success');
+            closeAuthorForm();
+            // Update author list if open
+            if (document.getElementById('authorListFrame').style.display === 'block') {
+                const tableBody = document.querySelector('#authorTable tbody');
+                const row = document.createElement('tr');
+                row.setAttribute('data-id', authorID);
+                row.innerHTML = `
+                    <td>${authorID}</td>
+                    <td>${firstName} ${lastName}</td>
+                    <td>
+                        <img src="static/images/Edit.png" alt="Edit" class="action-icon" title="Edit Author" onclick="editAuthor(${authorID})">
+                        <img src="static/images/Trash.png" alt="Delete" class="action-icon" title="Delete Author" onclick="openDeleteConfirmation('author', ${authorID})">
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            }
+            // Update author dropdowns
+            updateAuthorDropdowns({ authorID, full_name: `${firstName} ${lastName}` });
         } else {
-            alert('Error adding author');
+            showNotification('Error adding author: ' + data.message, 'error');
         }
     } catch (error) {
         console.error('Error:', error);
+        showNotification('An error occurred while adding the author', 'error');
     }
 }
 
 async function submitUserForm() {
     const form = document.getElementById('userForm');
     const formData = new FormData(form);
+    const userID = formData.get('userID');
+    const firstName = formData.get('firstName');
+    const lastName = formData.get('lastName');
+    const librarianID = '1'; // Assuming current librarian ID, adjust as needed
 
     try {
         const response = await fetch('/add_user_route', {
@@ -284,20 +346,43 @@ async function submitUserForm() {
         });
         const data = await response.json();
         if (data.success) {
-            alert('User added successfully');
-            location.reload();
+            showNotification('User added successfully', 'success');
+            closeUserForm();
+            // Update user list if open
+            if (document.getElementById('userListFrame').style.display === 'block') {
+                const tableBody = document.querySelector('#userTable tbody');
+                const row = document.createElement('tr');
+                row.setAttribute('data-id', userID);
+                row.innerHTML = `
+                    <td>${userID}</td>
+                    <td>${firstName} ${lastName}</td>
+                    <td>${data.librarianFirstName || ''} ${data.librarianLastName || ''}</td>
+                    <td>${librarianID}</td>
+                    <td>
+                        <img src="static/images/Edit.png" alt="Edit" class="action-icon" title="Edit User" onclick="editUser(${userID})">
+                        <img src="static/images/Trash.png" alt="Delete" class="action-icon" title="Delete User" onclick="openDeleteConfirmation('user', ${userID})">
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            }
         } else {
-            alert('Error adding user: ' + data.message);
+            showNotification('Error adding user: ' + data.message, 'error');
         }
     } catch (error) {
         console.error('Error:', error);
-        alert('An error occurred while adding the user');
+        showNotification('An error occurred while adding the user', 'error');
     }
 }
 
 async function submitBookForm() {
     const form = document.getElementById('bookForm');
     const formData = new FormData(form);
+    const ISBN = formData.get('ISBN');
+    const bookName = formData.get('bookName');
+    const genre = formData.get('genre');
+    const publicationYear = formData.get('publicationYear');
+    const authorIDs = formData.getAll('authorID[]');
+    const librarianID = '1'; // Assuming current librarian ID, adjust as needed
 
     try {
         const response = await fetch('/add_book', {
@@ -306,14 +391,33 @@ async function submitBookForm() {
         });
         const data = await response.json();
         if (data.success) {
-            alert('Book added successfully');
-            location.reload();
+            showNotification('Book added successfully', 'success');
+            closeBookForm();
+            // Update book list if open
+            if (document.getElementById('bookListFrame').style.display === 'block') {
+                const tableBody = document.querySelector('#bookTable tbody');
+                const row = document.createElement('tr');
+                row.setAttribute('data-id', ISBN);
+                row.innerHTML = `
+                    <td>${ISBN}</td>
+                    <td>${bookName}</td>
+                    <td>${genre}</td>
+                    <td>${publicationYear}</td>
+                    <td>${data.authors || authorIDs.join(', ')}</td>
+                    <td>${data.librarians || librarianID}</td>
+                    <td>
+                        <img src="static/images/Edit.png" alt="Edit" class="action-icon" title="Edit Book" onclick="editBook('${ISBN}')">
+                        <img src="static/images/Trash.png" alt="Delete" class="action-icon" title="Delete Book" onclick="openDeleteConfirmation('book', '${ISBN}')">
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            }
         } else {
-            alert('Error adding book: ' + data.message);
+            showNotification('Error adding book: ' + data.message, 'error');
         }
     } catch (error) {
         console.error('Error:', error);
-        alert('An error occurred while adding the book');
+        showNotification('An error occurred while adding the book', 'error');
     }
 }
 
@@ -324,11 +428,10 @@ function addAuthorField() {
     newAuthorField.innerHTML = `
         <label for="authorSelect">Author:</label>
         <select name="authorID[]" required>
-            <!-- Options will be populated here -->
         </select>
     `;
     const authorSelect = newAuthorField.querySelector('select');
-    fetchAuthorsForDropdown(authorSelect); // Populate the dropdown
+    fetchAuthorsForDropdown(authorSelect);
     authorsContainer.appendChild(newAuthorField);
 }
 
@@ -339,11 +442,10 @@ function addEditAuthorField() {
     newAuthorField.innerHTML = `
         <label for="editAuthorSelect">Author:</label>
         <select name="authorID[]" required>
-            <!-- Options will be populated here -->
         </select>
     `;
     const authorSelect = newAuthorField.querySelector('select');
-    fetchAuthorsForDropdown(authorSelect); // Populate the dropdown
+    fetchAuthorsForDropdown(authorSelect);
     authorsContainer.appendChild(newAuthorField);
 }
 
@@ -351,7 +453,7 @@ async function fetchAuthorsForDropdown(selectElement) {
     try {
         const response = await fetch('/get_authors_for_dropdown');
         const data = await response.json();
-        selectElement.innerHTML = ''; // Clear existing options
+        selectElement.innerHTML = '';
         data.forEach(author => {
             const option = document.createElement('option');
             option.value = author.authorID;
@@ -360,11 +462,21 @@ async function fetchAuthorsForDropdown(selectElement) {
         });
     } catch (error) {
         console.error('Error fetching authors:', error);
+        showNotification('Error fetching authors', 'error');
     }
 }
 
+function updateAuthorDropdowns(newAuthor) {
+    const selects = document.querySelectorAll('select[name="authorID[]"]');
+    selects.forEach(select => {
+        const option = document.createElement('option');
+        option.value = newAuthor.authorID;
+        option.textContent = newAuthor.full_name;
+        select.appendChild(option);
+    });
+}
+
 function openDeleteConfirmation(type, id) {
-    document.getElementById('deleteConfirmationFrame').classList.add('blur');
     openFrame('deleteConfirmationFrame');
     window.currentDeleteType = type;
     window.currentDeleteId = id;
@@ -372,7 +484,6 @@ function openDeleteConfirmation(type, id) {
 
 function closeDeleteConfirmation() {
     closeFrame('deleteConfirmationFrame');
-    document.getElementById('deleteConfirmationFrame').classList.remove('blur');
 }
 
 function denyDelete() {
@@ -395,14 +506,21 @@ async function confirmDelete() {
 
         const data = await response.json();
         if (data.success) {
-            alert(`${type.charAt(0).toUpperCase() + type.slice(1)} deleted successfully`);
-            location.reload();
+            showNotification(`${type.charAt(0).toUpperCase() + type.slice(1)} deleted successfully`, 'success');
+            closeDeleteConfirmation();
+            // Remove the row from the table
+            const tableId = type === 'user' ? 'userTable' : type === 'book' ? 'bookTable' : 'authorTable';
+            const tableBody = document.querySelector(`#${tableId} tbody`);
+            const row = tableBody.querySelector(`tr[data-id="${id}"]`);
+            if (row) {
+                row.remove();
+            }
         } else {
-            alert('Error deleting item: ' + data.message);
+            showNotification('Error deleting item: ' + data.message, 'error');
         }
     } catch (error) {
         console.error('Error:', error);
-        alert('An error occurred while deleting the item');
+        showNotification('An error occurred while deleting the item', 'error');
     }
 }
 
@@ -420,11 +538,11 @@ async function editUser(userID) {
             document.getElementById('editAge').value = user.age;
             openFrame('editUserFormContainer');
         } else {
-            alert('Error fetching user data: ' + data.message);
+            showNotification('Error fetching user data: ' + data.message, 'error');
         }
     } catch (error) {
         console.error('Error:', error);
-        alert('An error occurred while fetching the user data');
+        showNotification('An error occurred while fetching the user data', 'error');
     }
 }
 
@@ -434,16 +552,14 @@ async function editBook(ISBN) {
         const data = await response.json();
         if (data.success) {
             const book = data.book;
-            // Set book basic details
             document.getElementById('editISBN').value = book.ISBN;
             document.getElementById('editBookName').value = book.book_name;
             document.getElementById('editGenre').value = book.genre;
             document.getElementById('editPublicationYear').value = book.publicationyear;
 
             const authorsContainer = document.getElementById('editAuthorsContainer');
-            authorsContainer.innerHTML = ''; // Clear existing authors
+            authorsContainer.innerHTML = '';
 
-            // Populate author fields dynamically based on authors data
             if (Array.isArray(book.authors)) {
                 book.authors.forEach(author => {
                     const authorField = document.createElement('div');
@@ -451,23 +567,23 @@ async function editBook(ISBN) {
                     authorField.innerHTML = `
                         <label for="editAuthorSelect">Author:</label>
                         <select name="authorID[]" required>
-                            <!-- Options will be populated here -->
                         </select>
                     `;
                     const authorSelect = authorField.querySelector('select');
-                    fetchAuthorsForDropdown(authorSelect); // Populate the dropdown
-                    authorSelect.value = author.authorID; // Set the selected author
+                    fetchAuthorsForDropdown(authorSelect).then(() => {
+                        authorSelect.value = author.authorID;
+                    });
                     authorsContainer.appendChild(authorField);
                 });
             }
 
             openFrame('editBookFormContainer');
         } else {
-            alert('Error fetching book data: ' + data.message);
+            showNotification('Error fetching book data: ' + data.message, 'error');
         }
     } catch (error) {
         console.error('Error:', error);
-        alert('An error occurred while fetching the book data');
+        showNotification('An error occurred while fetching the book data', 'error');
     }
 }
 
@@ -482,17 +598,21 @@ async function editAuthor(authorID) {
             document.getElementById('editLastNameAuthor').value = author.last_name;
             openFrame('editAuthorFormContainer');
         } else {
-            alert('Error fetching author data: ' + data.message);
+            showNotification('Error fetching author data: ' + data.message, 'error');
         }
     } catch (error) {
         console.error('Error:', error);
-        alert('An error occurred while fetching the author data');
+        showNotification('An error occurred while fetching the author data', 'error');
     }
 }
 
 async function submitEditUserForm() {
     const form = document.getElementById('editUserForm');
     const formData = new FormData(form);
+    const userID = formData.get('userID');
+    const firstName = formData.get('firstName');
+    const lastName = formData.get('lastName');
+    const librarianID = '1'; // Assuming current librarian ID, adjust as needed
 
     try {
         const response = await fetch('/edit_user', {
@@ -501,20 +621,43 @@ async function submitEditUserForm() {
         });
         const data = await response.json();
         if (data.success) {
-            alert('User updated successfully');
-            location.reload();
+            showNotification('User updated successfully', 'success');
+            closeEditUserForm();
+            // Update user list if open
+            if (document.getElementById('userListFrame').style.display === 'block') {
+                const tableBody = document.querySelector('#userTable tbody');
+                const row = tableBody.querySelector(`tr[data-id="${userID}"]`);
+                if (row) {
+                    row.innerHTML = `
+                        <td>${userID}</td>
+                        <td>${firstName} ${lastName}</td>
+                        <td>${data.librarianFirstName || ''} ${data.librarianLastName || ''}</td>
+                        <td>${librarianID}</td>
+                        <td>
+                            <img src="static/images/Edit.png" alt="Edit" class="action-icon" title="Edit User" onclick="editUser(${userID})">
+                            <img src="static/images/Trash.png" alt="Delete" class="action-icon" title="Delete User" onclick="openDeleteConfirmation('user', ${userID})">
+                        </td>
+                    `;
+                }
+            }
         } else {
-            alert('Error updating user: ' + data.message);
+            showNotification('Error updating user: ' + data.message, 'error');
         }
     } catch (error) {
         console.error('Error:', error);
-        alert('An error occurred while updating the user');
+        showNotification('An error occurred while updating the user', 'error');
     }
 }
 
 async function submitEditBookForm() {
     const form = document.getElementById('editBookForm');
     const formData = new FormData(form);
+    const ISBN = formData.get('ISBN');
+    const bookName = formData.get('bookName');
+    const genre = formData.get('genre');
+    const publicationYear = formData.get('publicationYear');
+    const authorIDs = formData.getAll('authorID[]');
+    const librarianID = '1'; // Assuming current librarian ID, adjust as needed
 
     try {
         const response = await fetch('/edit_book', {
@@ -523,20 +666,42 @@ async function submitEditBookForm() {
         });
         const data = await response.json();
         if (data.success) {
-            alert('Book updated successfully');
-            location.reload();
+            showNotification('Book updated successfully', 'success');
+            closeEditBookForm();
+            // Update book list if open
+            if (document.getElementById('bookListFrame').style.display === 'block') {
+                const tableBody = document.querySelector('#bookTable tbody');
+                const row = tableBody.querySelector(`tr[data-id="${ISBN}"]`);
+                if (row) {
+                    row.innerHTML = `
+                        <td>${ISBN}</td>
+                        <td>${bookName}</td>
+                        <td>${genre}</td>
+                        <td>${publicationYear}</td>
+                        <td>${data.authors || authorIDs.join(', ')}</td>
+                        <td>${data.librarians || librarianID}</td>
+                        <td>
+                            <img src="static/images/Edit.png" alt="Edit" class="action-icon" title="Edit Book" onclick="editBook('${ISBN}')">
+                            <img src="static/images/Trash.png" alt="Delete" class="action-icon" title="Delete Book" onclick="openDeleteConfirmation('book', '${ISBN}')">
+                        </td>
+                    `;
+                }
+            }
         } else {
-            alert('Error updating book: ' + data.message);
+            showNotification('Error updating book: ' + data.message, 'error');
         }
     } catch (error) {
         console.error('Error:', error);
-        alert('An error occurred while updating the book');
+        showNotification('An error occurred while updating the book', 'error');
     }
 }
 
 async function submitEditAuthorForm() {
     const form = document.getElementById('editAuthorForm');
     const formData = new FormData(form);
+    const authorID = formData.get('authorID');
+    const firstName = formData.get('first_name');
+    const lastName = formData.get('last_name');
 
     try {
         const response = await fetch('/edit_author', {
@@ -545,14 +710,31 @@ async function submitEditAuthorForm() {
         });
         const data = await response.json();
         if (data.success) {
-            alert('Author updated successfully');
-            location.reload();
+            showNotification('Author updated successfully', 'success');
+            closeEditAuthorForm();
+            // Update author list if open
+            if (document.getElementById('authorListFrame').style.display === 'block') {
+                const tableBody = document.querySelector('#authorTable tbody');
+                const row = tableBody.querySelector(`tr[data-id="${authorID}"]`);
+                if (row) {
+                    row.innerHTML = `
+                        <td>${authorID}</td>
+                        <td>${firstName} ${lastName}</td>
+                        <td>
+                            <img src="static/images/Edit.png" alt="Edit" class="action-icon" title="Edit Author" onclick="editAuthor(${authorID})">
+                            <img src="static/images/Trash.png" alt="Delete" class="action-icon" title="Delete Author" onclick="openDeleteConfirmation('author', ${authorID})">
+                        </td>
+                    `;
+                }
+            }
+            // Update author dropdowns
+            updateAuthorDropdowns({ authorID, full_name: `${firstName} ${lastName}` });
         } else {
-            alert('Error updating author: ' + data.message);
+            showNotification('Error updating author: ' + data.message, 'error');
         }
     } catch (error) {
         console.error('Error:', error);
-        alert('An error occurred while updating the author');
+        showNotification('An error occurred while updating the author', 'error');
     }
 }
 
@@ -566,43 +748,4 @@ function closeEditBookForm() {
 
 function closeEditAuthorForm() {
     closeFrame('editAuthorFormContainer');
-}
-
-let openFrameCount = 0; // Track the number of open frames
-
-function openFrame(frameId) {
-    const frame = document.getElementById(frameId);
-    if (frame.style.display === 'none' || frame.style.display === '') {
-        frame.style.display = 'block';
-        openFrameCount++;
-        document.getElementById('overlay').style.display = 'block';
-        document.querySelector('.content-wrapper').classList.add('blur');
-        document.querySelector('.content-wrapper').classList.add('no-scroll');
-        document.querySelector('.frame').classList.remove('blur');
-        document.querySelector('.frame-content').classList.remove('no-scroll');
-    }
-}
-
-function closeFrame(frameId) {
-    const frame = document.getElementById(frameId);
-    if (frame.style.display === 'block') {
-        frame.style.display = 'none';
-        openFrameCount--;
-        if (openFrameCount === 0) {
-            document.getElementById('overlay').style.display = 'none';
-            document.querySelector('.content-wrapper').classList.remove('blur');
-            document.querySelector('.content-wrapper').classList.remove('no-scroll');
-        }
-    }
-    resetFormInputs(frameId);
-}
-
-function openDeleteConfirmation(type, id) {
-    openFrame('deleteConfirmationFrame'); // Use openFrame to handle overlay and blur
-    window.currentDeleteType = type;
-    window.currentDeleteId = id;
-}
-
-function closeDeleteConfirmation() {
-    closeFrame('deleteConfirmationFrame'); // Use closeFrame to decrement count
 }

@@ -8,6 +8,9 @@
 </head>
 <body>
     <header>
+        <div class="edit-profile">
+            <img src="{{ url_for('static', filename='images/pen.png') }}" alt="Edit Profile" id="edit-profile-icon" title="Edit Profile">
+        </div>
         <div class="title">
             <img src="{{ url_for('static', filename='images/Logo.png') }}" alt="Library Logo" id="library-logo">
         </div>
@@ -116,6 +119,36 @@
                     <!-- Data will be inserted here -->
                 </tbody>
             </table>
+        </div>
+    </div>
+    <div class="frame" id="editProfileFrame">
+        <span class="close-btn" onclick="closeEditProfile()">x</span>
+        <div class="frame-content">
+            <h2>Edit Profile</h2>
+            <form id="edit-profile-form">
+                <input type="hidden" id="userID" name="userID" value="{{ session['userID'] }}">
+                <div class="form-group">
+                    <label for="firstName">First Name:</label>
+                    <input type="text" id="firstName" name="firstName" required>
+                </div>
+                <div class="form-group">
+                    <label for="lastName">Last Name:</label>
+                    <input type="text" id="lastName" name="lastName" required>
+                </div>
+                <div class="form-group">
+                    <label for="city">City:</label>
+                    <input type="text" id="city" name="city" required>
+                </div>
+                <div class="form-group">
+                    <label for="street">Street:</label>
+                    <input type="text" id="street" name="street" required>
+                </div>
+                <div class="form-group">
+                    <label for="age">Age:</label>
+                    <input type="number" id="age" name="age" required>
+                </div>
+                <button type="submit">Save Changes</button>
+            </form>
         </div>
     </div>
     <div id="notification-container"></div>
