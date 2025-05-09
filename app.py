@@ -4,20 +4,18 @@ import traceback
 from datetime import datetime, timedelta
 
 app = Flask(__name__)
-app.secret_key = 'your_secret_key'
-
+app.secret_key = 'your_secret_key'  # Replace with a secure secret key
 
 def connecting():
     connection = mysql.connector.connect(
         host='localhost',
         database='librarydb',
         user='root',
-        password='3490551389'
+        password='3490551389'  # Replace with your actual MySQL password
     )
     if connection.is_connected():
         print('Connected to MySQL database')
         return connection
-
 
 @app.route('/test_connection')
 def test_connection():
@@ -31,6 +29,13 @@ def test_connection():
         if connection.is_connected():
             connection.close()
 
+@app.route('/get_session_librarian', methods=['GET'])
+def get_session_librarian():
+    librarian_id = session.get('librarian_id')
+    if librarian_id:
+        return jsonify({"librarianID": librarian_id})
+    else:
+        return jsonify({"librarianID": None}), 400
 
 @app.route('/add_author', methods=['POST'])
 def add_author():
@@ -54,7 +59,6 @@ def add_author():
         cursor.close()
         connection.close()
 
-
 @app.route('/add_librarian', methods=['POST'])
 def add_librarian():
     librarianID = request.form.get('librarianID')
@@ -77,7 +81,6 @@ def add_librarian():
         cursor.close()
         connection.close()
 
-
 @app.route('/add_user_route', methods=['POST'])
 def add_user_route():
     print(f"Received form data: {request.form}")
@@ -88,29 +91,39 @@ def add_user_route():
         city = request.form.get('city')
         street = request.form.get('street')
         age = request.form.get('age')
-        librarianID = session.get('librarian_id')
+        librarianID = request.form.get('librarianID') or session.get('librarian_id')
 
         if not librarianID:
-            return jsonify({"success": False, "message": "Librarian ID not found in session"}), 400
+            return jsonify({"success": False, "message": "Librarian ID not found"}), 400
 
         connection = connecting()
-        cursor = connection.cursor()
+        cursor = connection.cursor(dictionary=True)
         cursor.execute(
             "INSERT INTO usr (userID, librarianID, first_name, last_name, city, Street, age) VALUES (%s, %s, %s, %s, %s, %s, %s)",
             (userID, librarianID, firstName, lastName, city, street, age))
         connection.commit()
-        cursor.close()
-        connection.close()
-        return jsonify({"success": True})
+
+        # Fetch librarian details for frontend
+        cursor.execute("SELECT first_name, last_name FROM librarian WHERE librarianID = %s", (librarianID,))
+        librarian = cursor.fetchone()
+        return jsonify({
+            "success": True,
+            "librarianFirstName": librarian['first_name'] if librarian else "",
+            "librarianLastName": librarian['last_name'] if librarian else ""
+        })
     except mysql.connector.Error as err:
+        connection.rollback()
         print(f"MySQL Error: {err}")
         traceback.print_exc()
         return jsonify({"success": False, "message": str(err)}), 500
     except Exception as e:
+        connection.rollback()
         print(f"Error: {e}")
         traceback.print_exc()
         return jsonify({"success": False, "message": str(e)}), 500
-
+    finally:
+        cursor.close()
+        connection.close()
 
 @app.route('/add_book', methods=['POST'])
 def add_book():
@@ -118,11 +131,14 @@ def add_book():
     ISBN = request.form.get('ISBN')
     genre = request.form.get('genre')
     publicationYear = request.form.get('publicationYear')
-    librarianID = session.get('librarian_id')
+    librarianID = request.form.get('librarianID') or session.get('librarian_id')
     authorIDs = request.form.getlist('authorID[]')
 
+    if not librarianID:
+        return jsonify({"success": False, "message": "Librarian ID not found"}), 400
+
     connection = connecting()
-    cursor = connection.cursor(buffered=True)
+    cursor = connection.cursor(buffered=True, dictionary=True)
 
     try:
         connection.start_transaction()
@@ -135,6 +151,19 @@ def add_book():
 
         connection.commit()
 
+        # Fetch librarian and authors for frontend
+        cursor.execute("SELECT first_name, last_name FROM librarian WHERE librarianID = %s", (librarianID,))
+        librarian = cursor.fetchone()
+        cursor.execute(
+            "SELECT CONCAT(first_name, ' ', last_name) AS full_name FROM author WHERE authorID IN (%s)" % ','.join(['%s'] * len(authorIDs)),
+            authorIDs
+        )
+        authors = [row['full_name'] for row in cursor.fetchall()]
+        return jsonify({
+            "success": True,
+            "librarians": f"{librarian['first_name']} {librarian['last_name']}" if librarian else "",
+            "authors": ', '.join(authors)
+        })
     except Exception as e:
         connection.rollback()
         print(f"Error adding book: {e}")
@@ -143,9 +172,6 @@ def add_book():
     finally:
         cursor.close()
         connection.close()
-
-    return jsonify({"success": True})
-
 
 @app.route('/get_book_list')
 def get_book_list():
@@ -159,13 +185,13 @@ def get_book_list():
         JOIN authorbook ON book.ISBN = authorbook.ISBN
         JOIN author ON authorbook.authorID = author.authorID
         JOIN librarian ON book.librarianID = librarian.librarianID
-        GROUP BY book.ISBN, book_name, genre, publicationyear, book.librarianID ORDER BY book_name;
+        GROUP BY book.ISBN, book_name, genre, publicationyear, book.librarianID
+        ORDER BY book_name
     """)
     books = cursor.fetchall()
     cursor.close()
     connection.close()
     return jsonify(books)
-
 
 @app.route('/get_author_list')
 def get_author_list():
@@ -177,6 +203,15 @@ def get_author_list():
     connection.close()
     return jsonify(authors)
 
+@app.route('/get_authors_for_dropdown')
+def get_authors_for_dropdown():
+    connection = connecting()
+    cursor = connection.cursor(dictionary=True)
+    cursor.execute("SELECT authorID, CONCAT(first_name, ' ', last_name) AS full_name FROM author ORDER BY full_name")
+    authors = cursor.fetchall()
+    cursor.close()
+    connection.close()
+    return jsonify(authors)
 
 @app.route('/get_borrow_history')
 def get_borrow_history():
@@ -190,7 +225,6 @@ def get_borrow_history():
     connection.close()
     return jsonify(borrows)
 
-
 @app.route('/get_available_books')
 def get_available_books():
     connection = connecting()
@@ -200,13 +234,12 @@ def get_available_books():
         FROM book, authorbook, author
         WHERE book.userID IS NULL AND authorbook.ISBN = book.ISBN AND authorbook.authorID = author.authorID
         GROUP BY book.ISBN
-        ORDER BY genre, book_name;
+        ORDER BY genre, book_name
     """)
     books = cursor.fetchall()
     cursor.close()
     connection.close()
     return jsonify(books)
-
 
 @app.route('/borrow_book', methods=['POST'])
 def borrow_book():
@@ -221,7 +254,6 @@ def borrow_book():
         cursor.execute("INSERT INTO borrow (ISBN, userID, loan_date) VALUES (%s, %s, NOW())", (ISBN, userID))
         cursor.execute("UPDATE book SET userID = %s WHERE ISBN = %s", (userID, ISBN))
         connection.commit()
-
     except Exception as e:
         connection.rollback()
         print(f"Error borrowing book: {e}")
@@ -231,7 +263,6 @@ def borrow_book():
         cursor.close()
         connection.close()
     return jsonify({"success": True})
-
 
 @app.route('/get_borrowed_books')
 def get_borrowed_books():
@@ -244,14 +275,13 @@ def get_borrowed_books():
     cursor.execute("""
         SELECT book.ISBN, book_name, genre, publicationyear, GROUP_CONCAT(CONCAT(author.first_name, ' ', author.last_name) SEPARATOR ', ') AS authors
         FROM book, authorbook, author, borrow
-        WHERE book.ISBN = borrow.ISBN AND borrow.userID = %s AND Book.ISBN = authorbook.ISBN AND authorbook.authorID = author.authorID AND return_date IS NULL
-        GROUP BY book.ISBN;
+        WHERE book.ISBN = borrow.ISBN AND borrow.userID = %s AND book.ISBN = authorbook.ISBN AND authorbook.authorID = author.authorID AND return_date IS NULL
+        GROUP BY book.ISBN
     """, (userID,))
     books = cursor.fetchall()
     cursor.close()
     connection.close()
     return jsonify(books)
-
 
 @app.route('/return_book', methods=['POST'])
 def return_book():
@@ -270,7 +300,6 @@ def return_book():
                        (ISBN, userID))
         cursor.execute("UPDATE book SET userID = NULL WHERE ISBN = %s", (ISBN,))
         connection.commit()
-
     except Exception as e:
         connection.rollback()
         print(f"Error returning book: {e}")
@@ -280,7 +309,6 @@ def return_book():
         cursor.close()
         connection.close()
     return jsonify({"success": True})
-
 
 @app.route('/check_overdue_books', methods=['GET'])
 def check_overdue_books():
@@ -310,18 +338,15 @@ def check_overdue_books():
         cursor.close()
         connection.close()
 
-
 @app.route('/')
 def index():
     return render_template('index.html')
-
 
 @app.route('/user_home')
 def user_home():
     first_name = request.args.get('first_name')
     last_name = request.args.get('last_name')
     return render_template('user_home.html', first_name=first_name, last_name=last_name)
-
 
 @app.route('/librarian_home')
 def librarian_home():
@@ -330,36 +355,37 @@ def librarian_home():
     librarian_id = request.args.get('librarian_id')
     session['librarian_id'] = librarian_id
     print(f"Librarian ID stored in session: {librarian_id}")
-    return render_template('librarian_home.html', first_name=first_name, last_name=last_name)
-
+    return render_template('librarian_home.html', first_name=first_name, last_name=last_name, librarian_id=librarian_id)
 
 @app.route('/get_user_list')
 def get_user_list():
     connection = connecting()
     cursor = connection.cursor(dictionary=True)
     cursor.execute("""
-    SELECT usr.librarianID, usr.first_name AS userFirstName, usr.last_name AS userLastName, usr.userID,
-    librarian.first_name AS librarianFirstName, librarian.last_name AS librarianLastName
-    FROM usr
-    JOIN librarian ON usr.librarianID = librarian.librarianID
+        SELECT usr.librarianID, usr.first_name AS userFirstName, usr.last_name AS userLastName, usr.userID,
+               librarian.first_name AS librarianFirstName, librarian.last_name AS librarianLastName
+        FROM usr
+        JOIN librarian ON usr.librarianID = librarian.librarianID
     """)
     users = cursor.fetchall()
     cursor.close()
     connection.close()
     return jsonify(users)
 
-
 @app.route('/get_borrow_list')
 def get_borrow_list():
     connection = connecting()
     cursor = connection.cursor(dictionary=True)
-    cursor.execute('SELECT borrow.*, first_name, last_name, book_name FROM borrow, book, usr WHERE borrow.ISBN = '
-                   'book.ISBN AND borrow.userID = usr.userID')
+    cursor.execute("""
+        SELECT borrow.*, usr.first_name, usr.last_name, book.book_name
+        FROM borrow
+        JOIN book ON borrow.ISBN = book.ISBN
+        JOIN usr ON borrow.userID = usr.userID
+    """)
     borrows = cursor.fetchall()
     cursor.close()
     connection.close()
     return jsonify(borrows)
-
 
 @app.route('/login', methods=['POST'])
 def login():
@@ -382,12 +408,17 @@ def login():
         return jsonify(
             {'redirect': url_for('user_home', first_name=users[0]['first_name'], last_name=users[0]['last_name'])})
     elif librarians:
-        return jsonify({'redirect': url_for('librarian_home', first_name=librarians[0]['first_name'],
-                                            last_name=librarians[0]['last_name'],
-                                            librarian_id=librarians[0]['librarianID'])})
+        session['librarian_id'] = librarians[0]['librarianID']
+        return jsonify({
+            'redirect': url_for(
+                'librarian_home',
+                first_name=librarians[0]['first_name'],
+                last_name=librarians[0]['last_name'],
+                librarian_id=librarians[0]['librarianID']
+            )
+        })
     else:
         return jsonify({'error': 'Invalid ID'}), 401
-
 
 @app.route('/delete_user/<int:user_id>', methods=['DELETE'])
 def delete_user(user_id):
@@ -410,7 +441,6 @@ def delete_user(user_id):
         cursor.close()
         connection.close()
 
-
 @app.route('/delete_book/<string:ISBN>', methods=['DELETE'])
 def delete_book(ISBN):
     connection = connecting()
@@ -431,7 +461,6 @@ def delete_book(ISBN):
     finally:
         cursor.close()
         connection.close()
-
 
 @app.route('/delete_author/<int:author_id>', methods=['DELETE'])
 def delete_author(author_id):
@@ -454,7 +483,6 @@ def delete_author(author_id):
         cursor.close()
         connection.close()
 
-
 @app.route('/get_user/<int:userID>', methods=['GET'])
 def get_user(userID):
     connection = connecting()
@@ -467,7 +495,6 @@ def get_user(userID):
         return jsonify({'success': True, 'user': user})
     else:
         return jsonify({'success': False, 'message': 'User not found'})
-
 
 @app.route('/get_user_details', methods=['GET'])
 def get_user_details():
@@ -485,7 +512,6 @@ def get_user_details():
         return jsonify({'success': True, 'user': user})
     else:
         return jsonify({'success': False, 'message': 'User not found'})
-
 
 @app.route('/get_book/<string:ISBN>', methods=['GET'])
 def get_book(ISBN):
@@ -517,7 +543,6 @@ def get_book(ISBN):
     else:
         return jsonify({'success': False, 'message': 'Book not found'})
 
-
 @app.route('/get_author/<int:authorID>', methods=['GET'])
 def get_author(authorID):
     connection = connecting()
@@ -531,7 +556,6 @@ def get_author(authorID):
     else:
         return jsonify({'success': False, 'message': 'Author not found'})
 
-
 @app.route('/edit_user', methods=['POST'])
 def edit_user():
     userID = request.form.get('userID')
@@ -540,7 +564,7 @@ def edit_user():
     city = request.form.get('city')
     street = request.form.get('street')
     age = request.form.get('age')
-    librarianID = session.get('librarian_id')
+    librarianID = request.form.get('librarianID') or session.get('librarian_id')
 
     print(
         f"Received edit_user request: userID={userID}, firstName={firstName}, lastName={lastName}, city={city}, street={street}, age={age}, librarianID={librarianID}")
@@ -560,7 +584,7 @@ def edit_user():
         return jsonify({"success": False, "message": "Age must be a valid number"}), 400
 
     connection = connecting()
-    cursor = connection.cursor(dictionary=True)  # Fix: Added dictionary=True
+    cursor = connection.cursor(dictionary=True)
     try:
         # Check if user exists
         cursor.execute("SELECT first_name, last_name, city, Street, age, librarianID FROM usr WHERE userID = %s",
@@ -624,7 +648,6 @@ def edit_user():
         cursor.close()
         connection.close()
 
-
 @app.route('/edit_user_details', methods=['POST'])
 def edit_user_details():
     userID = session.get('userID')
@@ -685,7 +708,6 @@ def edit_user_details():
         cursor.close()
         connection.close()
 
-
 @app.route('/edit_book', methods=['POST'])
 def edit_book():
     ISBN = request.form.get('ISBN')
@@ -693,20 +715,37 @@ def edit_book():
     genre = request.form.get('genre')
     publicationYear = request.form.get('publicationYear')
     authorIDs = request.form.getlist('authorID[]')
+    librarianID = request.form.get('librarianID') or session.get('librarian_id')
+
+    if not librarianID:
+        return jsonify({"success": False, "message": "Librarian ID not found"}), 400
 
     connection = connecting()
-    cursor = connection.cursor(buffered=True)
+    cursor = connection.cursor(buffered=True, dictionary=True)
 
     try:
         connection.start_transaction()
         cursor.execute(
-            "UPDATE book SET book_name = %s, genre = %s, publicationyear = %s WHERE ISBN = %s",
-            (bookName, genre, publicationYear, ISBN))
+            "UPDATE book SET book_name = %s, genre = %s, publicationyear = %s, librarianID = %s WHERE ISBN = %s",
+            (bookName, genre, publicationYear, librarianID, ISBN))
         cursor.execute("DELETE FROM authorbook WHERE ISBN = %s", (ISBN,))
         for authorID in authorIDs:
             cursor.execute("INSERT INTO authorbook (ISBN, authorID) VALUES (%s, %s)", (ISBN, authorID))
         connection.commit()
 
+        # Fetch librarian and authors for frontend
+        cursor.execute("SELECT first_name, last_name FROM librarian WHERE librarianID = %s", (librarianID,))
+        librarian = cursor.fetchone()
+        cursor.execute(
+            "SELECT CONCAT(first_name, ' ', last_name) AS full_name FROM author WHERE authorID IN (%s)" % ','.join(['%s'] * len(authorIDs)),
+            authorIDs
+        )
+        authors = [row['full_name'] for row in cursor.fetchall()]
+        return jsonify({
+            "success": True,
+            "librarians": f"{librarian['first_name']} {librarian['last_name']}" if librarian else "",
+            "authors": ', '.join(authors)
+        })
     except Exception as e:
         connection.rollback()
         print(f"Error editing book: {e}")
@@ -715,9 +754,6 @@ def edit_book():
     finally:
         cursor.close()
         connection.close()
-
-    return jsonify({"success": True})
-
 
 @app.route('/edit_author', methods=['POST'])
 def edit_author():
@@ -741,18 +777,6 @@ def edit_author():
     finally:
         cursor.close()
         connection.close()
-
-
-@app.route('/get_authors_for_dropdown')
-def get_authors_for_dropdown():
-    connection = connecting()
-    cursor = connection.cursor(dictionary=True)
-    cursor.execute("SELECT authorID, CONCAT(first_name, ' ', last_name) AS full_name FROM author")
-    authors = cursor.fetchall()
-    cursor.close()
-    connection.close()
-    return jsonify(authors)
-
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)

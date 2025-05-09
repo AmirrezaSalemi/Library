@@ -67,7 +67,7 @@
             <label for="ISBN">ISBN:</label>
             <input type="text" id="ISBN" name="ISBN" autocomplete="off" required>
             <label for="genre">Genre:</label>
-            <input type="text" id="genre" name="genre casting="off" required>
+            <input type="text" id="genre" name="genre" autocomplete="off" required>
             <label for="publicationYear">Publication Year:</label>
             <input type="number" id="publicationYear" name="publicationYear" autocomplete="off" required>
             <div id="authorsContainer">
@@ -236,6 +236,8 @@
         <span class="icon" id="notification-icon"></span>
         <span id="notification-message"></span>
     </div>
+    <!-- Hidden input to store librarian_id as a fallback -->
+    <input type="hidden" id="currentLibrarianID" value="{{ librarian_id }}">
     <script src="{{ url_for('static', filename='js/librarian_script.js') }}"></script>
 </body>
 </html>

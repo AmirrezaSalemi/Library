@@ -276,7 +276,6 @@ async function submitLibrarianForm() {
         if (data.success) {
             showNotification('Librarian added successfully', 'success');
             closeLibrarianForm();
-            // Update user list if open
             if (document.getElementById('userListFrame').style.display === 'block') {
                 openUserList();
             }
@@ -305,7 +304,6 @@ async function submitAuthorForm() {
         if (data.success) {
             showNotification('Author added successfully', 'success');
             closeAuthorForm();
-            // Update author list if open
             if (document.getElementById('authorListFrame').style.display === 'block') {
                 const tableBody = document.querySelector('#authorTable tbody');
                 const row = document.createElement('tr');
@@ -320,7 +318,6 @@ async function submitAuthorForm() {
                 `;
                 tableBody.appendChild(row);
             }
-            // Update author dropdowns
             updateAuthorDropdowns({ authorID, full_name: `${firstName} ${lastName}` });
         } else {
             showNotification('Error adding author: ' + data.message, 'error');
@@ -337,9 +334,20 @@ async function submitUserForm() {
     const userID = formData.get('userID');
     const firstName = formData.get('firstName');
     const lastName = formData.get('lastName');
-    const librarianID = '1'; // Assuming current librarian ID, adjust as needed
 
     try {
+        // Fetch the current librarianID from the server
+        const sessionResponse = await fetch('/get_session_librarian');
+        const sessionData = await sessionResponse.json();
+        const librarianID = sessionData.librarianID;
+
+        if (!librarianID) {
+            showNotification('Librarian ID not found in session', 'error');
+            return;
+        }
+
+        formData.append('librarianID', librarianID); // Add librarianID to formData
+
         const response = await fetch('/add_user_route', {
             method: 'POST',
             body: formData
@@ -348,7 +356,6 @@ async function submitUserForm() {
         if (data.success) {
             showNotification('User added successfully', 'success');
             closeUserForm();
-            // Update user list if open
             if (document.getElementById('userListFrame').style.display === 'block') {
                 const tableBody = document.querySelector('#userTable tbody');
                 const row = document.createElement('tr');
@@ -382,9 +389,20 @@ async function submitBookForm() {
     const genre = formData.get('genre');
     const publicationYear = formData.get('publicationYear');
     const authorIDs = formData.getAll('authorID[]');
-    const librarianID = '1'; // Assuming current librarian ID, adjust as needed
 
     try {
+        // Fetch the current librarianID from the server
+        const sessionResponse = await fetch('/get_session_librarian');
+        const sessionData = await sessionResponse.json();
+        const librarianID = sessionData.librarianID;
+
+        if (!librarianID) {
+            showNotification('Librarian ID not found in session', 'error');
+            return;
+        }
+
+
+
         const response = await fetch('/add_book', {
             method: 'POST',
             body: formData
@@ -393,7 +411,6 @@ async function submitBookForm() {
         if (data.success) {
             showNotification('Book added successfully', 'success');
             closeBookForm();
-            // Update book list if open
             if (document.getElementById('bookListFrame').style.display === 'block') {
                 const tableBody = document.querySelector('#bookTable tbody');
                 const row = document.createElement('tr');
@@ -508,7 +525,6 @@ async function confirmDelete() {
         if (data.success) {
             showNotification(`${type.charAt(0).toUpperCase() + type.slice(1)} deleted successfully`, 'success');
             closeDeleteConfirmation();
-            // Remove the row from the table
             const tableId = type === 'user' ? 'userTable' : type === 'book' ? 'bookTable' : 'authorTable';
             const tableBody = document.querySelector(`#${tableId} tbody`);
             const row = tableBody.querySelector(`tr[data-id="${id}"]`);
@@ -612,9 +628,20 @@ async function submitEditUserForm() {
     const userID = formData.get('userID');
     const firstName = formData.get('firstName');
     const lastName = formData.get('lastName');
-    const librarianID = '1'; // Assuming current librarian ID, adjust as needed
 
     try {
+        // Fetch the current librarianID from the server
+        const sessionResponse = await fetch('/get_session_librarian');
+        const sessionData = await sessionResponse.json();
+        const librarianID = sessionData.librarianID;
+
+        if (!librarianID) {
+            showNotification('Librarian ID not found in session', 'error');
+            return;
+        }
+
+        formData.append('librarianID', librarianID); // Add librarianID to formData
+
         const response = await fetch('/edit_user', {
             method: 'POST',
             body: formData
@@ -623,7 +650,6 @@ async function submitEditUserForm() {
         if (data.success) {
             showNotification('User updated successfully', 'success');
             closeEditUserForm();
-            // Update user list if open
             if (document.getElementById('userListFrame').style.display === 'block') {
                 const tableBody = document.querySelector('#userTable tbody');
                 const row = tableBody.querySelector(`tr[data-id="${userID}"]`);
@@ -657,9 +683,20 @@ async function submitEditBookForm() {
     const genre = formData.get('genre');
     const publicationYear = formData.get('publicationYear');
     const authorIDs = formData.getAll('authorID[]');
-    const librarianID = '1'; // Assuming current librarian ID, adjust as needed
 
     try {
+        // Fetch the current librarianID from the server
+        const sessionResponse = await fetch('/get_session_librarian');
+        const sessionData = await sessionResponse.json();
+        const librarianID = sessionData.librarianID;
+
+        if (!librarianID) {
+            showNotification('Librarian ID not found in session', 'error');
+            return;
+        }
+
+        formData.append('librarianID', librarianID); // Add librarianID to formData
+
         const response = await fetch('/edit_book', {
             method: 'POST',
             body: formData
@@ -668,7 +705,6 @@ async function submitEditBookForm() {
         if (data.success) {
             showNotification('Book updated successfully', 'success');
             closeEditBookForm();
-            // Update book list if open
             if (document.getElementById('bookListFrame').style.display === 'block') {
                 const tableBody = document.querySelector('#bookTable tbody');
                 const row = tableBody.querySelector(`tr[data-id="${ISBN}"]`);
@@ -712,7 +748,6 @@ async function submitEditAuthorForm() {
         if (data.success) {
             showNotification('Author updated successfully', 'success');
             closeEditAuthorForm();
-            // Update author list if open
             if (document.getElementById('authorListFrame').style.display === 'block') {
                 const tableBody = document.querySelector('#authorTable tbody');
                 const row = tableBody.querySelector(`tr[data-id="${authorID}"]`);
@@ -727,7 +762,6 @@ async function submitEditAuthorForm() {
                     `;
                 }
             }
-            // Update author dropdowns
             updateAuthorDropdowns({ authorID, full_name: `${firstName} ${lastName}` });
         } else {
             showNotification('Error updating author: ' + data.message, 'error');
