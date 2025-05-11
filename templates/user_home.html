@@ -5,31 +5,36 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>User Home</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/user_home.css') }}">
+    <noscript>
+        <div style="color: red; text-align: center;">
+            JavaScript is required to use this page. Please enable it in your browser.
+        </div>
+    </noscript>
 </head>
 <body>
     <header>
         <div class="edit-profile">
-            <img src="{{ url_for('static', filename='images/pen.png') }}" alt="Edit Profile" id="edit-profile-icon" title="Edit Profile">
+            <img src="{{ url_for('static', filename='images/pen.png') }}" alt="Edit Profile" id="edit-profile-icon" title="Edit Profile" loading="lazy">
         </div>
         <div class="title">
-            <img src="{{ url_for('static', filename='images/Logo.png') }}" alt="Library Logo" id="library-logo">
+            <img src="{{ url_for('static', filename='images/Logo.png') }}" alt="Library Logo" id="library-logo" loading="lazy">
         </div>
     </header>
     <div class="content-wrapper">
         <h2>Welcome, {{ first_name }} {{ last_name }} as User!</h2>
         <div class="rectangle-container">
-            <a href="#" class="rectangle" onclick="openAuthorList()" data-image="page1_user.png">List of Authors</a>
-            <a href="#" class="rectangle" onclick="openBookList()" data-image="page2_user.png">List of Books</a>
-            <a href="#" class="rectangle" onclick="openBorrowHistory()" data-image="page3_user.png">Borrow History</a>
-            <a href="#" class="rectangle" onclick="openBorrowBook()" data-image="page4_user.png">Borrow Book</a>
-            <a href="#" class="rectangle" onclick="openReturnBook()" data-image="page5_user.png">Return Book</a>
+            <a href="#" class="rectangle author-list" onclick="openAuthorList()" title="View all authors">List of Authors</a>
+            <a href="#" class="rectangle book-list" onclick="openBookList()" title="View all books">List of Books</a>
+            <a href="#" class="rectangle borrow-history" onclick="openBorrowHistory()" title="View your borrow history">Borrow History</a>
+            <a href="#" class="rectangle borrow-book" onclick="openBorrowBook()" title="Borrow a book">Borrow Book</a>
+            <a href="#" class="rectangle return-book" onclick="openReturnBook()" title="Return a book">Return Book</a>
         </div>
     </div>
     <div class="overlay" id="overlay"></div>
-    <div class="frame" id="authorListFrame">
-        <span class="close-btn" onclick="closeAuthorList()">x</span>
+    <div class="frame" id="authorListFrame" role="dialog" aria-labelledby="authorListTitle" aria-modal="true">
+        <span class="close-btn" onclick="closeAuthorList()" aria-label="Close">x</span>
         <div class="frame-content">
-            <h2>List of Authors</h2>
+            <h2 id="authorListTitle">List of Authors</h2>
             <table id="authorTable">
                 <thead>
                     <tr>
@@ -42,29 +47,19 @@
             </table>
         </div>
     </div>
-    <div class="frame" id="bookListFrame">
-        <span class="close-btn" onclick="closeBookList()">x</span>
+    <div class="frame" id="bookListFrame" role="dialog" aria-labelledby="bookListTitle" aria-modal="true">
+        <span class="close-btn" onclick="closeBookList()" aria-label="Close">x</span>
         <div class="frame-content">
-            <h2>List of Books</h2>
-            <table id="bookTable">
-                <thead>
-                    <tr>
-                        <th>Book Name</th>
-                        <th>Genre</th>
-                        <th>Publication Year</th>
-                        <th>Author Name</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <!-- Data will be inserted here -->
-                </tbody>
-            </table>
+            <h2 id="bookListTitle">List of Books</h2>
+            <div class="book-container">
+                <!-- Book rows will be inserted here -->
+            </div>
         </div>
     </div>
-    <div class="frame" id="borrowHistoryFrame">
-        <span class="close-btn" onclick="closeBorrowHistory()">x</span>
+    <div class="frame" id="borrowHistoryFrame" role="dialog" aria-labelledby="borrowHistoryTitle" aria-modal="true">
+        <span class="close-btn" onclick="closeBorrowHistory()" aria-label="Close">x</span>
         <div class="frame-content">
-            <h2>Borrow History</h2>
+            <h2 id="borrowHistoryTitle">Borrow History</h2>
             <table id="borrowHistoryTable">
                 <thead>
                     <tr>
@@ -81,10 +76,10 @@
             </table>
         </div>
     </div>
-    <div class="frame" id="borrowBookFrame">
-        <span class="close-btn" onclick="closeBorrowBook()">x</span>
+    <div class="frame" id="borrowBookFrame" role="dialog" aria-labelledby="borrowBookTitle" aria-modal="true">
+        <span class="close-btn" onclick="closeBorrowBook()" aria-label="Close">x</span>
         <div class="frame-content">
-            <h2>Borrow Book</h2>
+            <h2 id="borrowBookTitle">Borrow Book</h2>
             <table id="availableBooksTable">
                 <thead>
                     <tr>
@@ -101,10 +96,10 @@
             </table>
         </div>
     </div>
-    <div class="frame" id="returnBookFrame">
-        <span class="close-btn" onclick="closeReturnBook()">x</span>
+    <div class="frame" id="returnBookFrame" role="dialog" aria-labelledby="returnBookTitle" aria-modal="true">
+        <span class="close-btn" onclick="closeReturnBook()" aria-label="Close">x</span>
         <div class="frame-content">
-            <h2>Return Book</h2>
+            <h2 id="returnBookTitle">Return Book</h2>
             <table id="borrowedBooksTable">
                 <thead>
                     <tr>
@@ -121,31 +116,31 @@
             </table>
         </div>
     </div>
-    <div class="frame" id="editProfileFrame">
-        <span class="close-btn" onclick="closeEditProfile()">x</span>
+    <div class="frame" id="editProfileFrame" role="dialog" aria-labelledby="editProfileTitle" aria-modal="true">
+        <span class="close-btn" onclick="closeEditProfile()" aria-label="Close">x</span>
         <div class="frame-content">
-            <h2>Edit Profile</h2>
+            <h2 id="editProfileTitle">Edit Profile</h2>
             <form id="edit-profile-form">
                 <input type="hidden" id="userID" name="userID" value="{{ session['userID'] }}">
                 <div class="form-group">
                     <label for="firstName">First Name:</label>
-                    <input type="text" id="firstName" name="firstName" required>
+                    <input type="text" id="firstName" name="firstName" required aria-required="true">
                 </div>
                 <div class="form-group">
                     <label for="lastName">Last Name:</label>
-                    <input type="text" id="lastName" name="lastName" required>
+                    <input type="text" id="lastName" name="lastName" required aria-required="true">
                 </div>
                 <div class="form-group">
                     <label for="city">City:</label>
-                    <input type="text" id="city" name="city" required>
+                    <input type="text" id="city" name="city" required aria-required="true">
                 </div>
                 <div class="form-group">
                     <label for="street">Street:</label>
-                    <input type="text" id="street" name="street" required>
+                    <input type="text" id="street" name="street" required aria-required="true">
                 </div>
                 <div class="form-group">
                     <label for="age">Age:</label>
-                    <input type="number" id="age" name="age" required>
+                    <input type="number" id="age" name="age" required aria-required="true" min="1">
                 </div>
                 <button type="submit">Save Changes</button>
             </form>

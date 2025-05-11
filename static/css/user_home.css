@@ -475,6 +475,19 @@ td {
         right: 0; /* Align to container's right edge */
         box-sizing: border-box;
     }
+    .book-row {
+        flex-direction: column;
+        gap: 15px;
+    }
+    .book-field {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+    .book-image, .no-image {
+        width: 80px;
+        height: 120px;
+    }
 }
 
 @media (max-width: 480px) {
@@ -524,4 +537,81 @@ td {
         opacity: 1;
         transform: translate(-50%, -50%);
     }
+}
+.book-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    max-height: 400px;
+    overflow-y: auto;
+    padding: 10px;
+}
+
+.book-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+.book-field {
+    flex: 1;
+    display: flex;
+    align-items: flex-start;
+    gap: 15px;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 15px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.book-field:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+}
+
+.book-image {
+    width: 100px;
+    height: 150px;
+    object-fit: cover;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.no-image {
+    width: 100px;
+    height: 150px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 5px;
+    color: white;
+    font-size: 14px;
+    text-align: center;
+}
+
+.book-details {
+    flex: 1;
+    color: white;
+    font-family: 'Times New Roman', Times, serif;
+}
+
+.book-details strong {
+    font-size: 18px;
+    display: block;
+    margin-bottom: 8px;
+}
+
+.book-details p {
+    margin: 5px 0;
+    font-size: 16px;
+}
+
+.no-books {
+    color: white;
+    text-align: center;
+    font-family: 'Times New Roman', Times, serif;
+    font-size: 16px;
+    padding: 20px;
 }

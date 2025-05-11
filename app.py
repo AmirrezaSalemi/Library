@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, redirect, url_for, flash, ses
 import mysql.connector
 import traceback
 from datetime import datetime, timedelta
+import base64
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'  # Replace with a secure secret key
@@ -185,23 +186,49 @@ def add_book():
 
 @app.route('/get_book_list')
 def get_book_list():
+    import base64, traceback
+    from flask import jsonify
     connection = connecting()
     cursor = connection.cursor(dictionary=True)
-    cursor.execute("""
-        SELECT book.ISBN, book_name, genre, publicationyear,
-               GROUP_CONCAT(DISTINCT CONCAT(librarian.first_name, ' ', librarian.last_name) SEPARATOR ', ') AS librarians,
-               GROUP_CONCAT(DISTINCT CONCAT(author.first_name, ' ', author.last_name) SEPARATOR ', ') AS authors
-        FROM book
-        JOIN authorbook ON book.ISBN = authorbook.ISBN
-        JOIN author ON authorbook.authorID = author.authorID
-        JOIN librarian ON book.librarianID = librarian.librarianID
-        GROUP BY book.ISBN, book_name, genre, publicationyear, book.librarianID
-        ORDER BY book_name
-    """)
-    books = cursor.fetchall()
-    cursor.close()
-    connection.close()
-    return jsonify(books)
+    try:
+        cursor.execute("""
+            SELECT 
+                b.ISBN, 
+                b.book_name, 
+                b.genre, 
+                b.publicationyear, 
+                b.img,
+                IFNULL(a.authors, 'Unknown') AS authors
+            FROM book b
+            LEFT JOIN (
+                SELECT ab.ISBN, GROUP_CONCAT(CONCAT(a.first_name, ' ', a.last_name) SEPARATOR ', ') AS authors
+                FROM authorbook ab
+                JOIN author a ON ab.authorID = a.authorID
+                GROUP BY ab.ISBN
+            ) a ON b.ISBN = a.ISBN
+            ORDER BY b.book_name;
+        """)
+
+        books = cursor.fetchall()
+
+        for book in books:
+            # Convert image BLOB to base64 string
+            if book['img']:
+                book['img'] = base64.b64encode(book['img']).decode('utf-8')
+            else:
+                book['img'] = None
+            # Fallback if no authors
+            if not book['authors']:
+                book['authors'] = "Unknown"
+
+        return jsonify(books)
+    except Exception as e:
+        print(f"Error fetching book list: {e}")
+        traceback.print_exc()
+        return jsonify({"success": False, "message": str(e)}), 500
+    finally:
+        cursor.close()
+        connection.close()
 
 
 @app.route('/get_author_list')

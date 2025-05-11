@@ -162,20 +162,53 @@ async function fetchBooks() {
     try {
         const response = await fetch('/get_book_list');
         const data = await response.json();
-        const tableBody = document.querySelector('#bookTable tbody');
-        tableBody.innerHTML = '';
-        data.forEach(book => {
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td>${book.book_name}</td>
-                <td>${book.genre || ' '}</td>
-                <td>${book.publicationyear}</td>
-                <td>${book.authors}</td>
+        const bookContainer = document.querySelector('#bookListFrame .book-container');
+        bookContainer.innerHTML = '';
+
+        // Process books in pairs
+        for (let i = 0; i < data.length; i += 2) {
+            const row = document.createElement('div');
+            row.className = 'book-row';
+
+            // First book in the pair
+            const field1 = document.createElement('div');
+            field1.className = 'book-field';
+            field1.innerHTML = `
+                ${data[i].img ? `<img src="data:image/png;base64,${data[i].img}" alt="Cover of ${data[i].book_name} by ${data[i].authors}" class="book-image">` : '<div class="no-image">No Image</div>'}
+                <div class="book-details">
+                    <strong>${data[i].book_name}</strong>
+                    <p>Genre: ${data[i].genre || 'N/A'}</p>
+                    <p>Year: ${data[i].publicationyear}</p>
+                    <p>Author: ${data[i].authors}</p>
+                </div>
             `;
-            tableBody.appendChild(row);
-        });
+            row.appendChild(field1);
+
+            // Second book in the pair (if exists)
+            const field2 = document.createElement('div');
+            field2.className = 'book-field';
+            if (i + 1 < data.length) {
+                field2.innerHTML = `
+                    ${data[i + 1].img ? `<img src="data:image/png;base64,${data[i + 1].img}" alt="Cover of ${data[i + 1].book_name} by ${data[i + 1].authors}" class="book-image">` : '<div class="no-image">No Image</div>'}
+                    <div class="book-details">
+                        <strong>${data[i + 1].book_name}</strong>
+                        <p>Genre: ${data[i + 1].genre || 'N/A'}</p>
+                        <p>Year: ${data[i + 1].publicationyear}</p>
+                        <p>Author: ${data[i + 1].authors}</p>
+                    </div>
+                `;
+            }
+            row.appendChild(field2);
+
+            bookContainer.appendChild(row);
+        }
+
+        if (!data.length) {
+            bookContainer.innerHTML = '<div class="no-books">No books available.</div>';
+        }
     } catch (error) {
         console.error('Error fetching book list:', error);
+        document.querySelector('#bookListFrame .book-container').innerHTML = '<div class="no-books">Error loading books. Please try again later.</div>';
     }
 }
 
