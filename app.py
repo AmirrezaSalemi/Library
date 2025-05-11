@@ -560,33 +560,37 @@ def get_user_details():
 
 @app.route('/get_book/<string:ISBN>', methods=['GET'])
 def get_book(ISBN):
-    connection = connecting()
-    cursor = connection.cursor(dictionary=True)
-    cursor.execute("""
-        SELECT book.*, GROUP_CONCAT(DISTINCT CONCAT(author.first_name, ' ', author.last_name) SEPARATOR ', ') AS authors
-        FROM book
-        JOIN authorbook ON book.ISBN = authorbook.ISBN
-        JOIN author ON authorbook.authorID = author.authorID
-        WHERE book.ISBN = %s
-        GROUP BY book.ISBN
-    """, (ISBN,))
-    book = cursor.fetchone()
+    try:
+        connection = connecting()
+        cursor = connection.cursor(dictionary=True)
 
-    cursor.execute("""
-        SELECT author.authorID, author.first_name, author.last_name
-        FROM author
-        JOIN authorbook ON author.authorID = authorbook.authorID
-        WHERE authorbook.ISBN = %s
-    """, (ISBN,))
-    authors = cursor.fetchall()
+        cursor.execute("""
+            SELECT book.ISBN, book.book_name, book.genre, book.publicationyear
+            FROM book
+            WHERE book.ISBN = %s
+        """, (ISBN,))
+        book = cursor.fetchone()
 
-    cursor.close()
-    connection.close()
-    if book:
-        book['authors'] = authors
-        return jsonify({'success': True, 'book': book})
-    else:
-        return jsonify({'success': False, 'message': 'Book not found'})
+        cursor.execute("""
+            SELECT author.authorID, author.first_name, author.last_name
+            FROM author
+            JOIN authorbook ON author.authorID = authorbook.authorID
+            WHERE authorbook.ISBN = %s
+        """, (ISBN,))
+        authors = cursor.fetchall()
+
+        cursor.close()
+        connection.close()
+
+        if book:
+            book['authors'] = authors
+            return jsonify({'success': True, 'book': book})
+        else:
+            return jsonify({'success': False, 'message': 'Book not found'})
+
+    except Exception as e:
+        print("Server Error:", e)
+        return jsonify({'success': False, 'message': 'Server error'})
 
 
 @app.route('/get_author/<int:authorID>', methods=['GET'])

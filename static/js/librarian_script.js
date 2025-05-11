@@ -565,7 +565,13 @@ async function editUser(userID) {
 async function editBook(ISBN) {
     try {
         const response = await fetch(`/get_book/${ISBN}`);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
         const data = await response.json();
+        console.log('Fetched book data:', data); // Debug log
+
         if (data.success) {
             const book = data.book;
             document.getElementById('editISBN').value = book.ISBN;
@@ -582,8 +588,7 @@ async function editBook(ISBN) {
                     authorField.className = 'author-fields';
                     authorField.innerHTML = `
                         <label for="editAuthorSelect">Author:</label>
-                        <select name="authorID[]" required>
-                        </select>
+                        <select name="authorID[]" required></select>
                     `;
                     const authorSelect = authorField.querySelector('select');
                     fetchAuthorsForDropdown(authorSelect).then(() => {
@@ -602,6 +607,7 @@ async function editBook(ISBN) {
         showNotification('An error occurred while fetching the book data', 'error');
     }
 }
+
 
 async function editAuthor(authorID) {
     try {
