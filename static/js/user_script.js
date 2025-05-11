@@ -121,10 +121,18 @@ async function fetchUserDetails() {
             document.getElementById('firstName').value = data.user.first_name;
             document.getElementById('lastName').value = data.user.last_name;
             document.getElementById('city').value = data.user.city;
-            document.getElementById('street').value = data.user.Street;
+            document.getElementById('street').value = data.user.street; // Changed to lowercase 'street'
             document.getElementById('age').value = data.user.age;
+            // Store librarianID in a hidden input
+            if (data.user.librarianID) {
+                const librarianInput = document.createElement('input');
+                librarianInput.type = 'hidden';
+                librarianInput.name = 'librarianID';
+                librarianInput.value = data.user.librarianID;
+                document.getElementById('edit-profile-form').appendChild(librarianInput);
+            }
         } else {
-            showNotification('Failed to load user details.', 'error');
+            showNotification('Failed to load user details: ' + data.message, 'error');
         }
     } catch (error) {
         console.error('Error fetching user details:', error);
@@ -311,6 +319,7 @@ async function saveProfileChanges(event) {
     const city = formData.get('city').trim();
     const street = formData.get('street').trim();
     const age = parseInt(formData.get('age'));
+    const librarianID = formData.get('librarianID'); // Get librarianID from form
 
     // Client-side validation
     if (!userID) {
@@ -318,8 +327,8 @@ async function saveProfileChanges(event) {
         console.log('Validation failed: Missing userID');
         return;
     }
-    if (!firstName || !lastName || !city || !street) {
-        showNotification('All fields are required.', 'error');
+    if (!firstName || !lastName || !city || !street || !librarianID) {
+        showNotification('All fields are required, including librarian ID.', 'error');
         console.log('Validation failed: Empty fields detected.');
         return;
     }
@@ -335,7 +344,8 @@ async function saveProfileChanges(event) {
         lastName,
         city,
         street,
-        age
+        age,
+        librarianID
     });
 
     try {
@@ -351,11 +361,11 @@ async function saveProfileChanges(event) {
             welcomeMessage.textContent = `Welcome, ${firstName} ${lastName} as User!`;
         } else {
             console.log('Server returned failure:', data.message);
-            showNotification('Failed to update profile', 'error');
+            showNotification('Failed to update profile: ' + data.message, 'error');
         }
     } catch (error) {
         console.error('Fetch error updating profile:', error);
-        showNotification('Failed to update profile', 'error');
+        showNotification('Failed to update profile: An error occurred.', 'error');
     }
 }
 
