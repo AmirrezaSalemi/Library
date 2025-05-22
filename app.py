@@ -106,7 +106,7 @@ def add_user_route():
         connection = connecting()
         cursor = connection.cursor(dictionary=True)
         cursor.execute(
-            "INSERT INTO usr (userID, librarianID, first_name, last_name, city, Street, age) VALUES (%s, %s, %s, %s, "
+            "INSERT INTO usr (userID, librarianID, first_name, last_name, city, street, age) VALUES (%s, %s, %s, %s, "
             "%s, %s, %s)",
             (userID, librarianID, firstName, lastName, city, street, age))
         connection.commit()
@@ -255,33 +255,97 @@ def get_authors_for_dropdown():
 
 @app.route('/get_borrow_history')
 def get_borrow_history():
-    userID = session.get('userID')
     connection = connecting()
     cursor = connection.cursor(dictionary=True)
-    cursor.execute("SELECT borrow.*, book_name FROM borrow, book WHERE borrow.ISBN = book.ISBN AND borrow.userID = %s",
-                   (userID,))
-    borrows = cursor.fetchall()
-    cursor.close()
-    connection.close()
-    return jsonify(borrows)
+    try:
+        user_id = session.get('userID')
+        if not user_id:
+            print("Error: No userID in session")
+            return jsonify({"success": False, "message": "No userID in session"}), 400
+
+        print(f"Fetching borrow history for userID: {user_id}")
+
+        # Count borrow records for debugging
+        cursor.execute("SELECT COUNT(*) AS count FROM borrow WHERE userID = %s", (user_id,))
+        count_result = cursor.fetchone()
+        print(f"Borrow records count for userID {user_id}: {count_result['count']}")
+
+        cursor.execute("""
+            SELECT 
+                borrow.loanID,
+                borrow.ISBN,
+                book.book_name,
+                book.img,
+                borrow.loan_date,
+                borrow.return_date,
+                GROUP_CONCAT(CONCAT(author.first_name, ' ', author.last_name) SEPARATOR ', ') AS authors
+            FROM borrow
+            JOIN book ON borrow.ISBN = book.ISBN
+            LEFT JOIN authorbook ON book.ISBN = authorbook.ISBN
+            LEFT JOIN author ON authorbook.authorID = author.authorID
+            WHERE borrow.userID = %s
+            GROUP BY borrow.loanID, borrow.ISBN, book.book_name, book.img, borrow.loan_date, borrow.return_date
+            ORDER BY borrow.loan_date DESC
+        """, (user_id,))
+        records = cursor.fetchall()
+        print(f"Retrieved {len(records)} borrow history records")
+
+        for record in records:
+            if record['img']:
+                record['img'] = base64.b64encode(record['img']).decode('utf-8')
+            else:
+                record['img'] = None
+            if not record['authors']:
+                record['authors'] = "Unknown"
+
+        return jsonify(records)
+    except Exception as e:
+        print(f"Error fetching borrow history: {e}")
+        traceback.print_exc()
+        return jsonify({"success": False, "message": str(e)}), 500
+    finally:
+        cursor.close()
+        connection.close()
 
 
 @app.route('/get_available_books')
 def get_available_books():
     connection = connecting()
     cursor = connection.cursor(dictionary=True)
-    cursor.execute("""
-        SELECT book.ISBN, book_name, genre, publicationyear, GROUP_CONCAT(CONCAT(author.first_name, ' ', author.last_name) SEPARATOR ', ') AS authors
-        FROM book, authorbook, author
-        WHERE book.userID IS NULL AND authorbook.ISBN = book.ISBN AND authorbook.authorID = author.authorID
-        GROUP BY book.ISBN
-        ORDER BY genre, book_name
-    """)
-    books = cursor.fetchall()
-    cursor.close()
-    connection.close()
-    return jsonify(books)
+    try:
+        cursor.execute("""
+            SELECT 
+                book.ISBN, 
+                book.book_name, 
+                book.genre, 
+                book.publicationyear, 
+                book.img,
+                GROUP_CONCAT(CONCAT(author.first_name, ' ', author.last_name) SEPARATOR ', ') AS authors
+            FROM book
+            LEFT JOIN authorbook ON book.ISBN = authorbook.ISBN
+            LEFT JOIN author ON authorbook.authorID = author.authorID
+            WHERE book.userID IS NULL
+            GROUP BY book.ISBN
+            ORDER BY book.genre, book.book_name
+        """)
+        books = cursor.fetchall()
 
+        for book in books:
+            if book['img']:
+                book['img'] = base64.b64encode(book['img']).decode('utf-8')
+            else:
+                book['img'] = None
+            if not book['authors']:
+                book['authors'] = "Unknown"
+
+        return jsonify(books)
+    except Exception as e:
+        print(f"Error fetching available books: {e}")
+        traceback.print_exc()
+        return jsonify({"success": False, "message": str(e)}), 500
+    finally:
+        cursor.close()
+        connection.close()
 
 @app.route('/borrow_book', methods=['POST'])
 def borrow_book():
@@ -324,22 +388,42 @@ def borrow_book():
 
 @app.route('/get_borrowed_books')
 def get_borrowed_books():
-    userID = session.get('userID')
-    if not userID:
-        return jsonify({"success": False, "message": "User not logged in"}), 400
-
     connection = connecting()
     cursor = connection.cursor(dictionary=True)
-    cursor.execute("""
-        SELECT book.ISBN, book_name, genre, publicationyear, GROUP_CONCAT(CONCAT(author.first_name, ' ', author.last_name) SEPARATOR ', ') AS authors
-        FROM book, authorbook, author, borrow
-        WHERE book.ISBN = borrow.ISBN AND borrow.userID = %s AND book.ISBN = authorbook.ISBN AND authorbook.authorID = author.authorID AND return_date IS NULL
-        GROUP BY book.ISBN
-    """, (userID,))
-    books = cursor.fetchall()
-    cursor.close()
-    connection.close()
-    return jsonify(books)
+    try:
+        cursor.execute("""
+            SELECT 
+                book.ISBN, 
+                book.book_name, 
+                book.genre, 
+                book.publicationyear, 
+                book.img,
+                GROUP_CONCAT(CONCAT(author.first_name, ' ', author.last_name) SEPARATOR ', ') AS authors
+            FROM book
+            LEFT JOIN authorbook ON book.ISBN = authorbook.ISBN
+            LEFT JOIN author ON authorbook.authorID = author.authorID
+            WHERE book.userID = %s
+            GROUP BY book.ISBN
+            ORDER BY book.book_name
+        """, (session['userID'],))
+        books = cursor.fetchall()
+
+        for book in books:
+            if book['img']:
+                book['img'] = base64.b64encode(book['img']).decode('utf-8')
+            else:
+                book['img'] = None
+            if not book['authors']:
+                book['authors'] = "Unknown"
+
+        return jsonify(books)
+    except Exception as e:
+        print(f"Error fetching borrowed books: {e}")
+        traceback.print_exc()
+        return jsonify({"success": False, "message": str(e)}), 500
+    finally:
+        cursor.close()
+        connection.close()
 
 
 @app.route('/return_book', methods=['POST'])
@@ -665,7 +749,7 @@ def edit_user():
     cursor = connection.cursor(dictionary=True)
     try:
         # Check if user exists
-        cursor.execute("SELECT first_name, last_name, city, Street, age, librarianID FROM usr WHERE userID = %s",
+        cursor.execute("SELECT first_name, last_name, city, street, age, librarianID FROM usr WHERE userID = %s",
                        (userID,))
         user = cursor.fetchone()
         if not user:
@@ -680,11 +764,11 @@ def edit_user():
 
         # Log current database values for comparison
         print(
-            f"Current database values: first_name={user['first_name']}, last_name={user['last_name']}, city={user['city']}, Street={user['Street']}, age={user['age']}, librarianID={user['librarianID']}")
+            f"Current database values: first_name={user['first_name']}, last_name={user['last_name']}, city={user['city']}, street={user['street']}, age={user['age']}, librarianID={user['librarianID']}")
 
         # Update user with the current librarianID
         cursor.execute(
-            "UPDATE usr SET first_name = %s, last_name = %s, city = %s, Street = %s, age = %s, librarianID = %s WHERE userID = %s",
+            "UPDATE usr SET first_name = %s, last_name = %s, city = %s, street = %s, age = %s, librarianID = %s WHERE userID = %s",
             (firstName, lastName, city, street, age, librarianID, userID))
 
         # Treat no changes as a success
@@ -694,7 +778,7 @@ def edit_user():
             if (user['first_name'] == firstName and
                     user['last_name'] == lastName and
                     user['city'] == city and
-                    user['Street'] == street and
+                    user['street'] == street and
                     user['age'] == int(age) and
                     user['librarianID'] == librarianID):
                 print("No changes needed: Submitted data matches database")
@@ -764,7 +848,7 @@ def edit_user_details():
 
         # Update user without changing librarianID
         cursor.execute(
-            "UPDATE usr SET first_name = %s, last_name = %s, city = %s, Street = %s, age = %s WHERE userID = %s",
+            "UPDATE usr SET first_name = %s, last_name = %s, city = %s, street = %s, age = %s WHERE userID = %s",
             (firstName, lastName, city, street, age, userID))
         if cursor.rowcount == 0:
             print(f"No rows updated for userID={userID}")

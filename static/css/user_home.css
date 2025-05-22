@@ -201,7 +201,7 @@ h2::before {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    background: linear-gradient(145deg, rgba(0, 0, 0, 0.85), rgba(0, 0, 64, 0.9));
+    background: linear-gradient(145deg, #000000, #333333); /* Updated to black-to-gray gradient */
     padding: 25px;
     border-radius: 15px;
     z-index: 1001;
@@ -213,7 +213,7 @@ h2::before {
 }
 
 .frame-content {
-    background: linear-gradient(145deg, #2a2a2a, #333333);
+    background: #2a2a2a; /* Updated to solid dark gray */
     padding: 25px;
     border-radius: 10px;
     color: white;
@@ -389,14 +389,14 @@ td {
 #notification-container {
     position: fixed;
     top: 20px;
-    right: 10px; /* Ensure right-aligned */
-    left: auto; /* Prevent left positioning */
+    right: 10px;
+    left: auto;
     z-index: 1002;
     display: flex;
     flex-direction: column;
     gap: 10px;
     width: auto;
-    max-width: calc(100% - 20px); /* Prevent overflow */
+    max-width: calc(100% - 20px);
     box-sizing: border-box;
 }
 
@@ -410,14 +410,14 @@ td {
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
     font-family: 'Times New Roman', Times, serif;
     font-size: 16px;
-    max-width: 80vw; /* Restrict width to fit screen */
+    max-width: 80vw;
     width: auto;
     text-align: left;
     transition: transform 0.3s ease, opacity 0.3s ease;
-    overflow-wrap: break-word; /* Handle long text */
-    word-break: break-all; /* Fallback for extreme cases */
+    overflow-wrap: break-word;
+    word-break: break-all;
     box-sizing: border-box;
-    padding-right: calc(15px + env(safe-area-inset-right)); /* Support notched devices */
+    padding-right: calc(15px + env(safe-area-inset-right));
     padding-top: calc(10px + env(safe-area-inset-top));
 }
 
@@ -431,113 +431,6 @@ td {
     color: #fff;
 }
 
-@media (max-width: 768px) {
-    header {
-        flex-direction: row;
-        align-items: center;
-        text-align: center;
-    }
-    .edit-profile {
-        margin-right: 10px;
-    }
-    #edit-profile-icon {
-        height: 1.8em;
-    }
-    .title {
-        display: flex;
-        justify-content: center;
-        width: 100%;
-    }
-    .title img {
-        height: 2.5em;
-        display: block;
-        margin: 0 auto;
-    }
-    .rectangle {
-        flex: 0 0 calc(33.333% - 14px);
-        margin: 7px;
-        min-width: 0;
-    }
-    .rectangle-container {
-        gap: 0;
-    }
-    #notification-container {
-        top: 10px;
-        right: 10px;
-        left: auto; /* Ensure no left positioning */
-        max-width: calc(100% - 20px);
-    }
-    .notification {
-        font-size: 14px;
-        padding: 8px 12px;
-        max-width: 85vw; /* Slightly more restrictive */
-        width: auto;
-        right: 0; /* Align to container's right edge */
-        box-sizing: border-box;
-    }
-    .book-row {
-        flex-direction: column;
-        gap: 15px;
-    }
-    .book-field {
-        flex-direction: column;
-        align-items: center;
-        text-align: center;
-    }
-    .book-image, .no-image {
-        width: 80px;
-        height: 120px;
-    }
-}
-
-@media (max-width: 480px) {
-    header {
-        flex-direction: row;
-        align-items: center;
-        text-align: center;
-    }
-    .edit-profile {
-        margin-right: 5px;
-    }
-    #edit-profile-icon {
-        height: 1.5em;
-    }
-    .title {
-        display: flex;
-        justify-content: center;
-        width: 100%;
-    }
-    .title img {
-        height: 2em;
-        display: block;
-        margin: 0 auto;
-    }
-    #notification-container {
-        top: 5px;
-        right: 5px;
-        left: auto;
-        max-width: calc(100% - 10px);
-    }
-    .notification {
-        font-size: 12px;
-        padding: 6px 10px;
-        max-width: 80vw; /* Even more restrictive for small screens */
-        width: auto;
-        right: 0;
-        box-sizing: border-box;
-    }
-}
-
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translate(-50%, -60%);
-    }
-    to {
-        opacity: 1;
-        transform: translate(-50%, -50%);
-    }
-}
 .book-container {
     display: flex;
     flex-direction: column;
@@ -614,4 +507,126 @@ td {
     font-family: 'Times New Roman', Times, serif;
     font-size: 16px;
     padding: 20px;
+}
+
+@media (max-width: 768px) {
+    header {
+        flex-direction: row;
+        align-items: center;
+        text-align: center;
+    }
+    .edit-profile {
+        margin-right: 10px;
+    }
+    #edit-profile-icon {
+        height: 1.8em;
+    }
+    .title {
+        display: flex;
+        justify-content: center;
+        width: 100%;
+    }
+    .title img {
+        height: 2.5em;
+        display: block;
+        margin: 0 auto;
+    }
+    .rectangle {
+        flex: 0 0 calc(33.333% - 14px);
+        margin: 7px;
+        min-width: 0;
+    }
+    .rectangle-container {
+        gap: 0;
+    }
+    #notification-container {
+        top: 10px;
+        right: 10px;
+        left: auto;
+        max-width: calc(100% - 20px);
+    }
+    .notification {
+        font-size: 14px;
+        padding: 8px 12px;
+        max-width: 85vw;
+        width: auto;
+        right: 0;
+        box-sizing: border-box;
+    }
+    .book-row {
+        flex-direction: column;
+        gap: 15px;
+    }
+    .book-field {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+    .book-image, .no-image {
+        width: 80px;
+        height: 120px;
+        font-size: 12px;
+    }
+    .action-icon {
+        width: 20px;
+        height: 20px;
+    }
+}
+
+@media (max-width: 480px) {
+    header {
+        flex-direction: row;
+        align-items: center;
+        text-align: center;
+    }
+    .edit-profile {
+        margin-right: 5px;
+    }
+    .edit-profile img {
+        height: 1.5em;
+    }
+    .title {
+        display: flex;
+        justify-content: center;
+        width: 100%;
+    }
+    .title img {
+        height: 2em;
+        display: block;
+        margin: 0 auto;
+    }
+    #notification-container {
+        top: 5px;
+        right: 5px;
+        left: auto;
+        max-width: calc(100% - 10px);
+    }
+    .notification {
+        font-size: 12px;
+        padding: 6px 10px;
+        max-width: 80vw;
+        width: auto;
+        right: 0;
+        box-sizing: border-box;
+    }
+    .book-image, .no-image {
+        width: 60px;
+        height: 90px;
+        font-size: 10px;
+    }
+    .action-icon {
+        width: 18px;
+        height: 18px;
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translate(-50%, -60%);
+    }
+    to {
+        opacity: 1;
+        transform: translate(-50%, -50%);
+    }
 }

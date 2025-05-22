@@ -550,7 +550,7 @@ async function editUser(userID) {
             document.getElementById('editFirstName').value = user.first_name;
             document.getElementById('editLastName').value = user.last_name;
             document.getElementById('editCity').value = user.city;
-            document.getElementById('editStreet').value = user.Street;
+            document.getElementById('editStreet').value = user.street;
             document.getElementById('editAge').value = user.age;
             openFrame('editUserFormContainer');
         } else {

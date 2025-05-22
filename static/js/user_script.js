@@ -215,22 +215,64 @@ async function fetchBooks() {
 async function fetchBorrowHistory() {
     try {
         const response = await fetch('/get_borrow_history');
+        if (!response.ok) {
+            const errorData = await response.json();
+            console.error('Fetch error:', errorData);
+            throw new Error(errorData.message || 'Failed to fetch borrow history');
+        }
         const data = await response.json();
-        const tableBody = document.querySelector('#borrowHistoryTable tbody');
-        tableBody.innerHTML = '';
-        data.forEach(borrow => {
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td>${borrow.loanID}</td>
-                <td>${borrow.ISBN}</td>
-                <td>${borrow.book_name}</td>
-                <td>${borrow.loan_date}</td>
-                <td>${borrow.return_date || ' '}</td>
+        console.log('Borrow history data:', data); // Debug log
+        const bookContainer = document.querySelector('#borrowHistoryContainer');
+        bookContainer.innerHTML = '';
+
+        // Process records in pairs
+        for (let i = 0; i < data.length; i += 2) {
+            const row = document.createElement('div');
+            row.className = 'book-row';
+
+            // First record in the pair
+            const field1 = document.createElement('div');
+            field1.className = 'book-field';
+            field1.innerHTML = `
+                ${data[i].img ? `<img src="data:image/png;base64,${data[i].img}" alt="Cover of ${data[i].book_name} by ${data[i].authors}" class="book-image">` : '<div class="no-image">No Image</div>'}
+                <div class="book-details">
+                    <strong>${data[i].book_name}</strong>
+                    <p>Loan ID: ${data[i].loanID}</p>
+                    <p>ISBN: ${data[i].ISBN}</p>
+                    <p>Author: ${data[i].authors}</p>
+                    <p>Loan Date: ${data[i].loan_date || 'N/A'}</p>
+                    <p>Return Date: ${data[i].return_date || 'Not Returned'}</p>
+                </div>
             `;
-            tableBody.appendChild(row);
-        });
+            row.appendChild(field1);
+
+            // Second record in the pair (if exists)
+            const field2 = document.createElement('div');
+            field2.className = 'book-field';
+            if (i + 1 < data.length) {
+                field2.innerHTML = `
+                    ${data[i + 1].img ? `<img src="data:image/png;base64,${data[i + 1].img}" alt="Cover of ${data[i + 1].book_name} by ${data[i + 1].authors}" class="book-image">` : '<div class="no-image">No Image</div>'}
+                    <div class="book-details">
+                        <strong>${data[i + 1].book_name}</strong>
+                        <p>Loan ID: ${data[i + 1].loanID}</p>
+                        <p>ISBN: ${data[i + 1].ISBN}</p>
+                        <p>Author: ${data[i + 1].authors}</p>
+                        <p>Loan Date: ${data[i + 1].loan_date || 'N/A'}</p>
+                        <p>Return Date: ${data[i + 1].return_date || 'Not Returned'}</p>
+                    </div>
+                `;
+            }
+            row.appendChild(field2);
+
+            bookContainer.appendChild(row);
+        }
+
+        if (!data.length) {
+            bookContainer.innerHTML = '<div class="no-books">No borrow history available.</div>';
+        }
     } catch (error) {
         console.error('Error fetching borrow history:', error);
+        document.querySelector('#borrowHistoryContainer').innerHTML = `<div class="no-books">Error: ${error.message}. Please try again later.</div>`;
     }
 }
 
@@ -238,21 +280,55 @@ async function fetchAvailableBooks() {
     try {
         const response = await fetch('/get_available_books');
         const data = await response.json();
-        const tableBody = document.querySelector('#availableBooksTable tbody');
-        tableBody.innerHTML = '';
-        data.forEach(book => {
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td>${book.book_name}</td>
-                <td>${book.genre}</td>
-                <td>${book.publicationyear}</td>
-                <td>${book.authors}</td>
-                <td><img src="static/images/Borrow.png" alt="Borrow" class="action-icon" title="Borrow Book" onclick="borrowBook('${book.ISBN}')"></td>
+        const bookContainer = document.querySelector('#availableBooksContainer');
+        bookContainer.innerHTML = '';
+
+        // Process books in pairs
+        for (let i = 0; i < data.length; i += 2) {
+            const row = document.createElement('div');
+            row.className = 'book-row';
+
+            // First book in the pair
+            const field1 = document.createElement('div');
+            field1.className = 'book-field';
+            field1.innerHTML = `
+                ${data[i].img ? `<img src="data:image/png;base64,${data[i].img}" alt="Cover of ${data[i].book_name} by ${data[i].authors}" class="book-image">` : '<div class="no-image">No Image</div>'}
+                <div class="book-details">
+                    <strong>${data[i].book_name}</strong>
+                    <p>Genre: ${data[i].genre || 'N/A'}</p>
+                    <p>Year: ${data[i].publicationyear}</p>
+                    <p>Author: ${data[i].authors}</p>
+                    <img src="static/images/Borrow.png" alt="Borrow ${data[i].book_name}" class="action-icon" title="Borrow Book" onclick="borrowBook('${data[i].ISBN}')">
+                </div>
             `;
-            tableBody.appendChild(row);
-        });
+            row.appendChild(field1);
+
+            // Second book in the pair (if exists)
+            const field2 = document.createElement('div');
+            field2.className = 'book-field';
+            if (i + 1 < data.length) {
+                field2.innerHTML = `
+                    ${data[i + 1].img ? `<img src="data:image/png;base64,${data[i + 1].img}" alt="Cover of ${data[i + 1].book_name} by ${data[i + 1].authors}" class="book-image">` : '<div class="no-image">No Image</div>'}
+                    <div class="book-details">
+                        <strong>${data[i + 1].book_name}</strong>
+                        <p>Genre: ${data[i + 1].genre || 'N/A'}</p>
+                        <p>Year: ${data[i + 1].publicationyear}</p>
+                        <p>Author: ${data[i + 1].authors}</p>
+                        <img src="static/images/Borrow.png" alt="Borrow ${data[i + 1].book_name}" class="action-icon" title="Borrow Book" onclick="borrowBook('${data[i + 1].ISBN}')">
+                    </div>
+                `;
+            }
+            row.appendChild(field2);
+
+            bookContainer.appendChild(row);
+        }
+
+        if (!data.length) {
+            bookContainer.innerHTML = '<div class="no-books">No books available to borrow.</div>';
+        }
     } catch (error) {
         console.error('Error fetching available books:', error);
+        document.querySelector('#availableBooksContainer').innerHTML = '<div class="no-books">Error loading books. Please try again later.</div>';
     }
 }
 
@@ -260,21 +336,55 @@ async function fetchBorrowedBooks() {
     try {
         const response = await fetch('/get_borrowed_books');
         const data = await response.json();
-        const tableBody = document.querySelector('#borrowedBooksTable tbody');
-        tableBody.innerHTML = '';
-        data.forEach(book => {
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td>${book.book_name}</td>
-                <td>${book.genre}</td>
-                <td>${book.publicationyear}</td>
-                <td>${book.authors}</td>
-                <td><img src="static/images/Return.png" alt="Return" class="action-icon" title="Return Book" onclick="returnBook('${book.ISBN}')"></td>
+        const bookContainer = document.querySelector('#borrowedBooksContainer');
+        bookContainer.innerHTML = '';
+
+        // Process books in pairs
+        for (let i = 0; i < data.length; i += 2) {
+            const row = document.createElement('div');
+            row.className = 'book-row';
+
+            // First book in the pair
+            const field1 = document.createElement('div');
+            field1.className = 'book-field';
+            field1.innerHTML = `
+                ${data[i].img ? `<img src="data:image/png;base64,${data[i].img}" alt="Cover of ${data[i].book_name} by ${data[i].authors}" class="book-image">` : '<div class="no-image">No Image</div>'}
+                <div class="book-details">
+                    <strong>${data[i].book_name}</strong>
+                    <p>Genre: ${data[i].genre || 'N/A'}</p>
+                    <p>Year: ${data[i].publicationyear}</p>
+                    <p>Author: ${data[i].authors}</p>
+                    <img src="static/images/Return.png" alt="Return ${data[i].book_name}" class="action-icon" title="Return Book" onclick="returnBook('${data[i].ISBN}')">
+                </div>
             `;
-            tableBody.appendChild(row);
-        });
+            row.appendChild(field1);
+
+            // Second book in the pair (if exists)
+            const field2 = document.createElement('div');
+            field2.className = 'book-field';
+            if (i + 1 < data.length) {
+                field2.innerHTML = `
+                    ${data[i + 1].img ? `<img src="data:image/png;base64,${data[i + 1].img}" alt="Cover of ${data[i + 1].book_name} by ${data[i + 1].authors}" class="book-image">` : '<div class="no-image">No Image</div>'}
+                    <div class="book-details">
+                        <strong>${data[i + 1].book_name}</strong>
+                        <p>Genre: ${data[i + 1].genre || 'N/A'}</p>
+                        <p>Year: ${data[i + 1].publicationyear}</p>
+                        <p>Author: ${data[i + 1].authors}</p>
+                        <img src="static/images/Return.png" alt="Return ${data[i + 1].book_name}" class="action-icon" title="Return Book" onclick="returnBook('${data[i + 1].ISBN}')">
+                    </div>
+                `;
+            }
+            row.appendChild(field2);
+
+            bookContainer.appendChild(row);
+        }
+
+        if (!data.length) {
+            bookContainer.innerHTML = '<div class="no-books">No books currently borrowed.</div>';
+        }
     } catch (error) {
         console.error('Error fetching borrowed books:', error);
+        document.querySelector('#borrowedBooksContainer').innerHTML = '<div class="no-books">Error loading books. Please try again later.</div>';
     }
 }
 

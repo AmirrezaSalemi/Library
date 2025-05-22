@@ -60,60 +60,27 @@
         <span class="close-btn" onclick="closeBorrowHistory()" aria-label="Close">x</span>
         <div class="frame-content">
             <h2 id="borrowHistoryTitle">Borrow History</h2>
-            <table id="borrowHistoryTable">
-                <thead>
-                    <tr>
-                        <th>Borrow ID</th>
-                        <th>ISBN</th>
-                        <th>Book Name</th>
-                        <th>Borrow Date</th>
-                        <th>Return Date</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <!-- Data will be inserted here -->
-                </tbody>
-            </table>
+            <div class="book-container" id="borrowHistoryContainer">
+                <!-- Borrow history rows will be inserted here -->
+            </div>
         </div>
     </div>
     <div class="frame" id="borrowBookFrame" role="dialog" aria-labelledby="borrowBookTitle" aria-modal="true">
         <span class="close-btn" onclick="closeBorrowBook()" aria-label="Close">x</span>
         <div class="frame-content">
             <h2 id="borrowBookTitle">Borrow Book</h2>
-            <table id="availableBooksTable">
-                <thead>
-                    <tr>
-                        <th>Book Name</th>
-                        <th>Genre</th>
-                        <th>Publication Year</th>
-                        <th>Author Name</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <!-- Data will be inserted here -->
-                </tbody>
-            </table>
+            <div class="book-container" id="availableBooksContainer">
+                <!-- Book rows will be inserted here -->
+            </div>
         </div>
     </div>
     <div class="frame" id="returnBookFrame" role="dialog" aria-labelledby="returnBookTitle" aria-modal="true">
         <span class="close-btn" onclick="closeReturnBook()" aria-label="Close">x</span>
         <div class="frame-content">
             <h2 id="returnBookTitle">Return Book</h2>
-            <table id="borrowedBooksTable">
-                <thead>
-                    <tr>
-                        <th>Book Name</th>
-                        <th>Genre</th>
-                        <th>Publication Year</th>
-                        <th>Author Name</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <!-- Data will be inserted here -->
-                </tbody>
-            </table>
+            <div class="book-container" id="borrowedBooksContainer">
+                <!-- Book rows will be inserted here -->
+            </div>
         </div>
     </div>
     <div class="frame" id="editProfileFrame" role="dialog" aria-labelledby="editProfileTitle" aria-modal="true">
