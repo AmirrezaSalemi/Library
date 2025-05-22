@@ -201,7 +201,7 @@ h2::before {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    background: linear-gradient(145deg, #000000, #333333); /* Updated to black-to-gray gradient */
+    background: linear-gradient(145deg, #000000, #333333);
     padding: 25px;
     border-radius: 15px;
     z-index: 1001;
@@ -213,7 +213,7 @@ h2::before {
 }
 
 .frame-content {
-    background: #2a2a2a; /* Updated to solid dark gray */
+    background: #2a2a2a;
     padding: 25px;
     border-radius: 10px;
     color: white;
@@ -509,6 +509,66 @@ td {
     padding: 20px;
 }
 
+.author-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    max-height: 400px;
+    overflow-y: auto;
+    padding: 10px;
+}
+
+.author-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+.author-field {
+    flex: 1;
+    display: flex;
+    align-items: flex-start;
+    gap: 15px;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 15px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.author-field:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+}
+
+.author-image {
+    width: 100px;
+    height: 150px;
+    object-fit: cover;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.author-details {
+    flex: 1;
+    color: white;
+    font-family: 'Times New Roman', Times, serif;
+}
+
+.author-details strong {
+    font-size: 18px;
+    display: block;
+    margin-bottom: 8px;
+}
+
+.no-authors {
+    color: white;
+    text-align: center;
+    font-family: 'Times New Roman', Times, serif;
+    font-size: 16px;
+    padding: 20px;
+}
+
 @media (max-width: 768px) {
     header {
         flex-direction: row;
@@ -567,6 +627,20 @@ td {
         height: 120px;
         font-size: 12px;
     }
+    .author-row {
+        flex-direction: column;
+        gap: 15px;
+    }
+    .author-field {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+    .author-image, .no-image {
+        width: 80px;
+        height: 120px;
+        font-size: 12px;
+    }
     .action-icon {
         width: 20px;
         height: 20px;
@@ -610,6 +684,11 @@ td {
         box-sizing: border-box;
     }
     .book-image, .no-image {
+        width: 60px;
+        height: 90px;
+        font-size: 10px;
+    }
+    .author-image, .no-image {
         width: 60px;
         height: 90px;
         font-size: 10px;

@@ -144,17 +144,52 @@ async function fetchAuthors() {
     try {
         const response = await fetch('/get_author_list');
         const data = await response.json();
-        const tableBody = document.querySelector('#authorTable tbody');
-        tableBody.innerHTML = '';
-        data.forEach(author => {
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td>${author.first_name} ${author.last_name}</td>
+        console.log('Author data:', data); // Debug log
+        const authorContainer = document.querySelector('#authorListFrame .author-container');
+        if (!authorContainer) {
+            console.error('Author container not found');
+            return;
+        }
+        authorContainer.innerHTML = '';
+
+        // Process authors in pairs
+        for (let i = 0; i < data.length; i += 2) {
+            const row = document.createElement('div');
+            row.className = 'author-row';
+
+            // First author in the pair
+            const field1 = document.createElement('div');
+            field1.className = 'author-field';
+            field1.innerHTML = `
+                ${data[i].img ? `<img src="data:image/png;base64,${data[i].img}" alt="Image of ${data[i].first_name} ${data[i].last_name}" class="author-image">` : '<div class="no-image">No Image</div>'}
+                <div class="author-details">
+                    <strong>${data[i].first_name} ${data[i].last_name}</strong>
+                </div>
             `;
-            tableBody.appendChild(row);
-        });
+            row.appendChild(field1);
+
+            // Second author in the pair (if exists)
+            const field2 = document.createElement('div');
+            field2.className = 'author-field';
+            if (i + 1 < data.length) {
+                field2.innerHTML = `
+                    ${data[i + 1].img ? `<img src="data:image/png;base64,${data[i + 1].img}" alt="Image of ${data[i + 1].first_name} ${data[i + 1].last_name}" class="author-image">` : '<div class="no-image">No Image</div>'}
+                    <div class="author-details">
+                        <strong>${data[i + 1].first_name} ${data[i + 1].last_name}</strong>
+                    </div>
+                `;
+            }
+            row.appendChild(field2);
+
+            authorContainer.appendChild(row);
+        }
+
+        if (!data.length) {
+            authorContainer.innerHTML = '<div class="no-authors">No authors available.</div>';
+        }
     } catch (error) {
         console.error('Error fetching authors:', error);
+        document.querySelector('#authorListFrame .author-container').innerHTML = '<div class="no-authors">Error loading authors. Please try again later.</div>';
     }
 }
 

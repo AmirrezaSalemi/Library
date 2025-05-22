@@ -235,11 +235,22 @@ def get_book_list():
 def get_author_list():
     connection = connecting()
     cursor = connection.cursor(dictionary=True)
-    cursor.execute("SELECT authorID, first_name, last_name FROM author")
-    authors = cursor.fetchall()
-    cursor.close()
-    connection.close()
-    return jsonify(authors)
+    try:
+        cursor.execute("SELECT authorID, first_name, last_name, img FROM author")
+        authors = cursor.fetchall()
+        for author in authors:
+            if author['img']:
+                author['img'] = base64.b64encode(author['img']).decode('utf-8')
+            else:
+                author['img'] = None
+        return jsonify(authors)
+    except Exception as e:
+        print(f"Error fetching author list: {e}")
+        traceback.print_exc()
+        return jsonify({"success": False, "message": str(e)}), 500
+    finally:
+        cursor.close()
+        connection.close()
 
 
 @app.route('/get_authors_for_dropdown')
