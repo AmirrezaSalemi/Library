@@ -113,6 +113,29 @@ function closeReturnBook() {
     closeFrame('returnBookFrame');
 }
 
+function openCommentForm(ISBN) {
+    openFrame('commentFrame');
+    document.getElementById('commentISBN').value = ISBN;
+}
+
+function closeCommentForm() {
+    closeFrame('commentFrame');
+    document.getElementById('commentForm').reset();
+}
+
+function openCommentList(ISBN) {
+    openFrame('commentListFrame');
+    fetchBookComments(ISBN);
+}
+
+function closeCommentList() {
+    // بستن فریم کامنت‌ها
+    const commentFrame = document.getElementById('commentListFrame');
+    if (commentFrame) {
+        commentFrame.style.display = 'none';
+    }
+}
+
 async function fetchUserDetails() {
     try {
         const response = await fetch('/get_user_details');
@@ -121,9 +144,8 @@ async function fetchUserDetails() {
             document.getElementById('firstName').value = data.user.first_name;
             document.getElementById('lastName').value = data.user.last_name;
             document.getElementById('city').value = data.user.city;
-            document.getElementById('street').value = data.user.street; // Changed to lowercase 'street'
+            document.getElementById('street').value = data.user.street;
             document.getElementById('age').value = data.user.age;
-            // Store librarianID in a hidden input
             if (data.user.librarianID) {
                 const librarianInput = document.createElement('input');
                 librarianInput.type = 'hidden';
@@ -144,7 +166,7 @@ async function fetchAuthors() {
     try {
         const response = await fetch('/get_author_list');
         const data = await response.json();
-        console.log('Author data:', data); // Debug log
+        console.log('Author data:', data);
         const authorContainer = document.querySelector('#authorListFrame .author-container');
         if (!authorContainer) {
             console.error('Author container not found');
@@ -152,12 +174,10 @@ async function fetchAuthors() {
         }
         authorContainer.innerHTML = '';
 
-        // Process authors in pairs
         for (let i = 0; i < data.length; i += 2) {
             const row = document.createElement('div');
             row.className = 'author-row';
 
-            // First author in the pair
             const field1 = document.createElement('div');
             field1.className = 'author-field';
             field1.innerHTML = `
@@ -168,7 +188,6 @@ async function fetchAuthors() {
             `;
             row.appendChild(field1);
 
-            // Second author in the pair (if exists)
             const field2 = document.createElement('div');
             field2.className = 'author-field';
             if (i + 1 < data.length) {
@@ -200,12 +219,10 @@ async function fetchBooks() {
         const bookContainer = document.querySelector('#bookListFrame .book-container');
         bookContainer.innerHTML = '';
 
-        // Process books in pairs
         for (let i = 0; i < data.length; i += 2) {
             const row = document.createElement('div');
             row.className = 'book-row';
 
-            // First book in the pair
             const field1 = document.createElement('div');
             field1.className = 'book-field';
             field1.innerHTML = `
@@ -219,7 +236,6 @@ async function fetchBooks() {
             `;
             row.appendChild(field1);
 
-            // Second book in the pair (if exists)
             const field2 = document.createElement('div');
             field2.className = 'book-field';
             if (i + 1 < data.length) {
@@ -256,16 +272,14 @@ async function fetchBorrowHistory() {
             throw new Error(errorData.message || 'Failed to fetch borrow history');
         }
         const data = await response.json();
-        console.log('Borrow history data:', data); // Debug log
+        console.log('Borrow history data:', data);
         const bookContainer = document.querySelector('#borrowHistoryContainer');
         bookContainer.innerHTML = '';
 
-        // Process records in pairs
         for (let i = 0; i < data.length; i += 2) {
             const row = document.createElement('div');
             row.className = 'book-row';
 
-            // First record in the pair
             const field1 = document.createElement('div');
             field1.className = 'book-field';
             field1.innerHTML = `
@@ -281,7 +295,6 @@ async function fetchBorrowHistory() {
             `;
             row.appendChild(field1);
 
-            // Second record in the pair (if exists)
             const field2 = document.createElement('div');
             field2.className = 'book-field';
             if (i + 1 < data.length) {
@@ -318,12 +331,10 @@ async function fetchAvailableBooks() {
         const bookContainer = document.querySelector('#availableBooksContainer');
         bookContainer.innerHTML = '';
 
-        // Process books in pairs
         for (let i = 0; i < data.length; i += 2) {
             const row = document.createElement('div');
             row.className = 'book-row';
 
-            // First book in the pair
             const field1 = document.createElement('div');
             field1.className = 'book-field';
             field1.innerHTML = `
@@ -333,12 +344,12 @@ async function fetchAvailableBooks() {
                     <p>Genre: ${data[i].genre || 'N/A'}</p>
                     <p>Year: ${data[i].publicationyear}</p>
                     <p>Author: ${data[i].authors}</p>
+                    <p>Average Score: ${data[i].average_score ? `<a href="#" class="view-comments" onclick="openCommentList('${data[i].ISBN}')">${data[i].average_score}</a>` : 'No ratings yet'}</p>
                     <img src="static/images/Borrow.png" alt="Borrow ${data[i].book_name}" class="action-icon" title="Borrow Book" onclick="borrowBook('${data[i].ISBN}')">
                 </div>
             `;
             row.appendChild(field1);
 
-            // Second book in the pair (if exists)
             const field2 = document.createElement('div');
             field2.className = 'book-field';
             if (i + 1 < data.length) {
@@ -349,6 +360,7 @@ async function fetchAvailableBooks() {
                         <p>Genre: ${data[i + 1].genre || 'N/A'}</p>
                         <p>Year: ${data[i + 1].publicationyear}</p>
                         <p>Author: ${data[i + 1].authors}</p>
+                        <p>Average Score: ${data[i + 1].average_score ? `<a href="#" class="view-comments" onclick="openCommentList('${data[i + 1].ISBN}')">${data[i + 1].average_score}</a>` : 'No ratings yet'}</p>
                         <img src="static/images/Borrow.png" alt="Borrow ${data[i + 1].book_name}" class="action-icon" title="Borrow Book" onclick="borrowBook('${data[i + 1].ISBN}')">
                     </div>
                 `;
@@ -367,6 +379,32 @@ async function fetchAvailableBooks() {
     }
 }
 
+async function fetchBookComments(ISBN) {
+    try {
+        const response = await fetch(`/get_book_comments/${ISBN}`);
+        const data = await response.json();
+        const commentContainer = document.querySelector('#commentListFrame .comment-container');
+        commentContainer.innerHTML = '';
+
+        if (data.success && data.comments.length > 0) {
+            data.comments.forEach(comment => {
+                const commentDiv = document.createElement('div');
+                commentDiv.className = 'comment';
+                commentDiv.innerHTML = `
+                    <p><strong>${comment.first_name} ${comment.last_name}</strong> (Score: ${comment.score})</p>
+                    <p>${comment.message}</p>
+                `;
+                commentContainer.appendChild(commentDiv);
+            });
+        } else {
+            commentContainer.innerHTML = '<div class="no-comments">No comments available.</div>';
+        }
+    } catch (error) {
+        console.error('Error fetching comments:', error);
+        document.querySelector('#commentListFrame .comment-container').innerHTML = '<div class="no-comments">Error loading comments. Please try again later.</div>';
+    }
+}
+
 async function fetchBorrowedBooks() {
     try {
         const response = await fetch('/get_borrowed_books');
@@ -374,12 +412,10 @@ async function fetchBorrowedBooks() {
         const bookContainer = document.querySelector('#borrowedBooksContainer');
         bookContainer.innerHTML = '';
 
-        // Process books in pairs
         for (let i = 0; i < data.length; i += 2) {
             const row = document.createElement('div');
             row.className = 'book-row';
 
-            // First book in the pair
             const field1 = document.createElement('div');
             field1.className = 'book-field';
             field1.innerHTML = `
@@ -394,7 +430,6 @@ async function fetchBorrowedBooks() {
             `;
             row.appendChild(field1);
 
-            // Second book in the pair (if exists)
             const field2 = document.createElement('div');
             field2.className = 'book-field';
             if (i + 1 < data.length) {
@@ -457,15 +492,58 @@ async function returnBook(ISBN) {
         });
         const data = await response.json();
         if (data.success) {
-            showNotification('Book returned successfully!', 'success');
+            showNotification('Book returned successfully! Please provide your feedback.', 'success');
             closeReturnBook();
             fetchBorrowHistory();
+            openCommentForm(data.ISBN);
         } else {
             showNotification('Failed to return book.', 'error');
         }
     } catch (error) {
         console.error('Error returning book:', error);
         showNotification('An error occurred while returning the book.', 'error');
+    }
+}
+
+async function submitComment(event) {
+    event.preventDefault();
+    const form = document.getElementById('commentForm');
+    const formData = new FormData(form);
+    const ISBN = formData.get('ISBN');
+    const message = formData.get('message').trim();
+    const score = formData.get('score');
+
+    if (!message || !score) {
+        showNotification('Please provide both a comment and a score.', 'error');
+        return;
+    }
+    if (isNaN(score) || score < 1 || score > 20) {
+        showNotification('Score must be a number between 1 and 20.', 'error');
+        return;
+    }
+
+    try {
+        const response = await fetch('/add_comment', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                ISBN: ISBN,
+                message: message,
+                score: score
+            })
+        });
+        const data = await response.json();
+        if (data.success) {
+            showNotification('Comment submitted successfully!', 'success');
+            closeCommentForm();
+        } else {
+            showNotification('Failed to submit comment: ' + data.message, 'error');
+        }
+    } catch (error) {
+        console.error('Error submitting comment:', error);
+        showNotification('An error occurred while submitting the comment.', 'error');
     }
 }
 
@@ -497,9 +575,8 @@ async function saveProfileChanges(event) {
     const city = formData.get('city').trim();
     const street = formData.get('street').trim();
     const age = parseInt(formData.get('age'));
-    const librarianID = formData.get('librarianID'); // Get librarianID from form
+    const librarianID = formData.get('librarianID');
 
-    // Client-side validation
     if (!userID) {
         showNotification('User ID is missing. Please log in again.', 'error');
         console.log('Validation failed: Missing userID');
@@ -590,5 +667,9 @@ document.addEventListener('DOMContentLoaded', function() {
     const editProfileForm = document.getElementById('edit-profile-form');
     if (editProfileForm) {
         editProfileForm.addEventListener('submit', saveProfileChanges);
+    }
+    const commentForm = document.getElementById('commentForm');
+    if (commentForm) {
+        commentForm.addEventListener('submit', submitComment);
     }
 });
