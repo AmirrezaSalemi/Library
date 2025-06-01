@@ -5,7 +5,7 @@ from datetime import datetime, timedelta
 import base64
 
 app = Flask(__name__)
-app.secret_key = 'your_secret_key'  # Replace with a secure secret key
+app.secret_key = '8585'  # Replace with a secure secret key
 
 def connecting():
     connection = mysql.connector.connect(
@@ -453,7 +453,7 @@ def add_comment():
 
     if not userID:
         return jsonify({"success": False, "message": "User not logged in"}), 400
-    if not ISBN or not message or not score:
+    if not ISBN or not score:
         return jsonify({"success": False, "message": "All fields are required"}), 400
     try:
         score = int(score)

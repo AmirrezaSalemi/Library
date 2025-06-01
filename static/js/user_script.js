@@ -513,7 +513,7 @@ async function submitComment(event) {
     const message = formData.get('message').trim();
     const score = formData.get('score');
 
-    if (!message || !score) {
+    if (!score) {
         showNotification('Please provide both a comment and a score.', 'error');
         return;
     }
