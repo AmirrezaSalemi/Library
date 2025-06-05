@@ -839,8 +839,7 @@ def edit_user():
             f"Current database values: first_name={user['first_name']}, last_name={user['last_name']}, city={user['city']}, street={user['street']}, age={user['age']}, librarianID={user['librarianID']}")
 
         cursor.execute(
-            "UPDATE usr SET first_name = %s, last_name = %s, city = %s, street = %s, age = %s, librarianID = %s WHERE "
-            "userID = %s",
+            "UPDATE usr SET first_name = %s, last_name = %s, city = %s, street = %s, age = %s, librarianID = %s WHERE userID = %s",
             (firstName, lastName, city, street, age, librarianID, userID))
 
         if cursor.rowcount == 0:
