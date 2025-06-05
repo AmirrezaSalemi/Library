@@ -7,7 +7,6 @@ import base64
 app = Flask(__name__)
 app.secret_key = '8585'  # Replace with a secure secret key
 
-
 def connecting():
     connection = mysql.connector.connect(
         host='localhost',
@@ -18,7 +17,6 @@ def connecting():
     if connection.is_connected():
         print('Connected to MySQL database')
         return connection
-
 
 @app.route('/test_connection')
 def test_connection():
@@ -32,7 +30,6 @@ def test_connection():
         if connection.is_connected():
             connection.close()
 
-
 @app.route('/get_session_librarian', methods=['GET'])
 def get_session_librarian():
     librarian_id = session.get('librarian_id')
@@ -41,20 +38,29 @@ def get_session_librarian():
     else:
         return jsonify({"librarianID": None}), 400
 
-
 @app.route('/add_author', methods=['POST'])
 def add_author():
     authorID = request.form.get('authorID')
     firstName = request.form.get('firstName')
     lastName = request.form.get('lastName')
+    authorImage = request.files.get('authorImage')
+
+    if authorImage and len(authorImage.read()) > 5 * 1024 * 1024:  # 5MB limit
+        return jsonify({"success": False, "message": "Image size must be less than 5MB"}), 400
+    if authorImage:
+        authorImage.seek(0)
 
     connection = connecting()
     cursor = connection.cursor()
     try:
-        cursor.execute("INSERT INTO author (authorID, first_name, last_name) VALUES (%s, %s, %s)",
-                       (authorID, firstName, lastName))
+        img_data = authorImage.read() if authorImage else None
+        cursor.execute(
+            "INSERT INTO author (authorID, first_name, last_name, img) VALUES (%s, %s, %s, %s)",
+            (authorID, firstName, lastName, img_data)
+        )
         connection.commit()
-        return jsonify({"success": True})
+        img_base64 = base64.b64encode(img_data).decode('utf-8') if img_data else None
+        return jsonify({"success": True, "img": img_base64})
     except Exception as e:
         connection.rollback()
         print(f"Error adding author: {e}")
@@ -64,6 +70,87 @@ def add_author():
         cursor.close()
         connection.close()
 
+@app.route('/edit_author', methods=['POST'])
+def edit_author():
+    authorID = request.form.get('authorID')
+    firstName = request.form.get('first_name')
+    lastName = request.form.get('last_name')
+    authorImage = request.files.get('authorImage')
+
+    if authorImage and len(authorImage.read()) > 5 * 1024 * 1024:  # 5MB limit
+        return jsonify({"success": False, "message": "Image size must be less than 5MB"}), 400
+    if authorImage:
+        authorImage.seek(0)
+
+    connection = connecting()
+    cursor = connection.cursor()
+    try:
+        img_data = authorImage.read() if authorImage else None
+        if img_data:
+            cursor.execute(
+                "UPDATE author SET first_name = %s, last_name = %s, img = %s WHERE authorID = %s",
+                (firstName, lastName, img_data, authorID)
+            )
+        else:
+            cursor.execute(
+                "UPDATE author SET first_name = %s, last_name = %s WHERE authorID = %s",
+                (firstName, lastName, authorID)
+            )
+        connection.commit()
+        img_base64 = base64.b64encode(img_data).decode('utf-8') if img_data else None
+        return jsonify({"success": True, "img": img_base64})
+    except Exception as e:
+        connection.rollback()
+        print(f"Error updating author: {e}")
+        traceback.print_exc()
+        return jsonify({"success": False, "message": str(e)}), 500
+    finally:
+        cursor.close()
+        connection.close()
+
+@app.route('/get_author/<int:author_id>', methods=['GET'])
+def get_author(author_id):
+    connection = connecting()
+    cursor = connection.cursor(dictionary=True)
+    try:
+        cursor.execute("SELECT authorID, first_name, last_name, img FROM author WHERE authorID = %s", (author_id,))
+        author = cursor.fetchone()
+        if author:
+            if author['img']:
+                author['img'] = base64.b64encode(author['img']).decode('utf-8')
+            else:
+                author['img'] = None
+            return jsonify({"success": True, "author": author})
+        else:
+            return jsonify({"success": False, "message": "Author not found"}), 404
+    except Exception as e:
+        print(f"Error fetching author: {e}")
+        traceback.print_exc()
+        return jsonify({"success": False, "message": str(e)}), 500
+    finally:
+        cursor.close()
+        connection.close()
+
+@app.route('/delete_author/<int:author_id>', methods=['DELETE'])
+def delete_author(author_id):
+    connection = connecting()
+    cursor = connection.cursor()
+    try:
+        print(f"Deleting author with ID: {author_id}")
+        cursor.execute("DELETE FROM authorbook WHERE authorID = %s", (author_id,))
+        print(f"Deleted authorbook entries for author ID: {author_id}")
+        cursor.execute("DELETE FROM author WHERE authorID = %s", (author_id,))
+        print(f"Deleted author with ID: {author_id}")
+        connection.commit()
+        return jsonify({"success": True})
+    except Exception as e:
+        connection.rollback()
+        print(f"Error deleting author: {e}")
+        traceback.print_exc()
+        return jsonify({"success": False, "message": str(e)}), 500
+    finally:
+        cursor.close()
+        connection.close()
 
 @app.route('/add_librarian', methods=['POST'])
 def add_librarian():
@@ -86,7 +173,6 @@ def add_librarian():
     finally:
         cursor.close()
         connection.close()
-
 
 @app.route('/add_user_route', methods=['POST'])
 def add_user_route():
@@ -132,7 +218,6 @@ def add_user_route():
         cursor.close()
         connection.close()
 
-
 @app.route('/add_book', methods=['POST'])
 def add_book():
     bookName = request.form.get('bookName')
@@ -141,18 +226,25 @@ def add_book():
     publicationYear = request.form.get('publicationYear')
     librarianID = request.form.get('librarianID') or session.get('librarian_id')
     authorIDs = request.form.getlist('authorID[]')
+    bookImage = request.files.get('bookImage')
 
     if not librarianID:
         return jsonify({"success": False, "message": "Librarian ID not found"}), 400
+
+    if bookImage and len(bookImage.read()) > 5 * 1024 * 1024:  # 5MB limit
+        return jsonify({"success": False, "message": "Image size must be less than 5MB"}), 400
+    if bookImage:
+        bookImage.seek(0)
 
     connection = connecting()
     cursor = connection.cursor(buffered=True, dictionary=True)
 
     try:
         connection.start_transaction()
+        img_data = bookImage.read() if bookImage else None
         cursor.execute(
-            "INSERT INTO book (book_name, ISBN, genre, publicationyear, librarianID) VALUES (%s, %s, %s, %s, %s)",
-            (bookName, ISBN, genre, publicationYear, librarianID))
+            "INSERT INTO book (book_name, ISBN, genre, publicationyear, librarianID, img) VALUES (%s, %s, %s, %s, %s, %s)",
+            (bookName, ISBN, genre, publicationYear, librarianID, img_data))
 
         for authorID in authorIDs:
             cursor.execute("INSERT INTO authorbook (ISBN, authorID) VALUES (%s, %s)", (ISBN, authorID))
@@ -167,10 +259,12 @@ def add_book():
             authorIDs
         )
         authors = [row['full_name'] for row in cursor.fetchall()]
+        img_base64 = base64.b64encode(img_data).decode('utf-8') if img_data else None
         return jsonify({
             "success": True,
             "librarians": f"{librarian['first_name']} {librarian['last_name']}" if librarian else "",
-            "authors": ', '.join(authors)
+            "authors": ', '.join(authors),
+            "img": img_base64
         })
     except Exception as e:
         connection.rollback()
@@ -181,11 +275,106 @@ def add_book():
         cursor.close()
         connection.close()
 
+@app.route('/edit_book', methods=['POST'])
+def edit_book():
+    ISBN = request.form.get('ISBN')
+    bookName = request.form.get('bookName')
+    genre = request.form.get('genre')
+    publicationYear = request.form.get('publicationYear')
+    librarianID = request.form.get('librarianID') or session.get('librarian_id')
+    authorIDs = request.form.getlist('authorID[]')
+    bookImage = request.files.get('bookImage')
+
+    if not librarianID:
+        return jsonify({"success": False, "message": "Librarian ID not found"}), 400
+
+    if bookImage and len(bookImage.read()) > 5 * 1024 * 1024:  # 5MB limit
+        return jsonify({"success": False, "message": "Image size must be less than 5MB"}), 400
+    if bookImage:
+        bookImage.seek(0)
+
+    connection = connecting()
+    cursor = connection.cursor(buffered=True, dictionary=True)
+
+    try:
+        connection.start_transaction()
+        img_data = bookImage.read() if bookImage else None
+        if img_data:
+            cursor.execute(
+                "UPDATE book SET book_name = %s, genre = %s, publicationyear = %s, librarianID = %s, img = %s WHERE ISBN = %s",
+                (bookName, genre, publicationYear, librarianID, img_data, ISBN)
+            )
+        else:
+            cursor.execute(
+                "UPDATE book SET book_name = %s, genre = %s, publicationyear = %s, librarianID = %s WHERE ISBN = %s",
+                (bookName, genre, publicationYear, librarianID, ISBN)
+            )
+
+        cursor.execute("DELETE FROM authorbook WHERE ISBN = %s", (ISBN,))
+        for authorID in authorIDs:
+            cursor.execute("INSERT INTO authorbook (ISBN, authorID) VALUES (%s, %s)", (ISBN, authorID))
+
+        connection.commit()
+
+        cursor.execute("SELECT first_name, last_name FROM librarian WHERE librarianID = %s", (librarianID,))
+        librarian = cursor.fetchone()
+        cursor.execute(
+            "SELECT CONCAT(first_name, ' ', last_name) AS full_name FROM author WHERE authorID IN (%s)" % ','.join(
+                ['%s'] * len(authorIDs)),
+            authorIDs
+        )
+        authors = [row['full_name'] for row in cursor.fetchall()]
+        img_base64 = base64.b64encode(img_data).decode('utf-8') if img_data else None
+        return jsonify({
+            "success": True,
+            "librarians": f"{librarian['first_name']} {librarian['last_name']}" if librarian else "",
+            "authors": ', '.join(authors),
+            "img": img_base64
+        })
+    except Exception as e:
+        connection.rollback()
+        print(f"Error updating book: {e}")
+        traceback.print_exc()
+        return jsonify({"success": False, "message": str(e)}), 500
+    finally:
+        cursor.close()
+        connection.close()
+
+@app.route('/get_book/<string:ISBN>', methods=['GET'])
+def get_book(ISBN):
+    connection = connecting()
+    cursor = connection.cursor(dictionary=True)
+    try:
+        cursor.execute(
+            "SELECT ISBN, book_name, genre, publicationyear, librarianID, img FROM book WHERE ISBN = %s",
+            (ISBN,)
+        )
+        book = cursor.fetchone()
+        if book:
+            cursor.execute(
+                "SELECT authorID, CONCAT(first_name, ' ', last_name) AS full_name FROM author WHERE authorID IN "
+                "(SELECT authorID FROM authorbook WHERE ISBN = %s)",
+                (ISBN,)
+            )
+            authors = cursor.fetchall()
+            book['authors'] = authors
+            if book['img']:
+                book['img'] = base64.b64encode(book['img']).decode('utf-8')
+            else:
+                book['img'] = None
+            return jsonify({"success": True, "book": book})
+        else:
+            return jsonify({"success": False, "message": "Book not found"}), 404
+    except Exception as e:
+        print(f"Error fetching book: {e}")
+        traceback.print_exc()
+        return jsonify({"success": False, "message": str(e)}), 500
+    finally:
+        cursor.close()
+        connection.close()
 
 @app.route('/get_book_list')
 def get_book_list():
-    import base64, traceback
-    from flask import jsonify
     connection = connecting()
     cursor = connection.cursor(dictionary=True)
     try:
@@ -197,7 +386,8 @@ def get_book_list():
                 b.publicationyear, 
                 b.read_count,
                 b.img,
-                IFNULL(a.authors, 'Unknown') AS authors
+                IFNULL(a.authors, 'Unknown') AS authors,
+                CONCAT(l.first_name, ' ', l.last_name) AS librarians
             FROM book b
             LEFT JOIN (
                 SELECT ab.ISBN, GROUP_CONCAT(CONCAT(a.first_name, ' ', a.last_name) SEPARATOR ', ') AS authors
@@ -205,11 +395,10 @@ def get_book_list():
                 JOIN author a ON ab.authorID = a.authorID
                 GROUP BY ab.ISBN
             ) a ON b.ISBN = a.ISBN
+            LEFT JOIN librarian l ON b.librarianID = l.librarianID
             ORDER BY b.book_name;
         """)
-
         books = cursor.fetchall()
-
         for book in books:
             if book['img']:
                 book['img'] = base64.b64encode(book['img']).decode('utf-8')
@@ -217,7 +406,8 @@ def get_book_list():
                 book['img'] = None
             if not book['authors']:
                 book['authors'] = "Unknown"
-
+            if not book['librarians']:
+                book['librarians'] = "Unknown"
         return jsonify(books)
     except Exception as e:
         print(f"Error fetching book list: {e}")
@@ -226,7 +416,6 @@ def get_book_list():
     finally:
         cursor.close()
         connection.close()
-
 
 @app.route('/get_author_list')
 def get_author_list():
@@ -248,7 +437,6 @@ def get_author_list():
     finally:
         cursor.close()
         connection.close()
-
 
 @app.route('/get_most_read_authors')
 def get_most_read_authors():
@@ -281,7 +469,6 @@ def get_most_read_authors():
         cursor.close()
         connection.close()
 
-
 @app.route('/get_authors_for_dropdown')
 def get_authors_for_dropdown():
     connection = connecting()
@@ -291,7 +478,6 @@ def get_authors_for_dropdown():
     cursor.close()
     connection.close()
     return jsonify(authors)
-
 
 @app.route('/get_borrow_history')
 def get_borrow_history():
@@ -346,7 +532,6 @@ def get_borrow_history():
         cursor.close()
         connection.close()
 
-
 @app.route('/get_available_books')
 def get_available_books():
     connection = connecting()
@@ -388,7 +573,6 @@ def get_available_books():
         cursor.close()
         connection.close()
 
-
 @app.route('/borrow_book', methods=['POST'])
 def borrow_book():
     data = request.get_json()
@@ -423,7 +607,6 @@ def borrow_book():
         cursor.close()
         connection.close()
 
-
 @app.route('/get_borrowed_books')
 def get_borrowed_books():
     connection = connecting()
@@ -436,7 +619,7 @@ def get_borrowed_books():
                 book.genre, 
                 book.publicationyear, 
                 book.img,
-                GROUP_CONCAT(CONCAT(author.first_name, ' ', author.last_name) SEPARATOR ', ') AS authors
+                GROUP_CONCAT(CONCAT(author.first_name, ' ', author.last_name) SEPARATOR ',') AS authors
             FROM book
             LEFT JOIN authorbook ON book.ISBN = authorbook.ISBN
             LEFT JOIN author ON authorbook.authorID = author.authorID
@@ -462,7 +645,6 @@ def get_borrowed_books():
     finally:
         cursor.close()
         connection.close()
-
 
 @app.route('/return_book', methods=['POST'])
 def return_book():
@@ -490,7 +672,6 @@ def return_book():
     finally:
         cursor.close()
         connection.close()
-
 
 @app.route('/add_comment', methods=['POST'])
 def add_comment():
@@ -529,7 +710,6 @@ def add_comment():
         cursor.close()
         connection.close()
 
-
 @app.route('/check_overdue_books', methods=['GET'])
 def check_overdue_books():
     userID = session.get('userID')
@@ -558,18 +738,15 @@ def check_overdue_books():
         cursor.close()
         connection.close()
 
-
 @app.route('/')
 def index():
     return render_template('index.html')
-
 
 @app.route('/user_home')
 def user_home():
     first_name = request.args.get('first_name')
     last_name = request.args.get('last_name')
     return render_template('user_home.html', first_name=first_name, last_name=last_name)
-
 
 @app.route('/librarian_home')
 def librarian_home():
@@ -579,7 +756,6 @@ def librarian_home():
     session['librarian_id'] = librarian_id
     print(f"Librarian ID stored in session: {librarian_id}")
     return render_template('librarian_home.html', first_name=first_name, last_name=last_name, librarian_id=librarian_id)
-
 
 @app.route('/get_user_list')
 def get_user_list():
@@ -596,7 +772,6 @@ def get_user_list():
     connection.close()
     return jsonify(users)
 
-
 @app.route('/get_borrow_list')
 def get_borrow_list():
     connection = connecting()
@@ -611,7 +786,6 @@ def get_borrow_list():
     cursor.close()
     connection.close()
     return jsonify(borrows)
-
 
 @app.route('/login', methods=['POST'])
 def login():
@@ -646,7 +820,6 @@ def login():
     else:
         return jsonify({'error': 'Invalid ID'}), 401
 
-
 @app.route('/delete_user/<int:user_id>', methods=['DELETE'])
 def delete_user(user_id):
     connection = connecting()
@@ -667,7 +840,6 @@ def delete_user(user_id):
     finally:
         cursor.close()
         connection.close()
-
 
 @app.route('/delete_book/<string:ISBN>', methods=['DELETE'])
 def delete_book(ISBN):
@@ -690,109 +862,27 @@ def delete_book(ISBN):
         cursor.close()
         connection.close()
 
-
-@app.route('/delete_author/<int:author_id>', methods=['DELETE'])
-def delete_author(author_id):
+@app.route('/get_user/<int:user_id>', methods=['GET'])
+def get_user(user_id):
     connection = connecting()
-    cursor = connection.cursor()
+    cursor = connection.cursor(dictionary=True)
     try:
-        print(f"Deleting author with ID: {author_id}")
-        cursor.execute("DELETE FROM author WHERE authorID = %s", (author_id,))
-        print(f"Deleted author with ID: {author_id}")
-        cursor.execute("DELETE FROM authorbook WHERE authorID = %s", (author_id,))
-        print(f"Deleted authorbook entries for author ID: {author_id}")
-        connection.commit()
-        return jsonify({"success": True})
+        cursor.execute(
+            "SELECT userID, first_name, last_name, city, street, age FROM usr WHERE userID = %s",
+            (user_id,)
+        )
+        user = cursor.fetchone()
+        if user:
+            return jsonify({"success": True, "user": user})
+        else:
+            return jsonify({"success": False, "message": "User not found"}), 404
     except Exception as e:
-        connection.rollback()
-        print(f"Error deleting author: {e}")
+        print(f"Error fetching user: {e}")
         traceback.print_exc()
         return jsonify({"success": False, "message": str(e)}), 500
     finally:
         cursor.close()
         connection.close()
-
-
-@app.route('/get_user/<int:userID>', methods=['GET'])
-def get_user(userID):
-    connection = connecting()
-    cursor = connection.cursor(dictionary=True)
-    cursor.execute("SELECT * FROM usr WHERE userID = %s", (userID,))
-    user = cursor.fetchone()
-    cursor.close()
-    connection.close()
-    if user:
-        return jsonify({'success': True, 'user': user})
-    else:
-        return jsonify({'success': False, 'message': 'User not found'})
-
-
-@app.route('/get_user_details', methods=['GET'])
-def get_user_details():
-    userID = session.get('userID')
-    if not userID:
-        return jsonify({"success": False, "message": "User not logged in"}), 400
-
-    connection = connecting()
-    cursor = connection.cursor(dictionary=True)
-    cursor.execute("SELECT * FROM usr WHERE userID = %s", (userID,))
-    user = cursor.fetchone()
-    cursor.close()
-    connection.close()
-    if user:
-        return jsonify({'success': True, 'user': user})
-    else:
-        return jsonify({'success': False, 'message': 'User not found'})
-
-
-@app.route('/get_book/<string:ISBN>', methods=['GET'])
-def get_book(ISBN):
-    try:
-        connection = connecting()
-        cursor = connection.cursor(dictionary=True)
-
-        cursor.execute("""
-            SELECT book.ISBN, book.book_name, book.genre, book.publicationyear
-            FROM book
-            WHERE book.ISBN = %s
-        """, (ISBN,))
-        book = cursor.fetchone()
-
-        cursor.execute("""
-            SELECT author.authorID, author.first_name, author.last_name
-            FROM author
-            JOIN authorbook ON author.authorID = authorbook.authorID
-            WHERE authorbook.ISBN = %s
-        """, (ISBN,))
-        authors = cursor.fetchall()
-
-        cursor.close()
-        connection.close()
-
-        if book:
-            book['authors'] = authors
-            return jsonify({'success': True, 'book': book})
-        else:
-            return jsonify({'success': False, 'message': 'Book not found'})
-
-    except Exception as e:
-        print("Server Error:", e)
-        return jsonify({'success': False, 'message': 'Server error'})
-
-
-@app.route('/get_author/<int:authorID>', methods=['GET'])
-def get_author(authorID):
-    connection = connecting()
-    cursor = connection.cursor(dictionary=True)
-    cursor.execute("SELECT * FROM author WHERE authorID = %s", (authorID,))
-    author = cursor.fetchone()
-    cursor.close()
-    connection.close()
-    if author:
-        return jsonify({'success': True, 'author': author})
-    else:
-        return jsonify({'success': False, 'message': 'Author not found'})
-
 
 @app.route('/edit_user', methods=['POST'])
 def edit_user():
@@ -804,58 +894,17 @@ def edit_user():
     age = request.form.get('age')
     librarianID = request.form.get('librarianID') or session.get('librarian_id')
 
-    print(
-        f"Received edit_user request: userID={userID}, firstName={firstName}, lastName={lastName}, city={city}, street={street}, age={age}, librarianID={librarianID}")
-
-    if not all([userID, firstName, lastName, city, street, age, librarianID]):
-        print("Validation failed: Missing required fields")
-        return jsonify({"success": False, "message": "All fields are required, including librarian ID"}), 400
-
-    try:
-        age = int(age)
-        if age <= 0:
-            print("Validation failed: Invalid age")
-            return jsonify({"success": False, "message": "Age must be a positive number"}), 400
-    except ValueError:
-        print("Validation failed: Age is not a number")
-        return jsonify({"success": False, "message": "Age must be a valid number"}), 400
+    if not librarianID:
+        return jsonify({"success": False, "message": "Librarian ID not found"}), 400
 
     connection = connecting()
     cursor = connection.cursor(dictionary=True)
     try:
-        cursor.execute("SELECT first_name, last_name, city, street, age, librarianID FROM usr WHERE userID = %s",
-                       (userID,))
-        user = cursor.fetchone()
-        if not user:
-            print(f"User not found: userID={userID}")
-            return jsonify({"success": False, "message": "User not found"}), 404
-
-        cursor.execute("SELECT COUNT(*) FROM librarian WHERE librarianID = %s", (librarianID,))
-        if cursor.fetchone()['COUNT(*)'] == 0:
-            print(f"Librarian not found: librarianID={librarianID}")
-            return jsonify({"success": False, "message": "Invalid librarian ID"}), 400
-
-        print(
-            f"Current database values: first_name={user['first_name']}, last_name={user['last_name']}, city={user['city']}, street={user['street']}, age={user['age']}, librarianID={user['librarianID']}")
-
         cursor.execute(
             "UPDATE usr SET first_name = %s, last_name = %s, city = %s, street = %s, age = %s, librarianID = %s WHERE userID = %s",
-            (firstName, lastName, city, street, age, librarianID, userID))
-
-        if cursor.rowcount == 0:
-            print(f"No rows updated for userID={userID}, but treating as success since user exists")
-            if (user['first_name'] == firstName and
-                    user['last_name'] == lastName and
-                    user['city'] == city and
-                    user['street'] == street and
-                    user['age'] == int(age) and
-                    user['librarianID'] == librarianID):
-                print("No changes needed: Submitted data matches database")
-            else:
-                print("Unexpected: No rows updated despite different data")
-
+            (firstName, lastName, city, street, age, librarianID, userID)
+        )
         connection.commit()
-        print(f"Updated user profile for userID={userID} with librarianID={librarianID}")
 
         cursor.execute("SELECT first_name, last_name FROM librarian WHERE librarianID = %s", (librarianID,))
         librarian = cursor.fetchone()
@@ -864,11 +913,6 @@ def edit_user():
             "librarianFirstName": librarian['first_name'] if librarian else "",
             "librarianLastName": librarian['last_name'] if librarian else ""
         })
-    except mysql.connector.Error as err:
-        connection.rollback()
-        print(f"MySQL Error updating user: {err}")
-        traceback.print_exc()
-        return jsonify({"success": False, "message": f"Database error: {str(err)}"}), 500
     except Exception as e:
         connection.rollback()
         print(f"Error updating user: {e}")
@@ -877,174 +921,6 @@ def edit_user():
     finally:
         cursor.close()
         connection.close()
-
-
-@app.route('/edit_user_details', methods=['POST'])
-def edit_user_details():
-    userID = session.get('userID')
-    firstName = request.form.get('firstName')
-    lastName = request.form.get('lastName')
-    city = request.form.get('city')
-    street = request.form.get('street')
-    age = request.form.get('age')
-
-    print(
-        f"Received edit_user_details request: userID={userID}, firstName={firstName}, lastName={lastName}, city={city},"
-        f" street={street}, age={age}")
-
-    if not all([userID, firstName, lastName, city, street, age]):
-        print("Validation failed: Missing required fields")
-        return jsonify({"success": False, "message": "All fields are required"}), 400
-
-    try:
-        age = int(age)
-        if age <= 0:
-            print("Validation failed: Invalid age")
-            return jsonify({"success": False, "message": "Age must be a positive number"}), 400
-    except ValueError:
-        print("Validation failed: Age is not a number")
-        return jsonify({"success": False, "message": "Age must be a valid number"}), 400
-
-    connection = connecting()
-    cursor = connection.cursor()
-    try:
-        cursor.execute("SELECT COUNT(*) FROM usr WHERE userID = %s", (userID,))
-        if cursor.fetchone()[0] == 0:
-            print(f"User not found: userID={userID}")
-            return jsonify({"success": False, "message": "User not found"}), 404
-
-        cursor.execute(
-            "UPDATE usr SET first_name = %s, last_name = %s, city = %s, street = %s, age = %s WHERE userID = %s",
-            (firstName, lastName, city, street, age, userID))
-        if cursor.rowcount == 0:
-            print(f"No rows updated for userID={userID}")
-            return jsonify({"success": False, "message": "No changes applied to user profile"}), 400
-
-        connection.commit()
-        print(f"Successfully updated user profile for userID={userID} without changing librarianID")
-        return jsonify({"success": True})
-    except mysql.connector.Error as err:
-        connection.rollback()
-        print(f"MySQL Error updating user: {err}")
-        traceback.print_exc()
-        return jsonify({"success": False, "message": f"Database error: {str(err)}"}), 500
-    except Exception as e:
-        connection.rollback()
-        print(f"Error updating user: {e}")
-        traceback.print_exc()
-        return jsonify({"success": False, "message": str(e)}), 500
-    finally:
-        cursor.close()
-        connection.close()
-
-
-@app.route('/edit_book', methods=['POST'])
-def edit_book():
-    ISBN = request.form.get('ISBN')
-    bookName = request.form.get('bookName')
-    genre = request.form.get('genre')
-    publicationYear = request.form.get('publicationYear')
-    authorIDs = request.form.getlist('authorID[]')
-    librarianID = request.form.get('librarianID') or session.get('librarian_id')
-
-    if not librarianID:
-        return jsonify({"success": False, "message": "Librarian ID not found"}), 400
-
-    connection = connecting()
-    cursor = connection.cursor(buffered=True, dictionary=True)
-
-    try:
-        connection.start_transaction()
-        cursor.execute(
-            "UPDATE book SET book_name = %s, genre = %s, publicationyear = %s, librarianID = %s WHERE ISBN = %s",
-            (bookName, genre, publicationYear, librarianID, ISBN))
-        cursor.execute("DELETE FROM authorbook WHERE ISBN = %s", (ISBN,))
-        for authorID in authorIDs:
-            cursor.execute("INSERT INTO authorbook (ISBN, authorID) VALUES (%s, %s)", (ISBN, authorID))
-        connection.commit()
-
-        cursor.execute("SELECT first_name, last_name FROM librarian WHERE librarianID = %s", (librarianID,))
-        librarian = cursor.fetchone()
-        cursor.execute(
-            "SELECT CONCAT(first_name, ' ', last_name) AS full_name FROM author WHERE authorID IN (%s)" % ','.join(
-                ['%s'] * len(authorIDs)),
-            authorIDs
-        )
-        authors = [row['full_name'] for row in cursor.fetchall()]
-        return jsonify({
-            "success": True,
-            "librarians": f"{librarian['first_name']} {librarian['last_name']}" if librarian else "",
-            "authors": ', '.join(authors)
-        })
-    except Exception as e:
-        connection.rollback()
-        print(f"Error editing book: {e}")
-        traceback.print_exc()
-        return jsonify({"success": False, "message": str(e)}), 500
-    finally:
-        cursor.close()
-        connection.close()
-
-
-@app.route('/edit_author', methods=['POST'])
-def edit_author():
-    authorID = request.form.get('authorID')
-    firstName = request.form.get('first_name')
-    lastName = request.form.get('last_name')
-
-    connection = connecting()
-    cursor = connection.cursor()
-    try:
-        cursor.execute(
-            "UPDATE author SET first_name = %s, last_name = %s WHERE authorID = %s",
-            (firstName, lastName, authorID))
-        connection.commit()
-        return jsonify({"success": True})
-    except Exception as e:
-        connection.rollback()
-        print(f"Error editing author: {e}")
-        traceback.print_exc()
-        return jsonify({"success": False, "message": str(e)}), 500
-    finally:
-        cursor.close()
-        connection.close()
-
-
-@app.route('/get_book_comments/<string:ISBN>', methods=['GET'])
-def get_book_comments(ISBN):
-    connection = connecting()
-    cursor = connection.cursor(dictionary=True)
-    try:
-        cursor.execute("""
-            SELECT AVG(score) AS average_score
-            FROM comment
-            WHERE ISBN = %s
-        """, (ISBN,))
-        avg_result = cursor.fetchone()
-        average_score = round(avg_result['average_score'], 1) if avg_result['average_score'] else None
-
-        cursor.execute("""
-            SELECT c.message, c.score, u.first_name, u.last_name
-            FROM comment c
-            JOIN usr u ON c.userID = u.userID
-            WHERE c.ISBN = %s
-            ORDER BY c.score DESC
-        """, (ISBN,))
-        comments = cursor.fetchall()
-
-        return jsonify({
-            "success": True,
-            "average_score": average_score,
-            "comments": comments
-        })
-    except Exception as e:
-        print(f"Error fetching book comments: {e}")
-        traceback.print_exc()
-        return jsonify({"success": False, "message": str(e)}), 500
-    finally:
-        cursor.close()
-        connection.close()
-
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    app.run(debug=True)

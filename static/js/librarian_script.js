@@ -87,7 +87,7 @@ function resetFormInputs(frameId) {
     if (frame) {
         const inputs = frame.querySelectorAll('input, select, textarea');
         inputs.forEach(input => {
-            if (input.type === 'text' || input.type === 'number' || input.type === 'email' || input.type === 'password') {
+            if (input.type === 'text' || input.type === 'number' || input.type === 'email' || input.type === 'password' || input.type === 'file') {
                 input.value = '';
             } else if (input.type === 'checkbox' || input.type === 'radio') {
                 input.checked = false;
@@ -185,6 +185,7 @@ async function openBookList() {
                 <td>${book.publicationyear}</td>
                 <td>${book.authors}</td>
                 <td>${book.librarians}</td>
+                <td><img src="${book.img ? 'data:image/jpeg;base64,' + book.img : 'static/images/default_book.png'}" alt="Book Image" style="width:50px;height:auto;"></td>
                 <td>
                     <img src="static/images/Edit.png" alt="Edit" class="action-icon" title="Edit Book" onclick="editBook('${book.ISBN}')">
                     <img src="static/images/Trash.png" alt="Delete" class="action-icon" title="Delete Book" onclick="openDeleteConfirmation('book', '${book.ISBN}')">
@@ -215,6 +216,7 @@ async function openAuthorList() {
             row.innerHTML = `
                 <td>${author.authorID}</td>
                 <td>${author.first_name} ${author.last_name}</td>
+                <td><img src="${author.img ? 'data:image/jpeg;base64,' + author.img : 'static/images/default_author.png'}" alt="Author Image" style="width:50px;height:auto;"></td>
                 <td>
                     <img src="static/images/Edit.png" alt="Edit" class="action-icon" title="Edit Author" onclick="editAuthor(${author.authorID})">
                     <img src="static/images/Trash.png" alt="Delete" class="action-icon" title="Delete Author" onclick="openDeleteConfirmation('author', ${author.authorID})">
@@ -290,6 +292,12 @@ async function submitLibrarianForm() {
 
 async function submitAuthorForm() {
     const form = document.getElementById('authorForm');
+    const authorImage = document.getElementById('authorImage').files[0];
+    if (authorImage && authorImage.size > 5 * 1024 * 1024) { // 5MB limit
+        showNotification('Image size must be less than 5MB', 'error');
+        return;
+    }
+
     const formData = new FormData(form);
     const authorID = formData.get('authorID');
     const firstName = formData.get('firstName');
@@ -311,6 +319,7 @@ async function submitAuthorForm() {
                 row.innerHTML = `
                     <td>${authorID}</td>
                     <td>${firstName} ${lastName}</td>
+                    <td><img src="${data.img ? 'data:image/jpeg;base64,' + data.img : 'static/images/default_author.png'}" alt="Author Image" style="width:50px;height:auto;"></td>
                     <td>
                         <img src="static/images/Edit.png" alt="Edit" class="action-icon" title="Edit Author" onclick="editAuthor(${authorID})">
                         <img src="static/images/Trash.png" alt="Delete" class="action-icon" title="Delete Author" onclick="openDeleteConfirmation('author', ${authorID})">
@@ -336,7 +345,6 @@ async function submitUserForm() {
     const lastName = formData.get('lastName');
 
     try {
-        // Fetch the current librarianID from the server
         const sessionResponse = await fetch('/get_session_librarian');
         const sessionData = await sessionResponse.json();
         const librarianID = sessionData.librarianID;
@@ -346,7 +354,7 @@ async function submitUserForm() {
             return;
         }
 
-        formData.append('librarianID', librarianID); // Add librarianID to formData
+        formData.append('librarianID', librarianID);
 
         const response = await fetch('/add_user_route', {
             method: 'POST',
@@ -383,6 +391,12 @@ async function submitUserForm() {
 
 async function submitBookForm() {
     const form = document.getElementById('bookForm');
+    const bookImage = document.getElementById('bookImage').files[0];
+    if (bookImage && bookImage.size > 5 * 1024 * 1024) { // 5MB limit
+        showNotification('Image size must be less than 5MB', 'error');
+        return;
+    }
+
     const formData = new FormData(form);
     const ISBN = formData.get('ISBN');
     const bookName = formData.get('bookName');
@@ -391,7 +405,6 @@ async function submitBookForm() {
     const authorIDs = formData.getAll('authorID[]');
 
     try {
-        // Fetch the current librarianID from the server
         const sessionResponse = await fetch('/get_session_librarian');
         const sessionData = await sessionResponse.json();
         const librarianID = sessionData.librarianID;
@@ -401,7 +414,7 @@ async function submitBookForm() {
             return;
         }
 
-
+        formData.append('librarianID', librarianID);
 
         const response = await fetch('/add_book', {
             method: 'POST',
@@ -422,6 +435,7 @@ async function submitBookForm() {
                     <td>${publicationYear}</td>
                     <td>${data.authors || authorIDs.join(', ')}</td>
                     <td>${data.librarians || librarianID}</td>
+                    <td><img src="${data.img ? 'data:image/jpeg;base64,' + data.img : 'static/images/default_book.png'}" alt="Book Image" style="width:50px;height:auto;"></td>
                     <td>
                         <img src="static/images/Edit.png" alt="Edit" class="action-icon" title="Edit Book" onclick="editBook('${ISBN}')">
                         <img src="static/images/Trash.png" alt="Delete" class="action-icon" title="Delete Book" onclick="openDeleteConfirmation('book', '${ISBN}')">
@@ -453,7 +467,9 @@ function addAuthorField() {
 }
 
 function addEditAuthorField() {
-    const authorsContainer = document.getElementById('editAuthorsContainer');
+
+
+ const authorsContainer = document.getElementById('editAuthorsContainer');
     const newAuthorField = document.createElement('div');
     newAuthorField.className = 'author-fields';
     newAuthorField.innerHTML = `
@@ -570,7 +586,7 @@ async function editBook(ISBN) {
         }
 
         const data = await response.json();
-        console.log('Fetched book data:', data); // Debug log
+        console.log('Fetched book data:', data);
 
         if (data.success) {
             const book = data.book;
@@ -608,7 +624,6 @@ async function editBook(ISBN) {
     }
 }
 
-
 async function editAuthor(authorID) {
     try {
         const response = await fetch(`/get_author/${authorID}`);
@@ -618,6 +633,7 @@ async function editAuthor(authorID) {
             document.getElementById('editAuthorID').value = author.authorID;
             document.getElementById('editFirstNameAuthor').value = author.first_name;
             document.getElementById('editLastNameAuthor').value = author.last_name;
+            // Note: We don't set the image input as file inputs can't be pre-filled for security reasons
             openFrame('editAuthorFormContainer');
         } else {
             showNotification('Error fetching author data: ' + data.message, 'error');
@@ -636,7 +652,6 @@ async function submitEditUserForm() {
     const lastName = formData.get('lastName');
 
     try {
-        // Fetch the current librarianID from the server
         const sessionResponse = await fetch('/get_session_librarian');
         const sessionData = await sessionResponse.json();
         const librarianID = sessionData.librarianID;
@@ -646,7 +661,7 @@ async function submitEditUserForm() {
             return;
         }
 
-        formData.append('librarianID', librarianID); // Add librarianID to formData
+        formData.append('librarianID', librarianID);
 
         const response = await fetch('/edit_user', {
             method: 'POST',
@@ -683,6 +698,12 @@ async function submitEditUserForm() {
 
 async function submitEditBookForm() {
     const form = document.getElementById('editBookForm');
+    const bookImage = document.getElementById('editBookImage').files[0];
+    if (bookImage && bookImage.size > 5 * 1024 * 1024) { // 5MB limit
+        showNotification('Image size must be less than 5MB', 'error');
+        return;
+    }
+
     const formData = new FormData(form);
     const ISBN = formData.get('ISBN');
     const bookName = formData.get('bookName');
@@ -691,7 +712,6 @@ async function submitEditBookForm() {
     const authorIDs = formData.getAll('authorID[]');
 
     try {
-        // Fetch the current librarianID from the server
         const sessionResponse = await fetch('/get_session_librarian');
         const sessionData = await sessionResponse.json();
         const librarianID = sessionData.librarianID;
@@ -701,7 +721,7 @@ async function submitEditBookForm() {
             return;
         }
 
-        formData.append('librarianID', librarianID); // Add librarianID to formData
+        formData.append('librarianID', librarianID);
 
         const response = await fetch('/edit_book', {
             method: 'POST',
@@ -722,6 +742,7 @@ async function submitEditBookForm() {
                         <td>${publicationYear}</td>
                         <td>${data.authors || authorIDs.join(', ')}</td>
                         <td>${data.librarians || librarianID}</td>
+                        <td><img src="${data.img ? 'data:image/jpeg;base64,' + data.img : 'static/images/default_book.png'}" alt="Book Image" style="width:50px;height:auto;"></td>
                         <td>
                             <img src="static/images/Edit.png" alt="Edit" class="action-icon" title="Edit Book" onclick="editBook('${ISBN}')">
                             <img src="static/images/Trash.png" alt="Delete" class="action-icon" title="Delete Book" onclick="openDeleteConfirmation('book', '${ISBN}')">
@@ -740,6 +761,12 @@ async function submitEditBookForm() {
 
 async function submitEditAuthorForm() {
     const form = document.getElementById('editAuthorForm');
+    const authorImage = document.getElementById('editAuthorImage').files[0];
+    if (authorImage && authorImage.size > 5 * 1024 * 1024) { // 5MB limit
+        showNotification('Image size must be less than 5MB', 'error');
+        return;
+    }
+
     const formData = new FormData(form);
     const authorID = formData.get('authorID');
     const firstName = formData.get('first_name');
@@ -761,6 +788,7 @@ async function submitEditAuthorForm() {
                     row.innerHTML = `
                         <td>${authorID}</td>
                         <td>${firstName} ${lastName}</td>
+                        <td><img src="${data.img ? 'data:image/jpeg;base64,' + data.img : 'static/images/default_author.png'}" alt="Author Image" style="width:50px;height:auto;"></td>
                         <td>
                             <img src="static/images/Edit.png" alt="Edit" class="action-icon" title="Edit Author" onclick="editAuthor(${authorID})">
                             <img src="static/images/Trash.png" alt="Delete" class="action-icon" title="Delete Author" onclick="openDeleteConfirmation('author', ${authorID})">

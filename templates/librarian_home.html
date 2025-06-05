@@ -61,7 +61,7 @@
     <div class="form-container" id="bookFormContainer" style="display: none;">
         <span class="close-btn" onclick="closeBookForm()">x</span>
         <h3>Add Book</h3>
-        <form id="bookForm">
+        <form id="bookForm" enctype="multipart/form-data">
             <label for="bookName">Book Name:</label>
             <input type="text" id="bookName" name="bookName" autocomplete="off" required>
             <label for="ISBN">ISBN:</label>
@@ -70,6 +70,8 @@
             <input type="text" id="genre" name="genre" autocomplete="off" required>
             <label for="publicationYear">Publication Year:</label>
             <input type="number" id="publicationYear" name="publicationYear" autocomplete="off" required>
+            <label for="bookImage">Book Image:</label>
+            <input type="file" id="bookImage" name="bookImage" accept="image/*">
             <div id="authorsContainer">
                 <div class="author-fields">
                     <label for="authorSelect">Author:</label>
@@ -84,13 +86,15 @@
     <div class="form-container" id="authorFormContainer" style="display: none;">
         <span class="close-btn" onclick="closeAuthorForm()">x</span>
         <h3>Add Author</h3>
-        <form id="authorForm">
+        <form id="authorForm" enctype="multipart/form-data">
             <label for="authorID">Author ID:</label>
             <input type="text" id="authorID" name="authorID" autocomplete="off" required>
             <label for="firstName">First Name:</label>
             <input type="text" id="firstName" name="firstName" autocomplete="off" required>
             <label for="lastName">Last Name:</label>
             <input type="text" id="lastName" name="lastName" autocomplete="off" required>
+            <label for="authorImage">Author Image:</label>
+            <input type="file" id="authorImage" name="authorImage" accept="image/*">
             <button type="button" onclick="submitAuthorForm()">Add Author</button>
         </form>
     </div>
@@ -116,7 +120,7 @@
     <div class="form-container" id="editBookFormContainer" style="display: none;">
         <span class="close-btn" onclick="closeEditBookForm()">x</span>
         <h3>Edit Book</h3>
-        <form id="editBookForm">
+        <form id="editBookForm" enctype="multipart/form-data">
             <label for="editISBN">ISBN:</label>
             <input type="text" id="editISBN" name="ISBN" readonly required>
             <label for="editBookName">Book Name:</label>
@@ -125,6 +129,8 @@
             <input type="text" id="editGenre" name="genre" autocomplete="off" required>
             <label for="editPublicationYear">Publication Year:</label>
             <input type="number" id="editPublicationYear" name="publicationYear" autocomplete="off" required>
+            <label for="editBookImage">Book Image:</label>
+            <input type="file" id="editBookImage" name="bookImage" accept="image/*">
             <h4>Authors</h4>
             <div id="editAuthorsContainer">
             </div>
@@ -135,13 +141,15 @@
     <div class="form-container" id="editAuthorFormContainer" style="display: none;">
         <span class="close-btn" onclick="closeEditAuthorForm()">x</span>
         <h3>Edit Author</h3>
-        <form id="editAuthorForm">
+        <form id="editAuthorForm" enctype="multipart/form-data">
             <label for="editAuthorID">Author ID:</label>
             <input type="text" id="editAuthorID" name="authorID" readonly required>
             <label for="editFirstNameAuthor">First Name:</label>
             <input type="text" id="editFirstNameAuthor" name="first_name" autocomplete="off" required>
             <label for="editLastNameAuthor">Last Name:</label>
             <input type="text" id="editLastNameAuthor" name="last_name" autocomplete="off" required>
+            <label for="editAuthorImage">Author Image:</label>
+            <input type="file" id="editAuthorImage" name="authorImage" accept="image/*">
             <button type="button" onclick="submitEditAuthorForm()">Save Changes</button>
         </form>
     </div>
@@ -177,6 +185,7 @@
                         <th>Publication Year</th>
                         <th>Authors</th>
                         <th>Add By Librarian</th>
+                        <th>Image</th>
                         <th>Action</th>
                     </tr>
                 </thead>
@@ -194,6 +203,7 @@
                     <tr>
                         <th>AuthorID</th>
                         <th>Author Name</th>
+                        <th>Image</th>
                         <th>Action</th>
                     </tr>
                 </thead>
@@ -236,7 +246,6 @@
         <span class="icon" id="notification-icon"></span>
         <span id="notification-message"></span>
     </div>
-    <!-- Hidden input to store librarian_id as a fallback -->
     <input type="hidden" id="currentLibrarianID" value="{{ librarian_id }}">
     <script src="{{ url_for('static', filename='js/librarian_script.js') }}"></script>
 </body>
