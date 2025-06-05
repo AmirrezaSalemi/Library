@@ -24,12 +24,38 @@
                 <div class="slide"><img src="{{ url_for('static', filename='images/image2.jpg') }}" alt="Image 2"></div>
                 <div class="slide"><img src="{{ url_for('static', filename='images/image3.jpg') }}" alt="Image 3"></div>
             </div>
-            <button class="slider-btn prev">&#10094;</button>
-            <button class="slider-btn next">&#10095;</button>
+            <button class="slider-btn prev">❮</button>
+            <button class="slider-btn next">❯</button>
             <div class="slider-indicators">
                 <span class="indicator" data-target="0"></span>
                 <span class="indicator" data-target="1"></span>
                 <span class="indicator" data-target="2"></span>
+            </div>
+        </div>
+        <div class="most-read-section">
+            <h2>Most Read Books</h2>
+            <div class="most-read-slider-container">
+                <div class="most-read-slider">
+                    <!-- Slides will be dynamically populated -->
+                </div>
+                <button class="slider-btn most-read-prev">❮</button>
+                <button class="slider-btn most-read-next">❯</button>
+                <div class="most-read-indicators">
+                    <!-- Indicators will be dynamically populated -->
+                </div>
+            </div>
+        </div>
+        <div class="most-read-section">
+            <h2>Most Read Authors</h2>
+            <div class="most-read-slider-container most-read-authors-container">
+                <div class="most-read-slider most-read-authors-slider">
+                    <!-- Slides will be dynamically populated -->
+                </div>
+                <button class="slider-btn most-read-authors-prev">❮</button>
+                <button class="slider-btn most-read-authors-next">❯</button>
+                <div class="most-read-indicators most-read-authors-indicators">
+                    <!-- Indicators will be dynamically populated -->
+                </div>
             </div>
         </div>
     </div>

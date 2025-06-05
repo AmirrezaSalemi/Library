@@ -187,6 +187,7 @@ def get_book_list():
                 b.book_name, 
                 b.genre, 
                 b.publicationyear, 
+                b.read_count,
                 b.img,
                 IFNULL(a.authors, 'Unknown') AS authors
             FROM book b
@@ -233,6 +234,37 @@ def get_author_list():
         return jsonify(authors)
     except Exception as e:
         print(f"Error fetching author list: {e}")
+        traceback.print_exc()
+        return jsonify({"success": False, "message": str(e)}), 500
+    finally:
+        cursor.close()
+        connection.close()
+
+@app.route('/get_most_read_authors')
+def get_most_read_authors():
+    connection = connecting()
+    cursor = connection.cursor(dictionary=True)
+    try:
+        cursor.execute("""
+            SELECT 
+                authorID, 
+                first_name, 
+                last_name, 
+                img, 
+                read_count
+            FROM author
+            ORDER BY read_count DESC
+            LIMIT 8
+        """)
+        authors = cursor.fetchall()
+        for author in authors:
+            if author['img']:
+                author['img'] = base64.b64encode(author['img']).decode('utf-8')
+            else:
+                author['img'] = None
+        return jsonify(authors)
+    except Exception as e:
+        print(f"Error fetching most read authors: {e}")
         traceback.print_exc()
         return jsonify({"success": False, "message": str(e)}), 500
     finally:
@@ -433,7 +465,7 @@ def return_book():
                        (ISBN, userID))
         cursor.execute("UPDATE book SET userID = NULL WHERE ISBN = %s", (ISBN,))
         connection.commit()
-        return jsonify({"success": True, "ISBN": ISBN})  # Return ISBN for comment form
+        return jsonify({"success": True, "ISBN": ISBN})
     except Exception as e:
         connection.rollback()
         print(f"Error returning book: {e}")
@@ -946,7 +978,6 @@ def get_book_comments(ISBN):
     connection = connecting()
     cursor = connection.cursor(dictionary=True)
     try:
-        # دریافت میانگین نمره
         cursor.execute("""
             SELECT AVG(score) AS average_score
             FROM comment
@@ -955,7 +986,6 @@ def get_book_comments(ISBN):
         avg_result = cursor.fetchone()
         average_score = round(avg_result['average_score'], 1) if avg_result['average_score'] else None
 
-        # دریافت کامنت‌ها
         cursor.execute("""
             SELECT c.message, c.score, u.first_name, u.last_name
             FROM comment c
