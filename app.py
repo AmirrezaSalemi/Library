@@ -7,6 +7,7 @@ import base64
 app = Flask(__name__)
 app.secret_key = '8585'  # Replace with a secure secret key
 
+
 def connecting():
     connection = mysql.connector.connect(
         host='localhost',
@@ -17,6 +18,7 @@ def connecting():
     if connection.is_connected():
         print('Connected to MySQL database')
         return connection
+
 
 @app.route('/test_connection')
 def test_connection():
@@ -30,6 +32,7 @@ def test_connection():
         if connection.is_connected():
             connection.close()
 
+
 @app.route('/get_session_librarian', methods=['GET'])
 def get_session_librarian():
     librarian_id = session.get('librarian_id')
@@ -37,6 +40,7 @@ def get_session_librarian():
         return jsonify({"librarianID": librarian_id})
     else:
         return jsonify({"librarianID": None}), 400
+
 
 @app.route('/add_author', methods=['POST'])
 def add_author():
@@ -60,6 +64,7 @@ def add_author():
         cursor.close()
         connection.close()
 
+
 @app.route('/add_librarian', methods=['POST'])
 def add_librarian():
     librarianID = request.form.get('librarianID')
@@ -81,6 +86,7 @@ def add_librarian():
     finally:
         cursor.close()
         connection.close()
+
 
 @app.route('/add_user_route', methods=['POST'])
 def add_user_route():
@@ -125,6 +131,7 @@ def add_user_route():
     finally:
         cursor.close()
         connection.close()
+
 
 @app.route('/add_book', methods=['POST'])
 def add_book():
@@ -174,6 +181,7 @@ def add_book():
         cursor.close()
         connection.close()
 
+
 @app.route('/get_book_list')
 def get_book_list():
     import base64, traceback
@@ -219,6 +227,7 @@ def get_book_list():
         cursor.close()
         connection.close()
 
+
 @app.route('/get_author_list')
 def get_author_list():
     connection = connecting()
@@ -239,6 +248,7 @@ def get_author_list():
     finally:
         cursor.close()
         connection.close()
+
 
 @app.route('/get_most_read_authors')
 def get_most_read_authors():
@@ -271,6 +281,7 @@ def get_most_read_authors():
         cursor.close()
         connection.close()
 
+
 @app.route('/get_authors_for_dropdown')
 def get_authors_for_dropdown():
     connection = connecting()
@@ -280,6 +291,7 @@ def get_authors_for_dropdown():
     cursor.close()
     connection.close()
     return jsonify(authors)
+
 
 @app.route('/get_borrow_history')
 def get_borrow_history():
@@ -334,6 +346,7 @@ def get_borrow_history():
         cursor.close()
         connection.close()
 
+
 @app.route('/get_available_books')
 def get_available_books():
     connection = connecting()
@@ -375,6 +388,7 @@ def get_available_books():
         cursor.close()
         connection.close()
 
+
 @app.route('/borrow_book', methods=['POST'])
 def borrow_book():
     data = request.get_json()
@@ -408,6 +422,7 @@ def borrow_book():
     finally:
         cursor.close()
         connection.close()
+
 
 @app.route('/get_borrowed_books')
 def get_borrowed_books():
@@ -448,6 +463,7 @@ def get_borrowed_books():
         cursor.close()
         connection.close()
 
+
 @app.route('/return_book', methods=['POST'])
 def return_book():
     data = request.get_json()
@@ -474,6 +490,7 @@ def return_book():
     finally:
         cursor.close()
         connection.close()
+
 
 @app.route('/add_comment', methods=['POST'])
 def add_comment():
@@ -512,6 +529,7 @@ def add_comment():
         cursor.close()
         connection.close()
 
+
 @app.route('/check_overdue_books', methods=['GET'])
 def check_overdue_books():
     userID = session.get('userID')
@@ -540,15 +558,18 @@ def check_overdue_books():
         cursor.close()
         connection.close()
 
+
 @app.route('/')
 def index():
     return render_template('index.html')
+
 
 @app.route('/user_home')
 def user_home():
     first_name = request.args.get('first_name')
     last_name = request.args.get('last_name')
     return render_template('user_home.html', first_name=first_name, last_name=last_name)
+
 
 @app.route('/librarian_home')
 def librarian_home():
@@ -558,6 +579,7 @@ def librarian_home():
     session['librarian_id'] = librarian_id
     print(f"Librarian ID stored in session: {librarian_id}")
     return render_template('librarian_home.html', first_name=first_name, last_name=last_name, librarian_id=librarian_id)
+
 
 @app.route('/get_user_list')
 def get_user_list():
@@ -574,6 +596,7 @@ def get_user_list():
     connection.close()
     return jsonify(users)
 
+
 @app.route('/get_borrow_list')
 def get_borrow_list():
     connection = connecting()
@@ -588,6 +611,7 @@ def get_borrow_list():
     cursor.close()
     connection.close()
     return jsonify(borrows)
+
 
 @app.route('/login', methods=['POST'])
 def login():
@@ -622,6 +646,7 @@ def login():
     else:
         return jsonify({'error': 'Invalid ID'}), 401
 
+
 @app.route('/delete_user/<int:user_id>', methods=['DELETE'])
 def delete_user(user_id):
     connection = connecting()
@@ -642,6 +667,7 @@ def delete_user(user_id):
     finally:
         cursor.close()
         connection.close()
+
 
 @app.route('/delete_book/<string:ISBN>', methods=['DELETE'])
 def delete_book(ISBN):
@@ -664,6 +690,7 @@ def delete_book(ISBN):
         cursor.close()
         connection.close()
 
+
 @app.route('/delete_author/<int:author_id>', methods=['DELETE'])
 def delete_author(author_id):
     connection = connecting()
@@ -685,6 +712,7 @@ def delete_author(author_id):
         cursor.close()
         connection.close()
 
+
 @app.route('/get_user/<int:userID>', methods=['GET'])
 def get_user(userID):
     connection = connecting()
@@ -697,6 +725,7 @@ def get_user(userID):
         return jsonify({'success': True, 'user': user})
     else:
         return jsonify({'success': False, 'message': 'User not found'})
+
 
 @app.route('/get_user_details', methods=['GET'])
 def get_user_details():
@@ -714,6 +743,7 @@ def get_user_details():
         return jsonify({'success': True, 'user': user})
     else:
         return jsonify({'success': False, 'message': 'User not found'})
+
 
 @app.route('/get_book/<string:ISBN>', methods=['GET'])
 def get_book(ISBN):
@@ -749,6 +779,7 @@ def get_book(ISBN):
         print("Server Error:", e)
         return jsonify({'success': False, 'message': 'Server error'})
 
+
 @app.route('/get_author/<int:authorID>', methods=['GET'])
 def get_author(authorID):
     connection = connecting()
@@ -761,6 +792,7 @@ def get_author(authorID):
         return jsonify({'success': True, 'author': author})
     else:
         return jsonify({'success': False, 'message': 'Author not found'})
+
 
 @app.route('/edit_user', methods=['POST'])
 def edit_user():
@@ -807,7 +839,8 @@ def edit_user():
             f"Current database values: first_name={user['first_name']}, last_name={user['last_name']}, city={user['city']}, street={user['street']}, age={user['age']}, librarianID={user['librarianID']}")
 
         cursor.execute(
-            "UPDATE usr SET first_name = %s, last_name = %s, city = %s, street = %s, age = %s, librarianID = %s WHERE userID = %s",
+            "UPDATE usr SET first_name = %s, last_name = %s, city = %s, street = %s, age = %s, librarianID = %s WHERE "
+            "userID = %s",
             (firstName, lastName, city, street, age, librarianID, userID))
 
         if cursor.rowcount == 0:
@@ -846,6 +879,7 @@ def edit_user():
         cursor.close()
         connection.close()
 
+
 @app.route('/edit_user_details', methods=['POST'])
 def edit_user_details():
     userID = session.get('userID')
@@ -856,7 +890,8 @@ def edit_user_details():
     age = request.form.get('age')
 
     print(
-        f"Received edit_user_details request: userID={userID}, firstName={firstName}, lastName={lastName}, city={city}, street={street}, age={age}")
+        f"Received edit_user_details request: userID={userID}, firstName={firstName}, lastName={lastName}, city={city},"
+        f" street={street}, age={age}")
 
     if not all([userID, firstName, lastName, city, street, age]):
         print("Validation failed: Missing required fields")
@@ -902,6 +937,7 @@ def edit_user_details():
     finally:
         cursor.close()
         connection.close()
+
 
 @app.route('/edit_book', methods=['POST'])
 def edit_book():
@@ -950,6 +986,7 @@ def edit_book():
         cursor.close()
         connection.close()
 
+
 @app.route('/edit_author', methods=['POST'])
 def edit_author():
     authorID = request.form.get('authorID')
@@ -972,6 +1009,7 @@ def edit_author():
     finally:
         cursor.close()
         connection.close()
+
 
 @app.route('/get_book_comments/<string:ISBN>', methods=['GET'])
 def get_book_comments(ISBN):
@@ -1007,6 +1045,7 @@ def get_book_comments(ISBN):
     finally:
         cursor.close()
         connection.close()
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
