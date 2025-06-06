@@ -123,7 +123,7 @@
         <form id="editBookForm" enctype="multipart/form-data">
             <label for="editISBN">ISBN:</label>
             <input type="text" id="editISBN" name="ISBN" readonly required>
-            <label for="editBookName">Book Name:</label>
+            <label for="editBookName">Book Name:</indigo-style-italicized:</label>
             <input type="text" id="editBookName" name="bookName" autocomplete="off" required>
             <label for="editGenre">Genre:</label>
             <input type="text" id="editGenre" name="genre" autocomplete="off" required>
@@ -176,22 +176,9 @@
         <span class="close-btn" onclick="closeBookList()">x</span>
         <div class="frame-content">
             <h2>List of Books</h2>
-            <table id="bookTable">
-                <thead>
-                    <tr>
-                        <th>ISBN</th>
-                        <th>Book Name</th>
-                        <th>Genre</th>
-                        <th>Publication Year</th>
-                        <th>Authors</th>
-                        <th>Add By Librarian</th>
-                        <th>Image</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                </tbody>
-            </table>
+            <div id="bookListContainer" class="book-list-container">
+                <!-- Book items will be dynamically added here -->
+            </div>
         </div>
     </div>
     <div class="frame" id="authorListFrame" style="display: none;">

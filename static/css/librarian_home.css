@@ -1,5 +1,5 @@
 body {
-    margin: 0px;
+    margin: 0;
     font-family: 'Times New Roman', Times, serif;
     color: white;
     text-align: center;
@@ -15,7 +15,7 @@ header {
     position: fixed;
     top: 0;
     width: 100%;
-    z-index: 1000; /* Ensure the header stays on top */
+    z-index: 1000;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
@@ -42,7 +42,7 @@ header {
 .title h1 {
     margin: 0;
     font-size: 3em;
-    cursor: pointer; /* Add cursor pointer to indicate it's clickable */
+    cursor: pointer;
     position: relative;
     transition: text-shadow 0.3s ease;
 }
@@ -57,19 +57,19 @@ header {
 }
 
 .content-wrapper {
-    background-image: url('library_shelves.png'); /* Example background image for librarian page */
+    background-image: url('library_shelves.png');
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
-    padding-top: 60px; /* Adjust this value based on the height of your header */
-    min-height: 100vh; /* Ensure the wrapper takes at least the full viewport height */
-    transition: filter 0.3s ease; /* Add transition for blur effect */
+    padding-top: 60px;
+    min-height: 100vh;
+    transition: filter 0.3s ease;
 }
 
 h2 {
-    color: Gray; /* Example text color for user page */
-    position: relative; /* Ensure the pseudo-element is positioned relative to the h2 */
-    z-index: 1; /* Ensure the h2 text is above the pseudo-element */
+    color: gray;
+    position: relative;
+    z-index: 1;
 }
 
 h2::before {
@@ -79,9 +79,9 @@ h2::before {
     left: 460px;
     right: 460px;
     bottom: 0;
-    background-color: rgba(0, 0, 0, 0.5); /* Black color with 50% opacity */
-    border-radius: 10px; /* Curved corners */
-    z-index: -1; /* Ensure the pseudo-element is behind the h2 text */
+    background-color: rgba(0, 0, 0, 0.5);
+    border-radius: 10px;
+    z-index: -1;
 }
 
 .rectangle-container {
@@ -98,25 +98,25 @@ h2::before {
     padding: 20px;
     border-radius: 10px;
     text-decoration: none;
-    transition: background-color 0.3s ease, box-shadow 0.3s ease, opacity 0.3s ease; /* Add transition for opacity */
-    flex: 1 1 calc(33.333% - 60px); /* Adjust the width to fit 3 rectangles per row with 20px margin */
+    transition: background-color 0.3s ease, box-shadow 0.3s ease, opacity 0.3s ease;
+    flex: 1 1 calc(33.333% - 60px);
     box-sizing: border-box;
-    margin: 20px; /* Add margin around each rectangle */
-    height: 200px; /* Set the height of the rectangles */
+    margin: 20px;
+    height: 200px;
     display: flex;
     justify-content: center;
     align-items: center;
     text-align: center;
-    overflow: hidden; /* Ensure the pseudo-element is contained within the rectangle */
+    overflow: hidden;
     opacity: 0.85;
-    font-family: 'Times New Roman', Times, serif; /* Set the font family */
-    font-size: 24px; /* Set the font size */
+    font-family: 'Times New Roman', Times, serif;
+    font-size: 24px;
     text-shadow: 0 0 5px rgba(0, 0, 0, 0.8),
                  0 0 10px rgba(0, 0, 0, 0.7),
                  0 0 15px rgba(0, 0, 0, 0.6),
                  0 0 20px rgba(0, 0, 0, 0.5),
                  0 0 25px rgba(0, 0, 0, 0.4),
-                 0 0 30px rgba(0, 0, 0, 0.3); /* Add text shadow in black */
+                 0 0 30px rgba(0, 0, 0, 0.3);
 }
 
 .rectangle::before {
@@ -126,69 +126,44 @@ h2::before {
     left: 0;
     right: 0;
     bottom: 0;
-    background-size: cover; /* Ensure the background image covers the rectangle */
-    background-position: center; /* Center the background image */
-    background-repeat: no-repeat; /* Ensure the background image does not repeat */
-    z-index: -1; /* Ensure the pseudo-element is behind the text */
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    z-index: -1;
 }
 
 .rectangle::after {
-    content: attr(data-text); /* Use the data-text attribute for the content */
+    content: attr(data-text);
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    color: transparent; /* Make the text transparent */
-    background: rgba(0, 0, 0, 0.5); /* Bright black background */
-    padding: 5px 10px; /* Add padding around the text */
-    border-radius: 5px; /* Add rounded corners */
-    z-index: -1; /* Ensure the pseudo-element is behind the text */
-    white-space: nowrap; /* Prevent text from wrapping */
+    color: transparent;
+    background: rgba(0, 0, 0, 0.5);
+    padding: 5px 10px;
+    border-radius: 5px;
+    z-index: -1;
+    white-space: nowrap;
 }
 
 .rectangle:hover::before {
-    background-color: rgba(0, 0, 0, 0.7); /* Darker background on hover */
+    background-color: rgba(0, 0, 0, 0.7);
 }
 
 .rectangle:hover {
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Add shadow effect on hover */
-    opacity: 0.5; /* Decrease opacity on hover */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    opacity: 0.5;
 }
 
-/* Add background images for each rectangle */
-.rectangle:nth-child(1)::before {
-    background-image: url('Add_Librarian.png');
-}
+.rectangle:nth-child(1)::before { background-image: url('Add_Librarian.png'); }
+.rectangle:nth-child(2)::before { background-image: url('Add_User.png'); }
+.rectangle:nth-child(3)::before { background-image: url('Add_Book.png'); }
+.rectangle:nth-child(4)::before { background-image: url('Add_author.webp'); }
+.rectangle:nth-child(5)::before { background-image: url('user_list.png'); }
+.rectangle:nth-child(6)::before { background-image: url('list_of_books.png'); }
+.rectangle:nth-child(7)::before { background-image: url('list_of_authors.png'); }
+.rectangle:nth-child(8)::before { background-image: url('list_of_borrows.png'); }
 
-.rectangle:nth-child(2)::before {
-    background-image: url('Add_User.png');
-}
-
-.rectangle:nth-child(3)::before {
-    background-image: url('Add_Book.png');
-}
-
-.rectangle:nth-child(4)::before {
-    background-image: url('Add_author.webp');
-}
-
-.rectangle:nth-child(5)::before {
-    background-image: url('user_list.png');
-}
-
-.rectangle:nth-child(6)::before {
-    background-image: url('list_of_books.png');
-}
-
-.rectangle:nth-child(7)::before {
-    background-image: url('list_of_authors.png');
-}
-
-.rectangle:nth-child(8)::before {
-    background-image: url('list_of_borrows.png');
-}
-
-/* Style for the close button */
 .close-btn {
     position: absolute;
     top: 3px;
@@ -198,7 +173,7 @@ h2::before {
     cursor: pointer;
     padding: 0;
     margin: 0;
-    font-family: Arial, sans-serif; /* Ensure the font is clear and readable */
+    font-family: Arial, sans-serif;
 }
 
 .close-btn:hover {
@@ -211,6 +186,7 @@ h2::before {
     font-size: 24px;
     color: white;
     text-align: center;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 .form-container {
@@ -219,77 +195,110 @@ h2::before {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    background-color: rgba(0, 0, 0, 0.8);
-    padding: 20px;
-    border-radius: 10px;
-    z-index: 1002; /* Higher z-index for edit frames */
+    background: linear-gradient(145deg, #1a1a1a, #2a2a2a);
+    padding: 30px;
+    border-radius: 15px;
+    z-index: 1003;
     color: white;
-    width: 300px;
+    width: 350px;
     box-sizing: border-box;
+    max-height: 85vh;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: #666 #333;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.form-container::-webkit-scrollbar {
+    width: 12px;
+}
+
+.form-container::-webkit-scrollbar-track {
+    background: #333;
+    border-radius: 10px;
+}
+
+.form-container::-webkit-scrollbar-thumb {
+    background-color: #666;
+    border-radius: 10px;
+    border: 3px solid #333;
+}
+
+.form-container::-webkit-scrollbar-thumb:hover {
+    background-color: #888;
 }
 
 .form-container form {
     display: flex;
     flex-direction: column;
+    gap: 15px;
 }
 
 .form-container label {
-    margin-bottom: 5px;
+    margin-bottom: 8px;
     font-weight: bold;
-    color: #ddd;
+    color: #eee;
+    font-size: 16px;
+    display: block;
+    text-align: left;
 }
 
 .form-container input,
 .form-container select {
     margin-bottom: 15px;
-    padding: 15px;
-    border-radius: 25px; /* More rounded corners */
-    border: 1px solid #444; /* Subtle border */
-    background-color: rgba(255, 255, 255, 0.1); /* Slightly transparent background */
+    padding: 12px;
+    border-radius: 25px;
+    border: 1px solid #555;
+    background-color: rgba(255, 255, 255, 0.15);
     color: white;
-    transition: box-shadow 0.3s ease, background-color 0.3s ease; /* Smooth transitions */
-    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1); /* Inner shadow for depth */
-    appearance: none; /* Remove default arrow */
-    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="10" height="6"><path fill="white" d="M0 0l5 5 5-5z"/></svg>'); /* Custom arrow */
+    transition: box-shadow 0.3s ease, background-color 0.3s ease, border-color 0.3s ease;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+    appearance: none;
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="10" height="6"><path fill="white" d="M0 0l5 5 5-5z"/></svg>');
     background-repeat: no-repeat;
     background-position: right 15px center;
-    -webkit-appearance: none; /* Remove default arrow for WebKit browsers */
-    -moz-appearance: none; /* Remove default arrow for Firefox */
-    cursor: pointer; /* Add cursor pointer to indicate it's clickable */
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    cursor: pointer;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .form-container input:focus,
 .form-container select:focus {
-    background-color: rgba(255, 255, 255, 0.2); /* Lighter background on focus */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Outer shadow on focus */
-    outline: none; /* Remove default outline */
+    background-color: rgba(255, 255, 255, 0.25);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    border-color: #007bff;
+    outline: none;
 }
 
 .form-container select option {
-    background-color: rgba(0, 0, 0, 0.8); /* Dark background for options */
-    color: white; /* White text */
-    padding: 10px; /* Add padding around the text */
-    border-radius: 5px; /* Add rounded corners */
-    cursor: pointer; /* Add cursor pointer to indicate it's clickable */
+    background-color: rgba(0, 0, 0, 0.9);
+    color: white;
+    padding: 10px;
+    border-radius: 5px;
+    cursor: pointer;
 }
 
 .form-container select option:hover {
-    background-color: rgba(0, 0, 0, 0.9); /* Darker background on hover */
+    background-color: rgba(0, 0, 0, 1);
 }
 
 .form-container button {
     padding: 15px;
     border: none;
-    border-radius: 25px; /* More rounded corners */
-    background-color: #0059b3;
+    border-radius: 25px;
+    background: linear-gradient(145deg, #0059b3, #007bff);
     color: white;
     cursor: pointer;
-    transition: background-color 0.3s ease; /* Smooth transition */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Subtle shadow */
+    transition: background 0.3s ease, transform 0.2s ease;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
 .form-container button:hover {
-    background-color: #004085;
+    background: linear-gradient(145deg, #004085, #0059b3);
+    transform: translateY(-2px);
 }
 
 .overlay {
@@ -299,31 +308,9 @@ h2::before {
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-    z-index: 1001; /* Lower z-index for the overlay */
-}
-
-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 20px;
-}
-
-table, th, td {
-    border: 1px solid white;
-}
-
-th, td {
-    padding: 10px;
-    text-align: left;
-}
-
-th {
-    background-color: rgba(0, 0, 0, 0.7);
-}
-
-td {
-    background-color: rgba(0, 0, 0, 0.5);
+    background-color: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(8px);
+    z-index: 1001;
 }
 
 .frame {
@@ -332,92 +319,175 @@ td {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    background: rgba(0, 0, 0, 0.8);
-    padding: 20px;
-    border-radius: 10px;
-    z-index: 1002; /* Higher z-index for frames */
-    width: 90%; /* Adjust the width as needed */
-    max-width: 1200px; /* Set a maximum width to ensure it fits within the viewport */
+    background: linear-gradient(145deg, #1a1a1a, #2a2a2a);
+    padding: 30px;
+    border-radius: 15px;
+    z-index: 1002;
+    width: 90%;
+    max-width: 1200px;
+    max-height: 90vh;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .frame-content {
-    background: #333;
-    padding: 20px;
+    background: #2a2a2a;
+    padding: 25px;
     border-radius: 10px;
     color: white;
-    max-height: 400px;
+    max-height: 450px;
     overflow-y: auto;
-    overflow-x: auto; /* Enable horizontal scrolling if needed */
-    max-width: 100%; /* Ensure the table does not exceed the frame width */
+    overflow-x: auto;
+    max-width: 100%;
+    border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .frame-content h2 {
     margin-top: 0;
-    color: white; /* White text */
+    color: white;
+    font-size: 28px;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 .frame-content table {
     width: 100%;
     border-collapse: collapse;
     margin-top: 20px;
-    color: white; /* White text */
+    color: white;
 }
 
 .frame-content th, .frame-content td {
-    border: 1px solid #555; /* Dark border */
-    padding: 8px;
+    border: 1px solid #666;
+    padding: 10px;
     text-align: center;
-    color: white; /* White text */
+    color: white;
 }
 
 .frame-content th {
-    background-color: #444; /* Darker background for header */
+    background: linear-gradient(145deg, #333, #444);
+    font-weight: bold;
 }
 
 .frame-content tr:nth-child(even) {
-    background-color: #555; /* Alternating row color */
+    background: #3a3a3a;
 }
 
 .frame-content tr:hover {
-    background-color: #666; /* Hover row color */
+    background: #4a4a4a;
 }
 
 .frame-content button {
     margin-top: 20px;
-    padding: 10px 20px;
+    padding: 12px 24px;
     border: none;
     border-radius: 5px;
-    background: #0059b3;
+    background: linear-gradient(145deg, #0059b3, #007bff);
     color: white;
     cursor: pointer;
+    transition: background 0.3s ease;
 }
 
 .frame-content button:hover {
-    background: #004085;
+    background: linear-gradient(145deg, #004085, #0059b3);
 }
 
-/* Custom scrollbar styles */
 .frame-content::-webkit-scrollbar {
-    width: 12px; /* Width of the scrollbar */
+    width: 12px;
 }
 
 .frame-content::-webkit-scrollbar-track {
-    background: #222; /* Color of the scrollbar track */
-    border-radius: 10px; /* Rounded corners for the track */
+    background: #222;
+    border-radius: 10px;
 }
 
 .frame-content::-webkit-scrollbar-thumb {
-    background: #555; /* Color of the scrollbar thumb */
-    border-radius: 10px; /* Rounded corners for the thumb */
+    background: #666;
+    border-radius: 10px;
 }
 
 .frame-content::-webkit-scrollbar-thumb:hover {
-    background: #777; /* Color of the scrollbar thumb on hover */
+    background: #888;
 }
 
 .frame-content {
-    scrollbar-width: thin; /* Width of the scrollbar */
-    scrollbar-color: #555 #222; /* Color of the thumb and track */
+    scrollbar-width: thin;
+    scrollbar-color: #666 #222;
+}
+
+.book-list-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    max-height: 450px;
+    overflow-y: auto;
+    padding: 10px;
+    justify-content: space-between;
+}
+
+.book-item {
+    flex: 0 0 calc(50% - 10px);
+    display: flex;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 10px;
+    padding: 15px;
+    gap: 20px;
+    transition: background 0.3s ease, transform 0.2s ease;
+    box-sizing: border-box;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.book-item:hover {
+    background: rgba(255, 255, 255, 0.25);
+    transform: translateY(-2px);
+}
+
+.book-image img {
+    width: 80px;
+    height: auto;
+    border-radius: 5px;
+    object-fit: cover;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.book-details {
+    flex: 1;
+    color: white;
+}
+
+.book-details h3 {
+    margin: 0 0 10px 0;
+    font-size: 1.5em;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.book-details p {
+    margin: 5px 0;
+    font-size: 1em;
+}
+
+.book-librarian {
+    color: white;
+    font-size: 1em;
+}
+
+.book-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.book-actions .action-icon {
+    width: 28px;
+    height: 28px;
+    cursor: pointer;
+    transition: opacity 0.3s ease, transform 0.2s ease;
+}
+
+.book-actions .action-icon:hover {
+    opacity: 0.7;
+    transform: scale(1.1);
 }
 
 .notification {
@@ -429,8 +499,8 @@ td {
     border-radius: 10px;
     background: linear-gradient(145deg, #222, #333);
     color: white;
-    opacity: 0.9;
-    z-index: 1002;
+    opacity: 0.95;
+    z-index: 1004;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
     font-family: 'Times New Roman', Times, serif;
     font-size: 16px;
@@ -440,55 +510,18 @@ td {
 }
 
 .notification.success {
-    background: linear-gradient(145deg, #4caf50, #66bb6a); /* Green for success */
+    background: linear-gradient(145deg, #4caf50, #66bb6a);
     color: #fff;
-    font-family: 'Times New Roman', Times, serif;
 }
 
 .notification.error {
-    background: linear-gradient(145deg, #f44336, #e57373); /* Red for error */
+    background: linear-gradient(145deg, #f44336, #e57373);
     color: #fff;
-    font-family: 'Times New Roman', Times, serif;
 }
 
 .notification .icon {
     margin-right: 10px;
     font-size: 24px;
-}
-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 20px;
-}
-
-table, th, td {
-    border: 1px solid white;
-}
-
-th, td {
-    padding: 10px;
-    text-align: left;
-    white-space: nowrap; /* Prevent text from wrapping */
-}
-
-th {
-    background-color: rgba(0, 0, 0, 0.7);
-}
-
-td {
-    background-color: rgba(0, 0, 0, 0.5);
-}
-
-.overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.5);
-    backdrop-filter: blur(5px);
-    z-index: 1001;
-    display: none;
 }
 
 .no-scroll {
@@ -498,91 +531,10 @@ td {
     height: 100%;
 }
 
-.form-container {
-    max-height: 80vh; /* Set a maximum height for the frame */
-    overflow-y: auto; /* Enable vertical scrolling */
-    scrollbar-width: thin; /* Firefox */
-    scrollbar-color: #555 #333; /* Firefox */
-}
-
-.form-container::-webkit-scrollbar {
-    width: 12px; /* Width of the scrollbar */
-}
-
-.form-container::-webkit-scrollbar-track {
-    background: #333; /* Color of the scrollbar track */
-    border-radius: 10px; /* Rounded corners */
-}
-
-.form-container::-webkit-scrollbar-thumb {
-    background-color: #555; /* Color of the scrollbar thumb */
-    border-radius: 10px; /* Rounded corners */
-    border: 3px solid #333; /* Border of the scrollbar thumb */
-}
-
-.form-container::-webkit-scrollbar-thumb:hover {
-    background-color: #777; /* Color of the scrollbar thumb on hover */
-}
-
-.action-icon {
-    width: 28px;
-    height: 28px;
-    cursor: pointer;
-    margin-right: 5px;
-}
-
-.action-icon:hover {
-    opacity: 0.7;
-}
-
-.frame {
-    display: none;
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background: rgba(0, 0, 0, 0.8);
-    padding: 20px;
-    border-radius: 10px;
-    z-index: 1000; /* Modify as needed for general use */
-    width: 90%;
-    max-width: 1200px;
-}
-
-.form-container {
-    display: none;
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background-color: rgba(0, 0, 0, 0.9);
-    padding: 20px;
-    border-radius: 10px;
-    z-index: 1001; /* Higher than the frame */
-    color: white;
-    width: 300px;
-    box-sizing: border-box;
-}
-
-.overlay {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-    backdrop-filter: blur(5px);
-    z-index: 1000; /* Lower than the form container */
-}
 .blur {
-    filter: blur(5px); /* Apply blur to content wrapper */
+    filter: blur(5px);
 }
-.frame, .form-container {
-    max-height: 90vh;
-    overflow-y: auto;
-    overscroll-behavior: contain; /* Prevent scroll chaining */
-}
+
 @media (max-width: 768px) {
     header {
         flex-direction: column;
@@ -604,18 +556,25 @@ td {
         margin: 7px;
         min-width: 0;
     }
-
     .rectangle-container {
         gap: 0;
     }
+    .form-container {
+        width: 90%;
+        padding: 20px;
+    }
+    .frame {
+        width: 95%;
+        padding: 20px;
+    }
 }
+
 @media (max-width: 480px) {
     header {
         flex-direction: column;
         align-items: center;
         text-align: center;
     }
-
     .login-signin {
         position: absolute;
         left: 10px;
@@ -625,16 +584,22 @@ td {
         left: 5px;
         top: 10px;
     }
-
     .title {
         display: flex;
         justify-content: center;
         width: 100%;
     }
-
     .title img {
         height: 2em;
         display: block;
         margin: 0 auto;
+    }
+    .form-container {
+        width: 95%;
+        padding: 15px;
+    }
+    .frame {
+        width: 98%;
+        padding: 15px;
     }
 }

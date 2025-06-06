@@ -172,26 +172,33 @@ async function openBookList() {
     try {
         const response = await fetch('/get_book_list');
         const data = await response.json();
-        const tableBody = document.querySelector('#bookTable tbody');
-        tableBody.innerHTML = '';
+        const bookListContainer = document.querySelector('#bookListContainer');
+        bookListContainer.innerHTML = '';
 
         data.forEach(book => {
-            const row = document.createElement('tr');
-            row.setAttribute('data-id', book.ISBN);
-            row.innerHTML = `
-                <td>${book.ISBN}</td>
-                <td>${book.book_name}</td>
-                <td>${book.genre}</td>
-                <td>${book.publicationyear}</td>
-                <td>${book.authors}</td>
-                <td>${book.librarians}</td>
-                <td><img src="${book.img ? 'data:image/jpeg;base64,' + book.img : 'static/images/default_book.png'}" alt="Book Image" style="width:50px;height:auto;"></td>
-                <td>
+            const bookItem = document.createElement('div');
+            bookItem.className = 'book-item';
+            bookItem.setAttribute('data-id', book.ISBN);
+            bookItem.innerHTML = `
+                <div class="book-image">
+                    <img src="${book.img ? 'data:image/jpeg;base64,' + book.img : 'static/images/default_book.png'}" alt="Book Image">
+                </div>
+                <div class="book-details">
+                    <h3>${book.book_name}</h3>
+                    <p><strong>ISBN:</strong> ${book.ISBN}</p>
+                    <p><strong>Genre:</strong> ${book.genre}</p>
+                    <p><strong>Publication Year:</strong> ${book.publicationyear}</p>
+                    <p><strong>Authors:</strong> ${book.authors}</p>
+                </div>
+                <div class="book-librarian">
+                    <p><strong>Added by Librarian:</strong> ${book.librarians}</p>
+                </div>
+                <div class="book-actions">
                     <img src="static/images/Edit.png" alt="Edit" class="action-icon" title="Edit Book" onclick="editBook('${book.ISBN}')">
                     <img src="static/images/Trash.png" alt="Delete" class="action-icon" title="Delete Book" onclick="openDeleteConfirmation('book', '${book.ISBN}')">
-                </td>
+                </div>
             `;
-            tableBody.appendChild(row);
+            bookListContainer.appendChild(bookItem);
         });
     } catch (error) {
         console.error('Error fetching book list:', error);
@@ -293,7 +300,7 @@ async function submitLibrarianForm() {
 async function submitAuthorForm() {
     const form = document.getElementById('authorForm');
     const authorImage = document.getElementById('authorImage').files[0];
-    if (authorImage && authorImage.size > 5 * 1024 * 1024) { // 5MB limit
+    if (authorImage && authorImage.size > 5 * 1024 * 1024) {
         showNotification('Image size must be less than 5MB', 'error');
         return;
     }
@@ -392,7 +399,7 @@ async function submitUserForm() {
 async function submitBookForm() {
     const form = document.getElementById('bookForm');
     const bookImage = document.getElementById('bookImage').files[0];
-    if (bookImage && bookImage.size > 5 * 1024 * 1024) { // 5MB limit
+    if (bookImage && bookImage.size > 5 * 1024 * 1024) {
         showNotification('Image size must be less than 5MB', 'error');
         return;
     }
@@ -425,23 +432,30 @@ async function submitBookForm() {
             showNotification('Book added successfully', 'success');
             closeBookForm();
             if (document.getElementById('bookListFrame').style.display === 'block') {
-                const tableBody = document.querySelector('#bookTable tbody');
-                const row = document.createElement('tr');
-                row.setAttribute('data-id', ISBN);
-                row.innerHTML = `
-                    <td>${ISBN}</td>
-                    <td>${bookName}</td>
-                    <td>${genre}</td>
-                    <td>${publicationYear}</td>
-                    <td>${data.authors || authorIDs.join(', ')}</td>
-                    <td>${data.librarians || librarianID}</td>
-                    <td><img src="${data.img ? 'data:image/jpeg;base64,' + data.img : 'static/images/default_book.png'}" alt="Book Image" style="width:50px;height:auto;"></td>
-                    <td>
+                const bookListContainer = document.querySelector('#bookListContainer');
+                const bookItem = document.createElement('div');
+                bookItem.className = 'book-item';
+                bookItem.setAttribute('data-id', ISBN);
+                bookItem.innerHTML = `
+                    <div class="book-image">
+                        <img src="${data.img ? 'data:image/jpeg;base64,' + data.img : 'static/images/default_book.png'}" alt="Book Image">
+                    </div>
+                    <div class="book-details">
+                        <h3>${bookName}</h3>
+                        <p><strong>ISBN:</strong> ${ISBN}</p>
+                        <p><strong>Genre:</strong> ${genre}</p>
+                        <p><strong>Publication Year:</strong> ${publicationYear}</p>
+                        <p><strong>Authors:</strong> ${data.authors || authorIDs.join(', ')}</p>
+                    </div>
+                    <div class="book-librarian">
+                        <p><strong>Added by Librarian:</strong> ${data.librarians || librarianID}</p>
+                    </div>
+                    <div class="book-actions">
                         <img src="static/images/Edit.png" alt="Edit" class="action-icon" title="Edit Book" onclick="editBook('${ISBN}')">
                         <img src="static/images/Trash.png" alt="Delete" class="action-icon" title="Delete Book" onclick="openDeleteConfirmation('book', '${ISBN}')">
-                    </td>
+                    </div>
                 `;
-                tableBody.appendChild(row);
+                bookListContainer.appendChild(bookItem);
             }
         } else {
             showNotification('Error adding book: ' + data.message, 'error');
@@ -467,9 +481,7 @@ function addAuthorField() {
 }
 
 function addEditAuthorField() {
-
-
- const authorsContainer = document.getElementById('editAuthorsContainer');
+    const authorsContainer = document.getElementById('editAuthorsContainer');
     const newAuthorField = document.createElement('div');
     newAuthorField.className = 'author-fields';
     newAuthorField.innerHTML = `
@@ -541,11 +553,19 @@ async function confirmDelete() {
         if (data.success) {
             showNotification(`${type.charAt(0).toUpperCase() + type.slice(1)} deleted successfully`, 'success');
             closeDeleteConfirmation();
-            const tableId = type === 'user' ? 'userTable' : type === 'book' ? 'bookTable' : 'authorTable';
-            const tableBody = document.querySelector(`#${tableId} tbody`);
-            const row = tableBody.querySelector(`tr[data-id="${id}"]`);
-            if (row) {
-                row.remove();
+            if (type === 'book') {
+                const bookListContainer = document.querySelector('#bookListContainer');
+                const bookItem = bookListContainer.querySelector(`.book-item[data-id="${id}"]`);
+                if (bookItem) {
+                    bookItem.remove();
+                }
+            } else {
+                const tableId = type === 'user' ? 'userTable' : 'authorTable';
+                const tableBody = document.querySelector(`#${tableId} tbody`);
+                const row = tableBody.querySelector(`tr[data-id="${id}"]`);
+                if (row) {
+                    row.remove();
+                }
             }
         } else {
             showNotification('Error deleting item: ' + data.message, 'error');
@@ -586,8 +606,6 @@ async function editBook(ISBN) {
         }
 
         const data = await response.json();
-        console.log('Fetched book data:', data);
-
         if (data.success) {
             const book = data.book;
             document.getElementById('editISBN').value = book.ISBN;
@@ -633,7 +651,6 @@ async function editAuthor(authorID) {
             document.getElementById('editAuthorID').value = author.authorID;
             document.getElementById('editFirstNameAuthor').value = author.first_name;
             document.getElementById('editLastNameAuthor').value = author.last_name;
-            // Note: We don't set the image input as file inputs can't be pre-filled for security reasons
             openFrame('editAuthorFormContainer');
         } else {
             showNotification('Error fetching author data: ' + data.message, 'error');
@@ -699,7 +716,7 @@ async function submitEditUserForm() {
 async function submitEditBookForm() {
     const form = document.getElementById('editBookForm');
     const bookImage = document.getElementById('editBookImage').files[0];
-    if (bookImage && bookImage.size > 5 * 1024 * 1024) { // 5MB limit
+    if (bookImage && bookImage.size > 5 * 1024 * 1024) {
         showNotification('Image size must be less than 5MB', 'error');
         return;
     }
@@ -732,21 +749,27 @@ async function submitEditBookForm() {
             showNotification('Book updated successfully', 'success');
             closeEditBookForm();
             if (document.getElementById('bookListFrame').style.display === 'block') {
-                const tableBody = document.querySelector('#bookTable tbody');
-                const row = tableBody.querySelector(`tr[data-id="${ISBN}"]`);
-                if (row) {
-                    row.innerHTML = `
-                        <td>${ISBN}</td>
-                        <td>${bookName}</td>
-                        <td>${genre}</td>
-                        <td>${publicationYear}</td>
-                        <td>${data.authors || authorIDs.join(', ')}</td>
-                        <td>${data.librarians || librarianID}</td>
-                        <td><img src="${data.img ? 'data:image/jpeg;base64,' + data.img : 'static/images/default_book.png'}" alt="Book Image" style="width:50px;height:auto;"></td>
-                        <td>
+                const bookListContainer = document.querySelector('#bookListContainer');
+                const bookItem = bookListContainer.querySelector(`.book-item[data-id="${ISBN}"]`);
+                if (bookItem) {
+                    bookItem.innerHTML = `
+                        <div class="book-image">
+                            <img src="${data.img ? 'data:image/jpeg;base64,' + data.img : 'static/images/default_book.png'}" alt="Book Image">
+                        </div>
+                        <div class="book-details">
+                            <h3>${bookName}</h3>
+                            <p><strong>ISBN:</strong> ${ISBN}</p>
+                            <p><strong>Genre:</strong> ${genre}</p>
+                            <p><strong>Publication Year:</strong> ${publicationYear}</p>
+                            <p><strong>Authors:</strong> ${data.authors || authorIDs.join(', ')}</p>
+                        </div>
+                        <div class="book-librarian">
+                            <p><strong>Added by Librarian:</strong> ${data.librarians || librarianID}</p>
+                        </div>
+                        <div class="book-actions">
                             <img src="static/images/Edit.png" alt="Edit" class="action-icon" title="Edit Book" onclick="editBook('${ISBN}')">
                             <img src="static/images/Trash.png" alt="Delete" class="action-icon" title="Delete Book" onclick="openDeleteConfirmation('book', '${ISBN}')">
-                        </td>
+                        </div>
                     `;
                 }
             }
@@ -762,7 +785,7 @@ async function submitEditBookForm() {
 async function submitEditAuthorForm() {
     const form = document.getElementById('editAuthorForm');
     const authorImage = document.getElementById('editAuthorImage').files[0];
-    if (authorImage && authorImage.size > 5 * 1024 * 1024) { // 5MB limit
+    if (authorImage && authorImage.size > 5 * 1024 * 1024) {
         showNotification('Image size must be less than 5MB', 'error');
         return;
     }
