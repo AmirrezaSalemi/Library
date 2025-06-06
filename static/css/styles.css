@@ -161,7 +161,7 @@ header {
 
 .most-read-section {
     margin: 40px auto;
-    max-width: 800px;
+    max-width: 1000px; /* افزایش عرض کلی بخش برای هماهنگی با اسلایدبارها */
     text-align: left;
 }
 
@@ -176,19 +176,21 @@ header {
 .most-read-slider-container {
     position: relative;
     width: 100%;
-    max-width: 800px;
+    max-width: 1000px; /* افزایش عرض اسلایدبار */
     margin: 0 auto;
     overflow: hidden;
     border-radius: 20px;
+    padding: 0 5px;
 }
 
 .most-read-authors-container {
     position: relative;
     width: 100%;
-    max-width: 800px;
+    max-width: 1000px; /* افزایش عرض اسلایدبار */
     margin: 0 auto;
     overflow: hidden;
     border-radius: 20px;
+    padding: 0 5px;
 }
 
 .most-read-slider {
@@ -209,7 +211,7 @@ header {
     display: flex;
     justify-content: center;
     align-items: center;
-    padding: 5px;
+    padding: 2px;
 }
 
 .book-card {
@@ -221,6 +223,7 @@ header {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     transition: transform 0.3s ease;
     text-align: center;
+    margin: 0 2px;
 }
 
 .book-card:hover {
@@ -506,6 +509,7 @@ header {
 
     .most-read-section {
         margin: 30px auto;
+        max-width: 100%; /* تنظیم عرض برای حالت responsive */
         text-align: left;
     }
 
@@ -514,16 +518,19 @@ header {
     }
 
     .most-read-slider-container, .most-read-authors-container {
-        max-width: 100%;
+        max-width: 100%; /* تنظیم عرض برای حالت responsive */
+        padding: 0 5px;
     }
 
     .most-read-slide {
         flex: 0 0 50%;
+        padding: 2px;
     }
 
     .book-card {
         width: 90%;
         max-width: 160px;
+        margin: 0 2px;
     }
 
     .book-card img {
@@ -595,6 +602,7 @@ header {
 
     .most-read-section {
         margin: 20px auto;
+        max-width: 100%; /* تنظیم عرض برای حالت responsive */
         text-align: left;
     }
 
@@ -603,16 +611,19 @@ header {
     }
 
     .most-read-slider-container, .most-read-authors-container {
-        max-width: 100%;
+        max-width: 100%; /* تنظیم عرض برای حالت responsive */
+        padding: 0 5px;
     }
 
     .most-read-slide {
         flex: 0 0 100%;
+        padding: 2px;
     }
 
     .book-card {
         width: 90%;
         max-width: 140px;
+        margin: 0 2px;
     }
 
     .book-card img {
